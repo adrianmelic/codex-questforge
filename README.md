@@ -6,6 +6,10 @@ This is an unofficial alpha made for the OpenAI Discord Codex game challenge. It
 
 **Playable demo:** <https://adrianmelic.github.io/codex-questforge/>
 
+The playable link is a public campaign replay slice: timeline, character state,
+dice log, generated scene art, tactical map, and a draggable POV 360 view. The
+full game still runs inside Codex after installing the plugin.
+
 ## What You Made
 
 Codex Questforge is not a conventional browser game. The main game runs inside Codex: you talk naturally, Codex acts as the DM, and local files keep the campaign recoverable between turns and threads.
