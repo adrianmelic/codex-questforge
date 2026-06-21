@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "campaign": "",
+  "updated_at": "",
+  "table_mode": {
+    "death": "heroic",
+    "rollback": "checkpoint",
+    "combat": "turn-based"
+  },
+  "active_character": "",
+  "party": [],
+  "characters": {},
+  "combat": {
+    "active": false,
+    "name": "",
+    "round": 0,
+    "current_turn_index": 0,
+    "turn_order": [],
+    "combatants": {},
+    "tactical_scene": {
+      "summary": "",
+      "range_bands": [],
+      "terrain": [],
+      "hazards": [],
+      "interactables": [],
+      "visual_prompt_hint": ""
+    },
+    "log": []
+  },
+  "shops": {},
+  "checkpoints": [],
+  "log": []
+}

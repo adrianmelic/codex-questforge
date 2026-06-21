@@ -1,0 +1,61 @@
+{
+  "name": "codex-questforge",
+  "version": "0.6.1",
+  "description": "A 5E-compatible Codex plugin for running persistent fantasy campaigns with auto-language SRD setup, structured local rules resources, campaign memory, a mechanical game-state ledger, adventure spines, puzzle beats, dice resolution, self-play, visual planning, native scene image generation, 360 viewers, a local visual gallery, and pre-beta campaign audits.",
+  "author": {
+    "name": "Adrian and Codex",
+    "url": "https://github.com/adrianmelic"
+  },
+  "homepage": "https://adrianmelic.github.io/codex-questforge/",
+  "repository": "https://github.com/adrianmelic/codex-questforge",
+  "license": "MIT",
+  "keywords": [
+    "5e",
+    "fantasy-rpg",
+    "campaigns",
+    "storytelling",
+    "dice",
+    "image-generation"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Codex Questforge",
+    "shortDescription": "Run rich 5E-compatible fantasy campaigns with Codex.",
+    "longDescription": "Codex Questforge helps Codex act as a grounded fantasy campaign runner: it detects the user's language for SRD setup, prepares structured local rules resources, keeps campaign memory, maintains a player-facing mechanical ledger for inventory, equipment, shops, HP, resources, level-ups, combat, death, and rollback, maintains DM-only adventure spines, designs non-blocking puzzle beats, adjudicates play with SRD-compatible rules, resolves dice, plans consequential visuals, saves visual prompts, refreshes a local image gallery, opens 360 viewers, audits campaign readiness before human beta play, and supports deterministic self-play checks.",
+    "developerName": "Adrian and Codex",
+    "category": "Games",
+    "capabilities": [
+      "Interactive",
+      "Write",
+      "Auto-Language Setup",
+      "Local SQLite Rules Search",
+      "Rules Lookup",
+      "Campaign Memory",
+      "Mechanical Game State",
+      "Inventory And Equipment",
+      "Turn-Based Combat",
+      "Rollback Checkpoints",
+      "Adventure Spine",
+      "Puzzle Beats",
+      "Visual Planner",
+      "Visual Persistence",
+      "Local Visual Gallery",
+      "360 Viewers",
+      "Preflight Audit",
+      "Self-Play",
+      "Image Generation"
+    ],
+    "websiteURL": "https://adrianmelic.github.io/codex-questforge/",
+    "privacyPolicyURL": "https://github.com/adrianmelic/codex-questforge#privacy",
+    "termsOfServiceURL": "https://github.com/adrianmelic/codex-questforge#terms",
+    "defaultPrompt": [
+      "Start a Codex Questforge campaign.",
+      "Continue our last Questforge session.",
+      "Create a new 5E-compatible hero."
+    ],
+    "brandColor": "#7C3AED",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/logo.svg",
+    "screenshots": []
+  }
+}

@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Codex Questforge</title>
+    <meta
+      name="description"
+      content="A playable Codex-powered fantasy RPG runner with persistent state, dice, campaign memory, visuals, 360 viewers, and optional ambience."
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #11130f;
+        --panel: #191d17;
+        --panel-2: #22281f;
+        --line: #3a4638;
+        --text: #f1eee4;
+        --muted: #b9b5a8;
+        --gold: #d69a35;
+        --moss: #78a36d;
+        --river: #76a6b8;
+        --wine: #a95d67;
+        --shadow: rgba(0, 0, 0, 0.35);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        letter-spacing: 0;
+      }
+
+      button,
+      a {
+        font: inherit;
+      }
+
+      .shell {
+        min-height: 100vh;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px clamp(16px, 4vw, 40px);
+        border-bottom: 1px solid var(--line);
+        background: #151813;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+
+      .mark {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 auto;
+      }
+
+      .title-block {
+        min-width: 0;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(22px, 3vw, 34px);
+        line-height: 1.05;
+      }
+
+      .subtitle {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .link-button,
+      .primary-button,
+      .choice-button {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--text);
+        text-decoration: none;
+        background: var(--panel-2);
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 14px;
+        cursor: pointer;
+      }
+
+      .primary-button {
+        border-color: #b97f2e;
+        background: #3a2a16;
+      }
+
+      main {
+        padding: clamp(16px, 4vw, 40px);
+      }
+
+      .game {
+        max-width: 1240px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: minmax(260px, 330px) minmax(0, 1fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: 0 18px 40px var(--shadow);
+      }
+
+      .state {
+        position: sticky;
+        top: 96px;
+      }
+
+      .panel-header {
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .panel-header h2 {
+        margin: 0;
+        font-size: 17px;
+      }
+
+      .pill {
+        color: #14130f;
+        background: var(--gold);
+        border-radius: 999px;
+        padding: 3px 8px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .state-body,
+      .scene-body {
+        padding: 18px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .stat {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px;
+        background: #131711;
+        min-height: 68px;
+      }
+
+      .stat strong {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+      }
+
+      .stat span {
+        display: block;
+        margin-top: 4px;
+        font-size: 20px;
+        font-weight: 800;
+      }
+
+      .section-label {
+        margin: 18px 0 8px;
+        color: var(--gold);
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: 800;
+      }
+
+      .list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 8px;
+      }
+
+      .list li {
+        border-left: 3px solid var(--moss);
+        padding-left: 10px;
+        color: var(--muted);
+      }
+
+      .scene-visual {
+        aspect-ratio: 16 / 8;
+        border-bottom: 1px solid var(--line);
+        position: relative;
+        overflow: hidden;
+        background:
+          linear-gradient(90deg, rgba(17, 19, 15, 0.2), rgba(17, 19, 15, 0.78)),
+          radial-gradient(circle at 20% 58%, #d69a35 0 3px, transparent 4px),
+          radial-gradient(circle at 50% 47%, #d69a35 0 3px, transparent 4px),
+          radial-gradient(circle at 78% 55%, #d69a35 0 3px, transparent 4px),
+          linear-gradient(180deg, #21333a 0%, #17221f 46%, #0e120f 100%);
+      }
+
+      .bridge {
+        position: absolute;
+        left: 8%;
+        right: 8%;
+        bottom: 24%;
+        height: 15%;
+        border: 1px solid rgba(241, 238, 228, 0.28);
+        background:
+          repeating-linear-gradient(
+            90deg,
+            rgba(241, 238, 228, 0.12) 0 12px,
+            rgba(0, 0, 0, 0.18) 12px 18px
+          ),
+          rgba(64, 73, 58, 0.74);
+        transform: perspective(900px) rotateX(58deg);
+        box-shadow: 0 24px 42px rgba(0, 0, 0, 0.44);
+      }
+
+      .river {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 28%;
+        background:
+          repeating-linear-gradient(
+            120deg,
+            rgba(118, 166, 184, 0.25) 0 18px,
+            rgba(0, 0, 0, 0) 18px 38px
+          ),
+          #0e262b;
+      }
+
+      .figure {
+        position: absolute;
+        left: 19%;
+        bottom: 35%;
+        width: 32px;
+        height: 58px;
+        background: #5f6d54;
+        border: 1px solid rgba(241, 238, 228, 0.25);
+        border-radius: 16px 16px 6px 6px;
+      }
+
+      .figure::before {
+        content: "";
+        position: absolute;
+        left: 8px;
+        top: -16px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #c49a6c;
+      }
+
+      .lantern {
+        position: absolute;
+        width: 18px;
+        height: 24px;
+        border: 2px solid #e9b14b;
+        border-radius: 4px;
+        background: rgba(214, 154, 53, 0.42);
+        box-shadow: 0 0 26px rgba(214, 154, 53, 0.76);
+      }
+
+      .lantern.one {
+        left: 41%;
+        bottom: 44%;
+      }
+
+      .lantern.two {
+        left: 57%;
+        bottom: 47%;
+      }
+
+      .lantern.three {
+        left: 73%;
+        bottom: 43%;
+      }
+
+      .scene-title {
+        margin: 0 0 8px;
+        font-size: clamp(22px, 3vw, 34px);
+      }
+
+      .scene-text {
+        margin: 0;
+        color: var(--text);
+        line-height: 1.65;
+        font-size: 17px;
+      }
+
+      .choices {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .choice-button {
+        align-items: flex-start;
+        justify-content: flex-start;
+        min-height: 86px;
+        text-align: left;
+        flex-direction: column;
+        padding: 12px;
+      }
+
+      .choice-button strong {
+        color: var(--text);
+      }
+
+      .choice-button span {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      .choice-button:hover,
+      .choice-button:focus-visible,
+      .link-button:hover,
+      .primary-button:hover {
+        outline: 2px solid var(--gold);
+        outline-offset: 2px;
+      }
+
+      .log {
+        margin-top: 18px;
+        border-top: 1px solid var(--line);
+        padding-top: 14px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .log strong {
+        color: var(--river);
+      }
+
+      .about {
+        max-width: 1240px;
+        margin: 22px auto 0;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .about .panel {
+        padding: 18px;
+      }
+
+      .about h3 {
+        margin: 0 0 8px;
+        font-size: 16px;
+      }
+
+      .about p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      @media (max-width: 860px) {
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .top-actions {
+          justify-content: flex-start;
+        }
+
+        .game,
+        .about {
+          grid-template-columns: 1fr;
+        }
+
+        .state {
+          position: static;
+        }
+
+        .choices {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header>
+        <div class="brand">
+          <svg class="mark" viewBox="0 0 64 64" role="img" aria-label="Codex Questforge mark">
+            <rect x="6" y="6" width="52" height="52" rx="10" fill="#191d17" stroke="#d69a35" stroke-width="3" />
+            <path d="M18 43 L32 14 L46 43 Z" fill="none" stroke="#78a36d" stroke-width="4" stroke-linejoin="round" />
+            <path d="M24 42 H40" stroke="#76a6b8" stroke-width="4" stroke-linecap="round" />
+          </svg>
+          <div class="title-block">
+            <h1>Codex Questforge</h1>
+            <p class="subtitle">A Codex-powered fantasy RPG runner with persistent state.</p>
+          </div>
+        </div>
+        <div class="top-actions">
+          <a class="link-button" href="https://github.com/adrianmelic/codex-questforge">GitHub Repo</a>
+          <button class="primary-button" id="copyPrompt" type="button">Copy Start Prompt</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="game" aria-label="Playable sample scene">
+          <aside class="panel state">
+            <div class="panel-header">
+              <h2>Character State</h2>
+              <span class="pill">Alpha</span>
+            </div>
+            <div class="state-body">
+              <div class="stats">
+                <div class="stat">
+                  <strong>Hero</strong>
+                  <span>Rowan</span>
+                </div>
+                <div class="stat">
+                  <strong>Level</strong>
+                  <span>1</span>
+                </div>
+                <div class="stat">
+                  <strong>HP</strong>
+                  <span id="hp">12/12</span>
+                </div>
+                <div class="stat">
+                  <strong>AC</strong>
+                  <span>18</span>
+                </div>
+              </div>
+
+              <p class="section-label">Useful Modifiers</p>
+              <ul class="list">
+                <li>Perception +3</li>
+                <li>Athletics +5</li>
+                <li>Persuasion +1</li>
+                <li>Survival +3</li>
+              </ul>
+
+              <p class="section-label">Inventory</p>
+              <ul class="list">
+                <li>Longsword and shield</li>
+                <li>Lantern and oil flask</li>
+                <li>Rope, chalk, rations</li>
+                <li>Blackwater ferry token</li>
+              </ul>
+
+              <p class="section-label">Checkpoint</p>
+              <ul class="list">
+                <li>Before crossing the pier</li>
+              </ul>
+            </div>
+          </aside>
+
+          <section class="panel scene">
+            <div class="scene-visual" aria-hidden="true">
+              <div class="river"></div>
+              <div class="bridge"></div>
+              <div class="figure"></div>
+              <div class="lantern one"></div>
+              <div class="lantern two"></div>
+              <div class="lantern three"></div>
+            </div>
+            <div class="scene-body">
+              <h2 class="scene-title" id="sceneTitle">The Lantern Under Blackwater Pier</h2>
+              <p class="scene-text" id="sceneText">
+                Rain needles the old harbor stones. Three amber lanterns burn beneath the pier, even though the tide should have drowned them hours ago. The harbor master presses a sealed ferry token into your palm and says, "If the light answers you, do not promise it your name."
+              </p>
+
+              <div class="choices" id="choices">
+                <button class="choice-button" type="button" data-choice="inspect">
+                  <strong>Inspect the lanterns</strong>
+                  <span>Wisdom (Perception) +3, moderate risk.</span>
+                </button>
+                <button class="choice-button" type="button" data-choice="secure">
+                  <strong>Secure the pier rope</strong>
+                  <span>Athletics +5 if the tide pulls hard.</span>
+                </button>
+                <button class="choice-button" type="button" data-choice="speak">
+                  <strong>Speak to the light</strong>
+                  <span>Persuasion +1, social risk.</span>
+                </button>
+                <button class="choice-button" type="button" data-choice="token">
+                  <strong>Use the ferry token</strong>
+                  <span>No roll yet; spend attention, not inventory.</span>
+                </button>
+              </div>
+
+              <div class="log" id="log">
+                Choose an action. In the full plugin, Codex keeps this state in local files, rolls openly, updates your campaign journal, and can generate the next image frame.
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="about" aria-label="About Codex Questforge">
+          <div class="panel">
+            <h3>Play In Codex</h3>
+            <p>Install the plugin, open a new thread, and talk naturally. Codex acts as DM while scripts keep rules, dice, state, and campaign continuity grounded.</p>
+          </div>
+          <div class="panel">
+            <h3>Persistent Campaigns</h3>
+            <p>Questforge writes game state, session logs, checkpoints, player journals, and DM-only adventure spines so a story can continue after a long pause.</p>
+          </div>
+          <div class="panel">
+            <h3>Visual Table Feel</h3>
+            <p>Static scene images can appear in chat for mobile play, while local galleries and 360 viewers give desktop sessions a stronger sense of place.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const sceneText = document.querySelector("#sceneText");
+      const sceneTitle = document.querySelector("#sceneTitle");
+      const log = document.querySelector("#log");
+      const hp = document.querySelector("#hp");
+      const promptButton = document.querySelector("#copyPrompt");
+
+      const outcomes = {
+        inspect: {
+          title: "Open Roll: Perception",
+          text:
+            "You crouch at the pier edge and watch the rain. The drops avoid the center lantern, bending around it as if the air has a scar. The light is not underwater. It is shining from a second, older pier overlapping this one.",
+          log:
+            "<strong>d20 + 3 = 14 + 3 = 17.</strong> Success. New clue: the harbor overlaps an older ruin. Clock: Tide Below 1/6."
+        },
+        secure: {
+          title: "No Roll Needed",
+          text:
+            "You loop the rope around the iron piling before the tide surges. The harbor master exhales. When the pier lurches, the rope catches, and the lanterns swing in a rhythm that matches no wind.",
+          log:
+            "<strong>State update:</strong> rope secured, harbor master attitude improves, no HP loss, inventory unchanged."
+        },
+        speak: {
+          title: "A Voice In The Light",
+          text:
+            "You ask what the light wants. The three lanterns dim, then answer in one careful voice: 'A crossing owed. A name withheld. A door opened from the wrong side.'",
+          log:
+            "<strong>No roll yet.</strong> You asked a direct question and offered attention rather than a bargain. New thread: the wrong-side door."
+        },
+        token: {
+          title: "The Ferry Token Warms",
+          text:
+            "The blackwater token grows warm in your palm. For one breath, the pier below becomes visible: broken boards, dry stone, and a chalk mark shaped like a road that turns back on itself.",
+          log:
+            "<strong>State update:</strong> token revealed a route but was not spent. Risk: crossing may separate you from the current harbor."
+        }
+      };
+
+      document.querySelectorAll("[data-choice]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const outcome = outcomes[button.dataset.choice];
+          sceneTitle.textContent = outcome.title;
+          sceneText.textContent = outcome.text;
+          log.innerHTML = outcome.log;
+          hp.textContent = "12/12";
+        });
+      });
+
+      promptButton.addEventListener("click", async () => {
+        const prompt =
+          "Use Codex Questforge. I want to play in English. Create a quick character and start.";
+        try {
+          await navigator.clipboard.writeText(prompt);
+          promptButton.textContent = "Prompt Copied";
+          window.setTimeout(() => {
+            promptButton.textContent = "Copy Start Prompt";
+          }, 1800);
+        } catch {
+          promptButton.textContent = prompt;
+        }
+      });
+    </script>
+  </body>
+</html>

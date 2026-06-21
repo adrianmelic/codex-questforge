@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" role="img" aria-label="Codex Questforge logo">
+  <rect width="640" height="160" rx="28" fill="#21172f"/>
+  <path d="M54 105h80l-11 18H65z" fill="#f59e0b"/>
+  <path d="M65 43h58v62H65z" fill="#f8fafc"/>
+  <path d="M75 56h37M75 70h31M75 84h37" stroke="#21172f" stroke-width="6" stroke-linecap="round"/>
+  <path d="M94 23l9 15 17 5-12 13 2 18-16-7-16 7 2-18-12-13 17-5z" fill="#a855f7"/>
+  <text x="160" y="95" fill="#f8fafc" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="46" font-weight="700">Codex Questforge</text>
+  <text x="163" y="125" fill="#d8b4fe" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="19">5E-compatible campaign runner</text>
+</svg>
+

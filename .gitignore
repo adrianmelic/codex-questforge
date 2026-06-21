@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Questforge runtime data
+.questforge/
+campaigns/
+outputs/
+playtests/
+generated_images/
+
+# Generated media and local exports
+*.zip
+*.mp4
+*.webm
+*.mov
+*.mkv
+*.gif
+*Zone.Identifier
+
+# Build/distribution
+dist/
+build/
+*.egg-info/

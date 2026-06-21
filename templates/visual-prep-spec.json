@@ -1,0 +1,40 @@
+{
+  "title": "Rootbound Vault Visual Prep",
+  "style": "immersive fantasy realism, coherent tabletop campaign reference art, grounded materials, clear silhouettes, no unwanted film grain, no readable text",
+  "session": 0,
+  "subjects": [
+    {
+      "kind": "character",
+      "label": "Tamsin Reed Reference Sheet",
+      "anchor": "small halfling delver in practical dark travel gear, chalk pouch, careful posture",
+      "purpose": "canon player-character visual anchor",
+      "sheet": "front view, back view, three-quarter view, cautious crouch",
+      "action": "marking a safe moss path with chalk",
+      "avoid": "do not make her human-sized or elf-like"
+    },
+    {
+      "kind": "creature",
+      "label": "Bramble Sentinel Reference Sheet",
+      "anchor": "humanoid guardian made of braided roots and thorns, green ember eyes, cracked pale stone mask, wet root armor silhouette",
+      "purpose": "canon creature visual anchor",
+      "sheet": "front view, side view, silhouette, reaching attack pose",
+      "action": "pushing through roots without revealing any game stats"
+    },
+    {
+      "kind": "location",
+      "label": "Living Root Door Location Plate",
+      "anchor": "breathing root-lattice vault door in wet black stone, shallow water channel, moss path, tiny green fire in cracks",
+      "purpose": "canon location and lighting anchor",
+      "sheet": "wide establishing view and close detail panel",
+      "action": "door slightly opening when the room falls silent"
+    },
+    {
+      "kind": "item",
+      "label": "Green Fire Seed Prop Sheet",
+      "anchor": "small seed of green fire nested inside a living root hollow, bright but not burning the wet bark",
+      "purpose": "canon persistent magical item",
+      "sheet": "macro close-up, hand-scale reference, root cradle detail",
+      "action": "glowing quietly as a temptation"
+    }
+  ]
+}

@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>__TITLE_TEXT__</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --surface: rgba(8, 10, 12, 0.52);
+      --surface-strong: rgba(8, 10, 12, 0.82);
+      --text: #f3efe6;
+      --muted: #c6bca7;
+      --accent: #78d7ba;
+      --danger: #ffb267;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #050607;
+      color: var(--text);
+      font-family:
+        Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    body {
+      touch-action: none;
+      user-select: none;
+    }
+
+    #viewer {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100svh;
+      display: block;
+      cursor: grab;
+    }
+
+    #flat-viewer {
+      position: fixed;
+      inset: 0;
+      display: none;
+      width: 100vw;
+      height: 100svh;
+      background-color: #050607;
+      background-position: 50% 50%;
+      background-repeat: repeat-x;
+      background-size: auto 100%;
+      cursor: grab;
+    }
+
+    #viewer:active {
+      cursor: grabbing;
+    }
+
+    #flat-viewer:active {
+      cursor: grabbing;
+    }
+
+    .hud {
+      position: fixed;
+      left: clamp(14px, 2vw, 24px);
+      right: clamp(14px, 2vw, 24px);
+      bottom: clamp(14px, 2vw, 24px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      pointer-events: none;
+    }
+
+    .narration {
+      max-width: min(760px, calc(100vw - 180px));
+      padding: 14px 16px;
+      border-left: 2px solid rgba(120, 215, 186, 0.72);
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+    }
+
+    .narration p {
+      margin: 0;
+      font-size: clamp(15px, 1.7vw, 21px);
+      line-height: 1.35;
+      font-weight: 520;
+      text-shadow: 0 1px 12px rgba(0, 0, 0, 0.92);
+    }
+
+    .controls {
+      position: fixed;
+      top: clamp(14px, 2vw, 24px);
+      right: clamp(14px, 2vw, 24px);
+      display: grid;
+      grid-template-columns: repeat(4, 40px);
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      pointer-events: auto;
+      opacity: 0.56;
+      transition: opacity 140ms ease;
+    }
+
+    .controls[data-audio="off"] {
+      grid-template-columns: repeat(3, 40px);
+    }
+
+    .controls:hover,
+    .controls:focus-within {
+      opacity: 1;
+    }
+
+    button {
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 0;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      font: inherit;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    button:hover {
+      border-color: rgba(120, 215, 186, 0.72);
+      color: var(--accent);
+    }
+
+    button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    button svg {
+      width: 19px;
+      height: 19px;
+      fill: none;
+      stroke: currentColor;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 2;
+      vertical-align: middle;
+    }
+
+    .audio-toggle[aria-pressed="true"] {
+      border-color: rgba(120, 215, 186, 0.72);
+      color: var(--accent);
+    }
+
+    .audio-toggle[aria-pressed="false"] .sound-wave {
+      display: none;
+    }
+
+    .audio-toggle[aria-pressed="true"] .mute-slash {
+      display: none;
+    }
+
+    .status {
+      position: fixed;
+      left: clamp(14px, 2vw, 24px);
+      top: clamp(14px, 2vw, 24px);
+      max-width: min(560px, calc(100vw - 28px));
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: var(--surface-strong);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .status[data-state="error"] {
+      color: var(--danger);
+      opacity: 1;
+    }
+
+    #fallback {
+      position: fixed;
+      inset: 0;
+      display: none;
+      width: 100vw;
+      height: 100svh;
+      object-fit: contain;
+      background: #050607;
+    }
+
+    @media (max-width: 720px) {
+      .hud {
+        align-items: stretch;
+      }
+
+      .narration {
+        max-width: calc(100vw - 28px);
+        padding: 12px 14px;
+      }
+
+      .controls {
+        grid-template-columns: repeat(4, 36px);
+      }
+
+      .controls[data-audio="off"] {
+        grid-template-columns: repeat(3, 36px);
+      }
+
+      button {
+        width: 36px;
+        height: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="flat-viewer" aria-label="Questforge 360 panorama fallback viewer"></div>
+  <canvas id="viewer" aria-label="Questforge 360 panorama viewer"></canvas>
+  <img id="fallback" alt="">
+  <div class="hud">
+    <section class="narration" aria-live="polite">
+      <p id="narration"></p>
+    </section>
+    <nav class="controls" id="controls" aria-label="Viewer controls">
+      <button
+        class="audio-toggle"
+        id="audio-toggle"
+        type="button"
+        title="Play ambience"
+        aria-label="Play ambience"
+        aria-pressed="false"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 9v6h4l5 4V5L8 9H4Z"></path>
+          <path class="sound-wave" d="M16 9.5a4 4 0 0 1 0 5"></path>
+          <path class="sound-wave" d="M18.5 7a7.5 7.5 0 0 1 0 10"></path>
+          <path class="mute-slash" d="M3 3l18 18"></path>
+        </svg>
+      </button>
+      <button id="zoom-out" type="button" title="Zoom out">-</button>
+      <button id="reset" type="button" title="Reset view">0</button>
+      <button id="zoom-in" type="button" title="Zoom in">+</button>
+    </nav>
+  </div>
+  <p class="status" id="status">Loading panorama.</p>
+  <audio id="ambient-audio" loop preload="auto"></audio>
+
+  <script>
+    const VIEWER_TITLE = __TITLE_JSON__;
+    const VIEWER_NARRATION = __NARRATION_JSON__;
+    const INITIAL_ZOOM_LEVEL = __INITIAL_ZOOM_LEVEL_JSON__;
+    const IMAGE_DATA_URI = __IMAGE_DATA_URI_JSON__;
+    const AUDIO_DATA_URI = __AUDIO_DATA_URI_JSON__;
+    const AUDIO_TITLE = __AUDIO_TITLE_JSON__;
+    const AUDIO_VOLUME = __AUDIO_VOLUME_JSON__;
+    const AUDIO_STORAGE_KEY = "questforgeAmbientAudioEnabled";
+
+    const canvas = document.getElementById("viewer");
+    const flatViewer = document.getElementById("flat-viewer");
+    const fallback = document.getElementById("fallback");
+    const controls = document.getElementById("controls");
+    const narration = document.getElementById("narration");
+    const status = document.getElementById("status");
+    const ambientAudio = document.getElementById("ambient-audio");
+    const audioToggle = document.getElementById("audio-toggle");
+    const zoomOut = document.getElementById("zoom-out");
+    const zoomIn = document.getElementById("zoom-in");
+    const reset = document.getElementById("reset");
+
+    document.title = VIEWER_TITLE;
+    narration.textContent = VIEWER_NARRATION || VIEWER_TITLE;
+
+    const clamp = (value, minimum, maximum) =>
+      Math.min(maximum, Math.max(minimum, value));
+    const MIN_FOV = Math.PI / 6;
+    const MAX_FOV = Math.PI * 0.53;
+    const MIN_ZOOM_LEVEL = 1;
+    const MAX_ZOOM_LEVEL = 22;
+    const INITIAL_FOV = zoomLevelToFov(INITIAL_ZOOM_LEVEL);
+    const INITIAL_FLAT_ZOOM = zoomLevelToFlatZoom(INITIAL_ZOOM_LEVEL);
+
+    const state = {
+      yaw: 0,
+      pitch: 0,
+      fov: INITIAL_FOV,
+      dragging: false,
+      lastX: 0,
+      lastY: 0,
+      ready: false,
+    };
+
+    const flatState = {
+      x: 50,
+      y: 50,
+      zoom: INITIAL_FLAT_ZOOM,
+      dragging: false,
+      lastX: 0,
+      lastY: 0,
+      installed: false,
+    };
+    let audioResumeListenersInstalled = false;
+
+    configureAmbientAudio();
+
+    const gl = canvas.getContext("webgl", {
+      antialias: false,
+      alpha: false,
+      preserveDrawingBuffer: true,
+    });
+
+    if (!gl) {
+      useFallback("WebGL is unavailable in this browser.");
+    } else {
+      initialize();
+    }
+
+    function initialize() {
+      const program = createProgram(vertexShaderSource(), fragmentShaderSource());
+      const positionLocation = gl.getAttribLocation(program, "a_position");
+      const yawLocation = gl.getUniformLocation(program, "u_yaw");
+      const pitchLocation = gl.getUniformLocation(program, "u_pitch");
+      const fovLocation = gl.getUniformLocation(program, "u_fov");
+      const aspectLocation = gl.getUniformLocation(program, "u_aspect");
+      const textureLocation = gl.getUniformLocation(program, "u_texture");
+
+      const buffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
+        gl.STATIC_DRAW,
+      );
+
+      const texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+      const image = new Image();
+      image.onload = () => {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.texImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          image,
+        );
+        state.ready = true;
+        status.textContent = "Ready";
+        render();
+      };
+      image.onerror = () => useFallback("Unable to load panorama image.");
+      image.src = IMAGE_DATA_URI;
+
+      window.addEventListener("resize", render);
+      canvas.addEventListener("pointerdown", onPointerDown);
+      canvas.addEventListener("pointermove", onPointerMove);
+      canvas.addEventListener("pointerup", onPointerUp);
+      canvas.addEventListener("pointercancel", onPointerUp);
+      canvas.addEventListener("wheel", onWheel, { passive: false });
+      window.addEventListener("keydown", onKeyDown);
+
+      zoomOut.addEventListener("click", () => changeFov(0.12));
+      zoomIn.addEventListener("click", () => changeFov(-0.12));
+      reset.addEventListener("click", resetView);
+
+      function render() {
+        if (!state.ready) {
+          return;
+        }
+        resizeCanvas();
+        gl.useProgram(program);
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.uniform1i(textureLocation, 0);
+        gl.uniform1f(yawLocation, state.yaw);
+        gl.uniform1f(pitchLocation, state.pitch);
+        gl.uniform1f(fovLocation, state.fov);
+        gl.uniform1f(aspectLocation, canvas.width / canvas.height);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+      }
+
+      function onPointerDown(event) {
+        state.dragging = true;
+        state.lastX = event.clientX;
+        state.lastY = event.clientY;
+        canvas.setPointerCapture(event.pointerId);
+      }
+
+      function onPointerMove(event) {
+        if (!state.dragging) {
+          return;
+        }
+        const deltaX = event.clientX - state.lastX;
+        const deltaY = event.clientY - state.lastY;
+        state.lastX = event.clientX;
+        state.lastY = event.clientY;
+        state.yaw += deltaX * 0.004;
+        state.pitch = clamp(state.pitch + deltaY * 0.004, -1.48, 1.48);
+        render();
+      }
+
+      function onPointerUp(event) {
+        state.dragging = false;
+        if (canvas.hasPointerCapture(event.pointerId)) {
+          canvas.releasePointerCapture(event.pointerId);
+        }
+      }
+
+      function onWheel(event) {
+        event.preventDefault();
+        changeFov(event.deltaY > 0 ? 0.08 : -0.08);
+      }
+
+      function onKeyDown(event) {
+        const step = 0.08;
+        if (event.key === "ArrowLeft") state.yaw -= step;
+        if (event.key === "ArrowRight") state.yaw += step;
+        if (event.key === "ArrowUp") state.pitch = clamp(state.pitch - step, -1.48, 1.48);
+        if (event.key === "ArrowDown") state.pitch = clamp(state.pitch + step, -1.48, 1.48);
+        if (event.key === "+") changeFov(-0.08);
+        if (event.key === "-") changeFov(0.08);
+        if (event.key === "0") resetView();
+        render();
+      }
+
+      function changeFov(delta) {
+        state.fov = clamp(state.fov + delta, MIN_FOV, MAX_FOV);
+        render();
+      }
+
+      function resetView() {
+        state.yaw = 0;
+        state.pitch = 0;
+        state.fov = INITIAL_FOV;
+        render();
+      }
+    }
+
+    function activateFlatViewer(message) {
+      canvas.style.display = "none";
+      fallback.style.display = "none";
+      flatViewer.style.display = "block";
+      flatViewer.style.backgroundImage = `url("${IMAGE_DATA_URI}")`;
+      status.textContent = message;
+      status.dataset.state = "fallback";
+      renderFlatViewer();
+      installFlatViewerInteractions();
+    }
+
+    function installFlatViewerInteractions() {
+      if (flatState.installed) {
+        return;
+      }
+      flatState.installed = true;
+      flatViewer.addEventListener("pointerdown", (event) => {
+        flatState.dragging = true;
+        flatState.lastX = event.clientX;
+        flatState.lastY = event.clientY;
+        flatViewer.setPointerCapture(event.pointerId);
+      });
+      flatViewer.addEventListener("pointermove", (event) => {
+        if (!flatState.dragging) {
+          return;
+        }
+        const deltaX = event.clientX - flatState.lastX;
+        const deltaY = event.clientY - flatState.lastY;
+        flatState.lastX = event.clientX;
+        flatState.lastY = event.clientY;
+        flatState.x = ((flatState.x + deltaX * 0.08) % 100 + 100) % 100;
+        flatState.y = clamp(flatState.y + deltaY * 0.08, 12, 88);
+        renderFlatViewer();
+      });
+      flatViewer.addEventListener("pointerup", (event) => {
+        flatState.dragging = false;
+        if (flatViewer.hasPointerCapture(event.pointerId)) {
+          flatViewer.releasePointerCapture(event.pointerId);
+        }
+      });
+      flatViewer.addEventListener("pointercancel", () => {
+        flatState.dragging = false;
+      });
+      flatViewer.addEventListener("wheel", (event) => {
+        event.preventDefault();
+        flatState.zoom = clamp(
+          flatState.zoom + (event.deltaY > 0 ? -0.08 : 0.08),
+          0.7,
+          2.4,
+        );
+        renderFlatViewer();
+      }, { passive: false });
+      zoomOut.addEventListener("click", () => {
+        flatState.zoom = clamp(flatState.zoom - 0.12, 0.7, 2.4);
+        renderFlatViewer();
+      });
+      zoomIn.addEventListener("click", () => {
+        flatState.zoom = clamp(flatState.zoom + 0.12, 0.7, 2.4);
+        renderFlatViewer();
+      });
+      reset.addEventListener("click", () => {
+        flatState.x = 50;
+        flatState.y = 50;
+        flatState.zoom = INITIAL_FLAT_ZOOM;
+        renderFlatViewer();
+      });
+    }
+
+    function renderFlatViewer() {
+      flatViewer.style.backgroundPosition = `${flatState.x}% ${flatState.y}%`;
+      flatViewer.style.backgroundSize = `auto ${100 * flatState.zoom}%`;
+    }
+
+    function configureAmbientAudio() {
+      if (!AUDIO_DATA_URI) {
+        controls.dataset.audio = "off";
+        audioToggle.hidden = true;
+        return;
+      }
+      controls.dataset.audio = "on";
+      ambientAudio.src = AUDIO_DATA_URI;
+      ambientAudio.volume = AUDIO_VOLUME;
+      updateAudioToggle(audioPreferenceEnabled());
+      audioToggle.addEventListener("click", toggleAmbientAudio);
+      if (audioPreferenceEnabled()) {
+        playAmbientAudio();
+        installAudioResumeListeners();
+      }
+    }
+
+    async function toggleAmbientAudio(event) {
+      event.stopPropagation();
+      if (ambientAudio.paused) {
+        saveAudioPreference(true);
+        installAudioResumeListeners();
+        await playAmbientAudio();
+      } else {
+        ambientAudio.pause();
+        saveAudioPreference(false);
+        updateAudioToggle(false);
+      }
+    }
+
+    async function playAmbientAudio() {
+      if (!AUDIO_DATA_URI) {
+        return;
+      }
+      try {
+        await ambientAudio.play();
+        updateAudioToggle(true);
+      } catch (error) {
+        updateAudioToggle(audioPreferenceEnabled());
+      }
+    }
+
+    function installAudioResumeListeners() {
+      if (audioResumeListenersInstalled) {
+        return;
+      }
+      audioResumeListenersInstalled = true;
+      const resumeAudio = () => {
+        if (audioPreferenceEnabled() && ambientAudio.paused) {
+          playAmbientAudio();
+        }
+      };
+      canvas.addEventListener("pointerdown", resumeAudio);
+      flatViewer.addEventListener("pointerdown", resumeAudio);
+      document.addEventListener("keydown", resumeAudio);
+    }
+
+    function updateAudioToggle(isEnabled) {
+      audioToggle.setAttribute("aria-pressed", isEnabled ? "true" : "false");
+      const action = isEnabled ? "Mute ambience" : "Play ambience";
+      const label = AUDIO_TITLE ? `${action}: ${AUDIO_TITLE}` : action;
+      audioToggle.title = label;
+      audioToggle.setAttribute("aria-label", label);
+    }
+
+    function audioPreferenceEnabled() {
+      try {
+        return localStorage.getItem(AUDIO_STORAGE_KEY) === "true";
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function saveAudioPreference(isEnabled) {
+      try {
+        localStorage.setItem(AUDIO_STORAGE_KEY, isEnabled ? "true" : "false");
+      } catch (error) {
+        return;
+      }
+    }
+
+    function zoomLevelToFov(level) {
+      const normalized = (clamp(level, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL) - 1)
+        / (MAX_ZOOM_LEVEL - MIN_ZOOM_LEVEL);
+      return MIN_FOV + normalized * (MAX_FOV - MIN_FOV);
+    }
+
+    function zoomLevelToFlatZoom(level) {
+      const normalized = (clamp(level, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL) - 1)
+        / (MAX_ZOOM_LEVEL - MIN_ZOOM_LEVEL);
+      return 1.45 - normalized * 0.65;
+    }
+
+    function resizeCanvas() {
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      const width = Math.max(1, Math.floor(window.innerWidth * ratio));
+      const height = Math.max(1, Math.floor(window.innerHeight * ratio));
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+        gl.viewport(0, 0, width, height);
+      }
+    }
+
+    function createProgram(vertexSource, fragmentSource) {
+      const vertexShader = compileShader(gl.VERTEX_SHADER, vertexSource);
+      const fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentSource);
+      const program = gl.createProgram();
+      gl.attachShader(program, vertexShader);
+      gl.attachShader(program, fragmentShader);
+      gl.linkProgram(program);
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        throw new Error(gl.getProgramInfoLog(program));
+      }
+      return program;
+    }
+
+    function compileShader(type, sourceText) {
+      const shader = gl.createShader(type);
+      gl.shaderSource(shader, sourceText);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        throw new Error(gl.getShaderInfoLog(shader));
+      }
+      return shader;
+    }
+
+    function vertexShaderSource() {
+      return `
+        attribute vec2 a_position;
+        varying vec2 v_uv;
+        void main() {
+          v_uv = a_position * 0.5 + 0.5;
+          gl_Position = vec4(a_position, 0.0, 1.0);
+        }
+      `;
+    }
+
+    function fragmentShaderSource() {
+      return `
+        precision highp float;
+        uniform sampler2D u_texture;
+        uniform float u_yaw;
+        uniform float u_pitch;
+        uniform float u_fov;
+        uniform float u_aspect;
+        varying vec2 v_uv;
+        const float PI = 3.141592653589793;
+
+        mat3 rotationY(float angle) {
+          float s = sin(angle);
+          float c = cos(angle);
+          return mat3(c, 0.0, -s, 0.0, 1.0, 0.0, s, 0.0, c);
+        }
+
+        mat3 rotationX(float angle) {
+          float s = sin(angle);
+          float c = cos(angle);
+          return mat3(1.0, 0.0, 0.0, 0.0, c, -s, 0.0, s, c);
+        }
+
+        void main() {
+          vec2 xy = v_uv * 2.0 - 1.0;
+          xy.x *= u_aspect;
+          float focal = 1.0 / tan(u_fov * 0.5);
+          vec3 direction = normalize(vec3(xy.x, -xy.y, -focal));
+          direction = rotationY(u_yaw) * rotationX(u_pitch) * direction;
+          float longitude = atan(direction.x, -direction.z);
+          float latitude = asin(clamp(direction.y, -1.0, 1.0));
+          vec2 sampleUv = vec2(
+            fract(0.5 + longitude / (2.0 * PI)),
+            0.5 + latitude / PI
+          );
+          gl_FragColor = texture2D(u_texture, sampleUv);
+        }
+      `;
+    }
+
+    function useFallback(message) {
+      canvas.style.display = "none";
+      fallback.style.display = "block";
+      fallback.src = IMAGE_DATA_URI;
+      status.textContent = message;
+      status.dataset.state = "error";
+    }
+  </script>
+</body>
+</html>
