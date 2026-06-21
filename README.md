@@ -1,14 +1,15 @@
 # Codex Questforge
 
-**Codex Questforge is a playable fantasy RPG runner for Codex.** It turns a Codex thread into a persistent 5E-compatible campaign with a Dungeon Master, quick character creation, open dice rolls, a local mechanical ledger, campaign memory, optional generated visuals, 360 scene viewers, and ambience support.
+**Codex Questforge is a playable fantasy RPG runner for Codex.** It is intentionally not a conventional browser game: Codex is the play surface, Dungeon Master, rules assistant, local state engine, and visual table. Questforge turns a Codex thread into a persistent 5E-compatible campaign with quick character creation, open dice rolls, a local mechanical ledger, campaign memory, optional generated visuals, 360 scene viewers, and ambience support.
 
 This is an unofficial alpha made for the OpenAI Discord Codex game challenge. It is designed to be playable today, then improved in public.
 
 **Playable demo:** <https://adrianmelic.github.io/codex-questforge/>
 
-The playable link is a public campaign replay slice: timeline, character state,
-dice log, generated scene art, tactical map, and a draggable POV 360 view. The
-full game still runs inside Codex after installing the plugin.
+The playable link is an interactive Codex-style simulation: click a player
+choice, see the simulated Codex DM response, dice result, character state,
+visual gallery update, tactical map or 360 POV viewer, and optional ambience.
+The full open-ended game still runs inside Codex after installing the plugin.
 
 ## What You Made
 

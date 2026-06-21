@@ -6,9 +6,9 @@
 
 **Short description:**
 
-Codex Questforge is a Codex-powered fantasy RPG runner. It turns a Codex thread into a persistent 5E-compatible campaign with quick character creation, open dice rolls, local campaign memory, a mechanical game-state ledger, checkpoints/rollback, optional generated scene images, 360 viewers, and ambience support.
+Codex Questforge is a Codex-native fantasy RPG runner. It is a game you play inside Codex: Codex becomes the Dungeon Master, rules assistant, local state engine, and visual table. A Codex thread turns into a persistent 5E-compatible campaign with quick character creation, open dice rolls, campaign memory, a mechanical game-state ledger, checkpoints/rollback, optional generated scene images, 360 viewers, and ambience support.
 
-The browser link includes a playable campaign replay slice with a timeline, character state, dice log, generated scene art, a tactical map, and a draggable POV 360 view. The real game runs inside Codex after installing the plugin.
+The browser link is not the full game; it is a playable Codex-style simulation for the challenge. Click a player choice, see the simulated DM response, dice result, character state, generated scene art, tactical map or POV 360 viewer, and optional ambience. The real open-ended game runs inside Codex after installing the plugin.
 
 **What I made:**
 

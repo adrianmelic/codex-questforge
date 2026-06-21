@@ -3,36 +3,46 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Codex Questforge Campaign Replay</title>
+    <title>Codex Questforge Playable Demo</title>
     <meta
       name="description"
-      content="A playable Codex Questforge campaign replay with persistent state, dice rolls, generated visuals, and a draggable 360 POV scene."
+      content="A Codex-style playable simulation of Codex Questforge, a fantasy RPG runner plugin for Codex."
     />
     <style>
       :root {
         color-scheme: dark;
-        --bg: #0f120e;
-        --surface: #171b15;
-        --surface-2: #20261d;
-        --line: #384536;
-        --line-soft: rgba(205, 197, 174, 0.18);
-        --text: #f4f0e6;
-        --muted: #b9b39f;
-        --gold: #d59a38;
-        --river: #8db2bd;
-        --moss: #85a36e;
-        --danger: #b86c64;
-        --shadow: rgba(0, 0, 0, 0.34);
+        --bg: #080a0b;
+        --panel: #101315;
+        --panel-2: #151a1d;
+        --panel-3: #1b2227;
+        --line: rgba(224, 216, 194, 0.16);
+        --line-strong: rgba(224, 216, 194, 0.32);
+        --text: #f3efe6;
+        --muted: #b8b0a0;
+        --soft: #7f887e;
+        --accent: #d39a40;
+        --accent-2: #83b6b6;
+        --danger: #bd6b63;
+        --ok: #8fbf7d;
+        --shadow: rgba(0, 0, 0, 0.38);
+        --radius: 8px;
       }
 
       * {
         box-sizing: border-box;
       }
 
+      html {
+        scroll-behavior: smooth;
+      }
+
       body {
         margin: 0;
         min-height: 100vh;
-        background: var(--bg);
+        overflow-x: hidden;
+        background:
+          radial-gradient(circle at 16% 0%, rgba(131, 182, 182, 0.12), transparent 30%),
+          linear-gradient(180deg, #111512, #07090a 46%);
         color: var(--text);
         font-family:
           Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
@@ -40,8 +50,8 @@
         letter-spacing: 0;
       }
 
-      a,
-      button {
+      button,
+      a {
         font: inherit;
       }
 
@@ -49,141 +59,479 @@
         cursor: pointer;
       }
 
-      .app {
+      img,
+      canvas {
+        display: block;
+        max-width: 100%;
+      }
+
+      .page {
         min-height: 100vh;
         display: grid;
         grid-template-rows: auto 1fr;
       }
 
-      header {
-        min-height: 74px;
-        padding: 14px clamp(14px, 3vw, 34px);
+      .topbar {
+        height: 64px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 16px;
+        padding: 0 clamp(14px, 2.6vw, 32px);
         border-bottom: 1px solid var(--line);
-        background: rgba(15, 18, 14, 0.95);
+        background: rgba(8, 10, 11, 0.92);
         position: sticky;
         top: 0;
-        z-index: 10;
+        z-index: 20;
         backdrop-filter: blur(14px);
       }
 
       .brand {
+        min-width: 0;
         display: flex;
         align-items: center;
         gap: 12px;
-        min-width: 0;
       }
 
-      .mark {
-        width: 38px;
-        height: 38px;
+      .brand-mark {
+        width: 34px;
+        height: 34px;
         flex: 0 0 auto;
       }
 
       h1 {
         margin: 0;
-        font-size: clamp(21px, 3vw, 32px);
+        font-size: clamp(18px, 2.2vw, 26px);
         line-height: 1;
       }
 
-      .subtitle {
-        margin: 4px 0 0;
+      .topbar small {
+        display: block;
         color: var(--muted);
-        font-size: 13px;
+        margin-top: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
-      .actions {
+      .top-actions {
         display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
+        align-items: center;
         justify-content: flex-end;
+        gap: 8px;
+        flex-wrap: wrap;
       }
 
       .button,
-      .tab,
-      .choice {
-        min-height: 40px;
-        border-radius: 8px;
-        border: 1px solid var(--line);
-        background: var(--surface-2);
+      .icon-button,
+      .choice-button,
+      .node-button {
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius);
+        background: var(--panel-2);
         color: var(--text);
         text-decoration: none;
+        transition:
+          border-color 160ms ease,
+          background 160ms ease,
+          transform 160ms ease,
+          opacity 160ms ease;
+      }
+
+      .button,
+      .icon-button {
+        min-height: 38px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 0 13px;
+      }
+
+      .button {
+        padding: 0 12px;
       }
 
       .button.primary {
-        border-color: #b07a2f;
-        background: #362815;
+        border-color: rgba(211, 154, 64, 0.72);
+        background: #2b2113;
+      }
+
+      .icon-button {
+        width: 40px;
+        padding: 0;
       }
 
       .button:hover,
-      .tab:hover,
-      .choice:hover,
+      .icon-button:hover,
+      .choice-button:hover,
+      .node-button:hover,
       .button:focus-visible,
-      .tab:focus-visible,
-      .choice:focus-visible {
-        outline: 2px solid var(--gold);
+      .icon-button:focus-visible,
+      .choice-button:focus-visible,
+      .node-button:focus-visible {
+        border-color: var(--accent);
+        outline: 2px solid rgba(211, 154, 64, 0.34);
         outline-offset: 2px;
       }
 
-      main {
+      .layout {
+        min-height: calc(100vh - 64px);
         display: grid;
-        grid-template-columns: 300px minmax(0, 1fr) 330px;
-        min-height: calc(100vh - 74px);
+        grid-template-columns: minmax(420px, 0.92fr) minmax(480px, 1.08fr);
       }
 
-      aside,
-      .right-rail {
+      .codex-pane,
+      .browser-pane {
+        min-width: 0;
+        min-height: calc(100vh - 64px);
+      }
+
+      .codex-pane {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        background: #0b0d0e;
         border-right: 1px solid var(--line);
-        background: #12160f;
       }
 
-      .right-rail {
-        border-right: 0;
-        border-left: 1px solid var(--line);
+      .pane-header {
+        min-height: 54px;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
       }
 
-      .rail-block {
-        padding: 18px;
+      .pane-title {
+        min-width: 0;
+      }
+
+      .pane-title strong,
+      .browser-title strong {
+        display: block;
+        line-height: 1.1;
+      }
+
+      .pane-title span,
+      .browser-title span,
+      .tiny {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .status-pill {
+        flex: 0 0 auto;
+        min-height: 28px;
+        padding: 0 9px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border: 1px solid rgba(143, 191, 125, 0.34);
+        border-radius: 999px;
+        color: #d6f0cd;
+        background: rgba(44, 70, 42, 0.32);
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--ok);
+        box-shadow: 0 0 12px rgba(143, 191, 125, 0.72);
+      }
+
+      .thread {
+        overflow: auto;
+        padding: 20px clamp(14px, 2.4vw, 26px) 24px;
+        display: grid;
+        align-content: start;
+        gap: 14px;
+      }
+
+      .message {
+        display: grid;
+        grid-template-columns: 34px minmax(0, 1fr);
+        gap: 10px;
+        align-items: start;
+      }
+
+      .avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 7px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--line-strong);
+        background: var(--panel-2);
+        color: var(--accent);
+        font-weight: 800;
+        font-size: 13px;
+      }
+
+      .message.user .avatar {
+        color: var(--accent-2);
+      }
+
+      .bubble {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        padding: 11px 12px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--panel);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
+      }
+
+      .message.user .bubble {
+        background: #111a1d;
+        border-color: rgba(131, 182, 182, 0.35);
+      }
+
+      .bubble p {
+        margin: 0;
+        line-height: 1.58;
+      }
+
+      .bubble p + p {
+        margin-top: 10px;
+      }
+
+      .tool-run {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: var(--radius);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        background: #090b0c;
+        color: #c7c1b3;
+        white-space: pre-wrap;
+        font-family:
+          "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono",
+          monospace;
+        font-size: 12px;
+        line-height: 1.55;
+        overflow-wrap: anywhere;
+      }
+
+      .inline-roll {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin: 0 2px;
+        padding: 2px 7px;
+        border-radius: 999px;
+        background: #242016;
+        color: #f4d69c;
+        border: 1px solid rgba(211, 154, 64, 0.36);
+        font-size: 0.92em;
+        white-space: nowrap;
+      }
+
+      .choice-tray {
+        border-top: 1px solid var(--line);
+        background: rgba(12, 15, 16, 0.96);
+        padding: 14px clamp(14px, 2.4vw, 26px);
+      }
+
+      .choice-label {
+        margin: 0 0 10px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .choices {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .choice-button {
+        min-height: 74px;
+        padding: 11px;
+        text-align: left;
+        display: grid;
+        align-content: start;
+        gap: 5px;
+      }
+
+      .choice-button strong {
+        font-size: 14px;
+      }
+
+      .choice-button span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .browser-pane {
+        background: #0d100f;
+        display: grid;
+        grid-template-rows: auto minmax(320px, 46vh) minmax(0, 1fr);
+      }
+
+      .browser-chrome {
+        min-height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
+      }
+
+      .address {
+        min-width: 0;
+        flex: 1;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 0 12px;
+        background: #090b0c;
+        color: var(--muted);
+        font-size: 12px;
+        overflow: hidden;
+      }
+
+      .address span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .stage {
+        min-height: 320px;
+        position: relative;
+        overflow: hidden;
+        background: #030405;
         border-bottom: 1px solid var(--line);
       }
 
-      .rail-title {
-        margin: 0 0 12px;
-        font-size: 13px;
-        color: var(--gold);
+      .stage img,
+      .stage canvas,
+      .pano-fallback {
+        width: 100%;
+        height: 100%;
+        min-height: 320px;
+        object-fit: cover;
+      }
+
+      .stage::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(180deg, transparent 42%, rgba(0, 0, 0, 0.72)),
+          linear-gradient(90deg, rgba(0, 0, 0, 0.55), transparent 38%, rgba(0, 0, 0, 0.3));
+        pointer-events: none;
+      }
+
+      .stage-copy {
+        position: absolute;
+        left: clamp(16px, 3vw, 34px);
+        right: clamp(16px, 3vw, 34px);
+        bottom: clamp(16px, 3vw, 30px);
+        z-index: 2;
+        max-width: 720px;
+      }
+
+      .kicker {
+        margin: 0 0 5px;
+        color: var(--accent);
         text-transform: uppercase;
+        font-size: 12px;
         font-weight: 800;
       }
 
-      .hero-name {
+      .stage-copy h2 {
         margin: 0;
-        font-size: 24px;
+        font-size: clamp(28px, 4.2vw, 56px);
+        line-height: 0.98;
       }
 
-      .muted {
+      .stage-copy p {
+        margin: 10px 0 0;
+        color: #eee8dd;
+        line-height: 1.55;
+        font-size: clamp(15px, 1.5vw, 18px);
+      }
+
+      .pano-fallback {
+        background-image: url("assets/blackwater-pier-panorama.png");
+        background-size: auto 100%;
+        background-repeat: repeat-x;
+        background-position: 50% 50%;
+        cursor: grab;
+        touch-action: none;
+      }
+
+      .viewer-note {
+        position: absolute;
+        right: 14px;
+        top: 14px;
+        z-index: 3;
+        padding: 8px 10px;
+        border-radius: var(--radius);
+        border: 1px solid var(--line);
+        background: rgba(4, 5, 5, 0.72);
+        color: #e9dfca;
+        font-size: 12px;
+        pointer-events: none;
+      }
+
+      .lower {
+        min-height: 0;
+        display: grid;
+        grid-template-columns: minmax(260px, 0.84fr) minmax(290px, 1.16fr);
+      }
+
+      .state-panel,
+      .gallery-panel {
+        min-width: 0;
+        min-height: 0;
+        overflow: auto;
+        padding: 18px;
+      }
+
+      .state-panel {
+        border-right: 1px solid var(--line);
+        background: #0a0d0d;
+      }
+
+      .section-title {
+        margin: 0 0 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        color: #fff6e3;
+        font-size: 15px;
+      }
+
+      .section-title span {
         color: var(--muted);
+        font-size: 12px;
+        font-weight: 500;
       }
 
-      .stats {
+      .state-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 9px;
-        margin-top: 14px;
+        gap: 8px;
       }
 
       .stat {
+        min-height: 62px;
         border: 1px solid var(--line);
-        border-radius: 8px;
+        border-radius: var(--radius);
         padding: 9px;
-        background: var(--surface);
-        min-height: 64px;
+        background: var(--panel);
       }
 
       .stat strong {
@@ -196,676 +544,917 @@
       .stat span {
         display: block;
         margin-top: 4px;
-        font-size: 20px;
+        font-size: 19px;
         font-weight: 800;
       }
 
-      .list {
-        display: grid;
-        gap: 8px;
-        margin: 0;
+      .ledger {
+        margin: 14px 0 0;
         padding: 0;
         list-style: none;
+        display: grid;
+        gap: 8px;
       }
 
-      .list li {
+      .ledger li {
+        display: grid;
+        gap: 4px;
         padding-left: 10px;
-        border-left: 3px solid var(--moss);
-        color: var(--muted);
-        line-height: 1.35;
-      }
-
-      .timeline {
-        display: grid;
-        gap: 8px;
-      }
-
-      .timeline button {
-        width: 100%;
-        text-align: left;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: transparent;
-        color: var(--text);
-        padding: 10px;
-      }
-
-      .timeline button[aria-selected="true"] {
-        border-color: var(--gold);
-        background: #231b10;
-      }
-
-      .timeline small {
-        display: block;
-        color: var(--muted);
-        margin-top: 3px;
-      }
-
-      .workspace {
-        min-width: 0;
-        background: var(--bg);
-      }
-
-      .visual {
-        min-height: 46vh;
-        position: relative;
-        overflow: hidden;
-        border-bottom: 1px solid var(--line);
-        background: #050605;
-      }
-
-      .visual img {
-        width: 100%;
-        height: 100%;
-        min-height: 46vh;
-        object-fit: cover;
-        display: block;
-        filter: saturate(0.95) contrast(1.03);
-      }
-
-      .visual::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background:
-          linear-gradient(90deg, rgba(15, 18, 14, 0.86), rgba(15, 18, 14, 0.12) 46%, rgba(15, 18, 14, 0.72)),
-          linear-gradient(0deg, rgba(15, 18, 14, 0.82), rgba(15, 18, 14, 0.06) 45%);
-        pointer-events: none;
-      }
-
-      .visual-caption {
-        position: absolute;
-        left: clamp(18px, 4vw, 42px);
-        right: clamp(18px, 4vw, 42px);
-        bottom: clamp(18px, 4vw, 42px);
-        z-index: 2;
-        max-width: 680px;
-      }
-
-      .kicker {
-        color: var(--gold);
-        text-transform: uppercase;
-        font-size: 12px;
-        font-weight: 900;
-      }
-
-      .scene-title {
-        margin: 6px 0 8px;
-        font-size: clamp(30px, 5vw, 62px);
-        line-height: 0.98;
-      }
-
-      .scene-summary {
-        margin: 0;
-        color: var(--text);
-        line-height: 1.55;
-        font-size: clamp(16px, 1.7vw, 19px);
-      }
-
-      .scene {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(260px, 34%);
-        gap: 0;
-        border-bottom: 1px solid var(--line);
-      }
-
-      .transcript,
-      .mechanics {
-        padding: clamp(18px, 3vw, 30px);
-      }
-
-      .mechanics {
-        border-left: 1px solid var(--line);
-        background: #11150f;
-      }
-
-      .transcript h2,
-      .mechanics h2,
-      .gallery h2,
-      .install h2 {
-        margin: 0 0 12px;
-        font-size: 18px;
-      }
-
-      .transcript p {
-        margin: 0;
-        color: var(--text);
-        line-height: 1.7;
-        font-size: 17px;
-      }
-
-      .dice {
-        display: grid;
-        gap: 8px;
-      }
-
-      .dice-row {
-        display: grid;
-        grid-template-columns: 74px minmax(0, 1fr);
-        gap: 10px;
-        align-items: center;
-        padding: 10px 0;
-        border-bottom: 1px solid var(--line-soft);
-      }
-
-      .dice-row strong {
-        color: var(--river);
-      }
-
-      .dice-row span {
+        border-left: 3px solid var(--accent-2);
         color: var(--muted);
         line-height: 1.4;
       }
 
-      .choices {
-        margin-top: 18px;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-      }
-
-      .choice {
-        min-height: 74px;
-        align-items: flex-start;
-        flex-direction: column;
-        text-align: left;
-        padding: 11px;
-      }
-
-      .choice span {
-        color: var(--muted);
+      .ledger strong {
+        color: var(--text);
         font-size: 13px;
-        margin-top: 3px;
       }
 
-      .tabs {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-bottom: 12px;
-      }
-
-      .tab[aria-selected="true"] {
-        background: #332614;
-        border-color: var(--gold);
-      }
-
-      .gallery {
-        padding: clamp(18px, 3vw, 30px);
-        border-bottom: 1px solid var(--line);
-      }
-
-      .media-grid {
+      .node-map {
         display: grid;
-        grid-template-columns: 1.1fr 0.9fr;
-        gap: 14px;
+        gap: 8px;
+        margin-bottom: 16px;
       }
 
-      .media-frame {
+      .node-button {
+        min-height: 50px;
+        display: grid;
+        align-content: center;
+        gap: 2px;
+        padding: 8px 10px;
+        text-align: left;
+        background: transparent;
+      }
+
+      .node-button[aria-current="true"] {
+        border-color: var(--accent);
+        background: #211a10;
+      }
+
+      .node-button span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .visual-log {
+        display: grid;
+        gap: 12px;
+        padding-bottom: 20px;
+      }
+
+      .visual-card {
         border: 1px solid var(--line);
-        border-radius: 8px;
+        border-radius: var(--radius);
+        background: var(--panel);
         overflow: hidden;
-        background: #070807;
-        min-height: 220px;
       }
 
-      .media-frame img,
-      .media-frame .panorama {
+      .visual-card img {
         width: 100%;
-        height: 100%;
-        min-height: 280px;
-        display: block;
-      }
-
-      .media-frame img {
+        aspect-ratio: 16 / 9;
         object-fit: cover;
       }
 
-      .panorama {
-        background-image: url("assets/blackwater-pier-panorama.png");
-        background-size: auto 100%;
-        background-repeat: repeat-x;
-        background-position: 50% 50%;
-        position: relative;
-        user-select: none;
-        touch-action: none;
-        cursor: grab;
-      }
-
-      .panorama:active {
-        cursor: grabbing;
-      }
-
-      .panorama-label {
-        position: absolute;
-        left: 14px;
-        bottom: 14px;
-        background: rgba(10, 12, 9, 0.78);
-        border: 1px solid var(--line);
-        padding: 8px 10px;
-        border-radius: 8px;
+      .visual-card button {
+        width: 100%;
+        border: 0;
+        border-top: 1px solid var(--line);
         color: var(--text);
-        font-weight: 700;
+        background: transparent;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        text-align: left;
       }
 
-      .install {
-        padding: clamp(18px, 3vw, 30px);
+      .visual-card small {
+        color: var(--muted);
       }
 
-      pre {
-        margin: 12px 0 0;
-        white-space: pre-wrap;
-        word-break: break-word;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: #080a08;
-        color: #f0e8d3;
-        padding: 14px;
+      .footer-note {
+        padding: 12px 18px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 12px;
         line-height: 1.45;
+        background: #080a0b;
       }
 
-      code {
-        font-family:
-          "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono",
-          monospace;
+      .hidden {
+        display: none !important;
+      }
+
+      @media (min-width: 1121px) {
+        .codex-pane {
+          position: sticky;
+          top: 64px;
+          height: calc(100vh - 64px);
+        }
       }
 
       @media (max-width: 1120px) {
-        main {
-          grid-template-columns: 280px minmax(0, 1fr);
+        .layout {
+          grid-template-columns: 1fr;
         }
 
-        .right-rail {
-          grid-column: 1 / -1;
-          border-left: 0;
-          border-top: 1px solid var(--line);
+        .codex-pane,
+        .browser-pane {
+          min-height: auto;
+        }
+
+        .codex-pane {
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .thread {
+          max-height: 62vh;
         }
       }
 
-      @media (max-width: 780px) {
-        header {
+      @media (max-width: 720px) {
+        .topbar,
+        .browser-chrome,
+        .pane-header {
+          height: auto;
           align-items: flex-start;
           flex-direction: column;
         }
 
-        .actions {
+        .topbar small {
+          white-space: normal;
+        }
+
+        .pane-title span,
+        .browser-title span,
+        .address span {
+          overflow-wrap: anywhere;
+          white-space: normal;
+        }
+
+        .top-actions {
           justify-content: flex-start;
         }
 
-        main,
-        .scene,
-        .media-grid {
+        .address {
+          width: 100%;
+        }
+
+        .message {
+          grid-template-columns: 32px minmax(0, 1fr);
+        }
+
+        .choices,
+        .lower,
+        .state-grid {
           grid-template-columns: 1fr;
         }
 
-        aside,
-        .right-rail,
-        .mechanics {
-          border-left: 0;
+        .state-panel {
           border-right: 0;
+          border-bottom: 1px solid var(--line);
         }
 
-        .choices {
-          grid-template-columns: 1fr;
-        }
-
-        .scene-title {
-          font-size: 34px;
+        .stage-copy h2 {
+          font-size: 31px;
         }
       }
     </style>
   </head>
   <body>
-    <div class="app">
-      <header>
+    <div class="page">
+      <header class="topbar">
         <div class="brand">
-          <svg class="mark" viewBox="0 0 64 64" role="img" aria-label="Codex Questforge mark">
-            <rect x="6" y="6" width="52" height="52" rx="10" fill="#171b15" stroke="#d59a38" stroke-width="3" />
-            <path d="M18 43 L32 14 L46 43 Z" fill="none" stroke="#85a36e" stroke-width="4" stroke-linejoin="round" />
-            <path d="M24 42 H40" stroke="#8db2bd" stroke-width="4" stroke-linecap="round" />
+          <svg class="brand-mark" viewBox="0 0 64 64" role="img" aria-label="Codex Questforge">
+            <rect x="6" y="6" width="52" height="52" rx="9" fill="#111516" stroke="#d39a40" stroke-width="3" />
+            <path d="M17 44 L32 13 L47 44 Z" fill="none" stroke="#83b6b6" stroke-width="4" stroke-linejoin="round" />
+            <path d="M23 42 H41" stroke="#8fbf7d" stroke-width="4" stroke-linecap="round" />
           </svg>
           <div>
             <h1>Codex Questforge</h1>
-            <p class="subtitle">Campaign replay: The Lantern Under Blackwater Pier</p>
+            <small>A game played inside Codex: DM, rules engine, memory, and visual table.</small>
           </div>
         </div>
-        <div class="actions">
-          <a class="button" href="https://github.com/adrianmelic/codex-questforge">GitHub Repo</a>
-          <button class="button primary" id="copyPrompt" type="button">Copy Codex Prompt</button>
+        <div class="top-actions">
+          <button class="icon-button" id="audioToggle" type="button" aria-label="Toggle ambience" title="Toggle ambience">
+            <svg width="19" height="19" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 10v4h4l5 4V6L8 10H4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+              <path id="speakerWave" d="M17 9a4 4 0 0 1 0 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              <path id="speakerSlash" class="hidden" d="M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </button>
+          <a class="button" href="https://github.com/adrianmelic/codex-questforge">GitHub</a>
+          <button class="button primary" id="copyPrompt" type="button">Copy Prompt</button>
         </div>
       </header>
 
-      <main>
-        <aside>
-          <section class="rail-block">
-            <p class="rail-title">Player Character</p>
-            <h2 class="hero-name">Rowan Tidewell</h2>
-            <p class="muted">Human fighter 1, harbor guard turned reluctant courier.</p>
-            <div class="stats">
-              <div class="stat"><strong>HP</strong><span id="hp">12/12</span></div>
-              <div class="stat"><strong>AC</strong><span>18</span></div>
-              <div class="stat"><strong>XP</strong><span id="xp">0</span></div>
-              <div class="stat"><strong>Clock</strong><span id="clock">1/6</span></div>
+      <main class="layout">
+        <section class="codex-pane" aria-label="Simulated Codex thread">
+          <div class="pane-header">
+            <div class="pane-title">
+              <strong>Codex Thread</strong>
+              <span>this page simulates the Codex surface; the installed plugin is open-ended</span>
             </div>
-          </section>
-
-          <section class="rail-block">
-            <p class="rail-title">Useful State</p>
-            <ul class="list" id="stateList">
-              <li>Shield raised, lantern lit.</li>
-              <li>Blackwater ferry token is warm.</li>
-              <li>Checkpoint: Before crossing the pier.</li>
-            </ul>
-          </section>
-
-          <section class="rail-block">
-            <p class="rail-title">Timeline</p>
-            <div class="timeline" id="timeline"></div>
-          </section>
-        </aside>
-
-        <section class="workspace">
-          <div class="visual">
-            <img id="sceneImage" src="assets/blackwater-pier-scene.png" alt="Generated fantasy scene of Blackwater Pier at night" />
-            <div class="visual-caption">
-              <div class="kicker" id="kicker">Session 1 · Scene 1 · opening visual</div>
-              <h2 class="scene-title" id="sceneTitle">The lanterns answer from below.</h2>
-              <p class="scene-summary" id="sceneSummary">
-                Rain needles the harbor stones. Three amber lanterns burn under the pier where the tide should have drowned them.
-              </p>
-            </div>
+            <div class="status-pill"><span class="status-dot"></span><span id="threadStatus">ready</span></div>
           </div>
 
-          <section class="scene">
-            <div class="transcript">
-              <h2>What Happened</h2>
-              <p id="storyText"></p>
-              <div class="choices" id="choices"></div>
-            </div>
-            <div class="mechanics">
-              <h2>Dice And State</h2>
-              <div class="dice" id="diceLog"></div>
-            </div>
-          </section>
+          <div class="thread" id="thread"></div>
 
-          <section class="gallery">
-            <div class="tabs" role="tablist" aria-label="Visual assets">
-              <button class="tab" type="button" data-tab="scene" aria-selected="true">Scene Image</button>
-              <button class="tab" type="button" data-tab="map" aria-selected="false">Tactical Map</button>
-              <button class="tab" type="button" data-tab="pov" aria-selected="false">POV 360</button>
-            </div>
-            <div class="media-grid">
-              <div class="media-frame" id="primaryMedia">
-                <img src="assets/blackwater-pier-scene.png" alt="Generated Blackwater Pier scene" />
-              </div>
-              <div>
-                <h2 id="mediaTitle">#1 · scene · Rowan reaches Blackwater Pier</h2>
-                <p class="muted" id="mediaText">
-                  Static generated images appear in the Codex conversation for mobile play and are also saved into the campaign gallery for desktop review.
-                </p>
-                <pre><code id="mediaPrompt">Generated scene prompt: old blackwater harbor pier, amber lanterns under the tide, rain, grounded medieval fantasy.</code></pre>
-              </div>
-            </div>
-          </section>
-
-          <section class="install">
-            <h2>Play The Full Version In Codex</h2>
-            <p class="muted">
-              This page is a replay slice. The full game runs as a Codex plugin with persistent local files, SRD indexes, character state, campaign memory, visuals, and rollback checkpoints.
-            </p>
-            <pre><code>Use Codex Questforge. I want to play in English. Create a quick character and start.</code></pre>
-          </section>
+          <div class="choice-tray">
+            <p class="choice-label" id="choiceLabel">Choose Rowan's next action.</p>
+            <div class="choices" id="choices"></div>
+          </div>
         </section>
 
-        <section class="right-rail">
-          <div class="rail-block">
-            <p class="rail-title">Campaign Log</p>
-            <ul class="list" id="campaignLog">
-              <li>Setup language: English.</li>
-              <li>Rules cache: SRD 5.2.1 indexed locally.</li>
-              <li>Preflight: 0 errors, 0 warnings.</li>
-            </ul>
+        <section class="browser-pane" aria-label="Simulated Questforge visual browser">
+          <div class="browser-chrome">
+            <div class="browser-title">
+              <strong>Browser: visual-gallery.html</strong>
+              <span>latest campaign image, state, 360 viewer, and ambience</span>
+            </div>
+            <div class="address">
+              <span>file:///campaigns/blackwater-pier/images/visual-gallery.html#latest</span>
+            </div>
           </div>
 
-          <div class="rail-block">
-            <p class="rail-title">What Codex Tracks</p>
-            <ul class="list">
-              <li>HP, AC, XP, conditions, equipment.</li>
-              <li>Inventory, money, shops, rests, spell slots.</li>
-              <li>NPC attitudes, clues, clocks, factions.</li>
-              <li>Scene prompts, image assets, 360 viewers.</li>
-              <li>Checkpoints for rollback.</li>
-            </ul>
+          <section class="stage" id="stage">
+            <div class="viewer-note hidden" id="viewerNote">drag to look around</div>
+            <div class="stage-copy">
+              <p class="kicker" id="stageKicker">#1 / scene / generated image</p>
+              <h2 id="stageTitle">Blackwater Pier</h2>
+              <p id="stageText">The first generated frame anchors the scene before the player chooses a route.</p>
+            </div>
+          </section>
+
+          <div class="lower">
+            <aside class="state-panel">
+              <h2 class="section-title">Character State <span id="checkpoint">checkpoint ready</span></h2>
+              <div class="state-grid">
+                <div class="stat"><strong>Hero</strong><span>Rowan</span></div>
+                <div class="stat"><strong>Class</strong><span>Fighter 1</span></div>
+                <div class="stat"><strong>HP</strong><span id="hp">12/12</span></div>
+                <div class="stat"><strong>AC</strong><span>18</span></div>
+                <div class="stat"><strong>XP</strong><span id="xp">0</span></div>
+                <div class="stat"><strong>Clock</strong><span id="clock">1/6</span></div>
+              </div>
+
+              <ul class="ledger" id="ledger"></ul>
+            </aside>
+
+            <section class="gallery-panel">
+              <h2 class="section-title">Visual History <span>chronological scroll</span></h2>
+              <div class="node-map" id="nodeMap"></div>
+              <div class="visual-log" id="visualLog"></div>
+            </section>
           </div>
 
-          <div class="rail-block">
-            <p class="rail-title">Challenge Notes</p>
-            <ul class="list">
-              <li>Game runs in Codex, not only this page.</li>
-              <li>Natural language is the controller.</li>
-              <li>Images here are new public demo assets.</li>
-              <li>Alpha systems are intentionally transparent.</li>
-            </ul>
-          </div>
+          <p class="footer-note">
+            This is the point of Questforge: it is not a normal browser game wearing a fantasy skin.
+            Codex is the play surface, the Dungeon Master, the rules assistant, the local state engine,
+            and the table aid. This page simulates that experience for the challenge; the installed plugin
+            is open-ended and runs inside Codex.
+          </p>
         </section>
       </main>
     </div>
 
-    <script>
-      const moments = [
-        {
-          label: "#1 Opening",
-          detail: "Rowan arrives at the pier.",
-          kicker: "Session 1 · Scene 1 · opening visual",
-          title: "The lanterns answer from below.",
-          summary:
-            "Rain needles the harbor stones. Three amber lanterns burn under the pier where the tide should have drowned them.",
-          story:
-            "The harbor master presses a sealed ferry token into Rowan's palm. Under the boards, the black water pulls at ropes and old pilings. A voice rises from the nearest lantern: 'A crossing is owed. Bring the token below, or the bellman stays under the tide.'",
+    <audio id="ambience" src="assets/questforge-demo-loop.mp3" loop preload="metadata"></audio>
+
+    <script type="module">
+      const images = {
+        scene: "assets/blackwater-pier-scene.png",
+        map: "assets/blackwater-pier-map.png",
+        pov: "assets/blackwater-pier-panorama.png"
+      };
+
+      const story = {
+        intro: {
+          parent: null,
+          choice: null,
+          label: "#1 Start",
+          visual: "scene",
+          status: "campaign started",
+          stageKicker: "#1 / scene / generated image",
+          stageTitle: "Blackwater Pier",
+          stageText: "The first generated frame anchors the scene before the player chooses a route.",
           hp: "12/12",
           xp: "0",
           clock: "1/6",
-          state: [
-            "Shield raised, lantern lit.",
-            "Blackwater ferry token is warm.",
-            "Checkpoint: Before crossing the pier."
+          checkpoint: "before crossing",
+          ledger: [
+            ["Inventory", "Longsword, shield, lantern, sealed ferry token."],
+            ["Known clue", "Three lanterns burn below the tide line."],
+            ["Rule posture", "Failure moves the scene forward instead of stalling it."]
           ],
-          dice: [
-            ["Setup", "Quick-start fighter recorded in game-state.json."],
-            ["Preflight", "0 errors, 0 warnings."],
-            ["Visual", "Opening scene image generated and registered."]
+          messages: [
+            {
+              from: "codex",
+              text:
+                "Questforge creates Rowan Tidewell, a level-1 fighter and former harbor guard. The rain has emptied Blackwater Pier, but three lanterns burn underneath the boards where the tide should have drowned them.",
+              tool:
+                "Ran 4 commands\npython scripts/questforge_setup.py --data-dir .questforge\npython scripts/game_state.py add-character --name Rowan --class Fighter\npython scripts/game_state.py checkpoint --label \"Before crossing the pier\"\npython scripts/visual_planner.py --scene \"blackwater pier\""
+            },
+            {
+              from: "codex",
+              text:
+                "A bell rings below the water. A voice says: \"A crossing is owed.\" The ferry token in your palm warms like a coal."
+            }
           ],
           choices: [
-            ["Inspect the lanterns", "Perception +3, moderate DC."],
-            ["Secure the pier rope", "No roll if done carefully."],
-            ["Speak to the light", "No roll yet; direct question."],
-            ["Use the ferry token", "Reveal the overlap route."]
+            {
+              text: "Lift the lantern and listen",
+              meta: "Wisdom (Perception) +3, careful approach.",
+              target: "listen"
+            },
+            {
+              text: "Draw steel and step below",
+              meta: "Athletics +5, direct approach.",
+              target: "steel"
+            }
           ]
         },
-        {
-          label: "#2 First Roll",
-          detail: "The rain bends around one lantern.",
-          kicker: "Session 1 · Scene 2 · open roll",
-          title: "The pier is not cracked. It is doubled.",
-          summary:
-            "Rowan studies the rain and sees it curving around an invisible edge, as if another pier overlaps this one.",
-          story:
-            "Rowan crouches, touches the wet stone, and watches the rain. The drops avoid the center lantern. It is not underwater at all; it shines from a second, older pier folded through the present one. The harbor master whispers, 'That route was sealed before my grandfather was born.'",
+        listen: {
+          parent: "intro",
+          choice: "I lift the lantern and listen before stepping onto the lower pier.",
+          label: "#2 Listen",
+          visual: "pov",
+          status: "360 POV generated",
+          stageKicker: "#2 / POV-360 / generated photosphere",
+          stageTitle: "The pier is doubled.",
+          stageText: "Drag the image: Rowan sees the same harbor twice, one above the water and one beneath it.",
           hp: "12/12",
-          xp: "0",
+          xp: "25",
           clock: "2/6",
-          state: [
-            "Clue: old pier overlaps the current harbor.",
-            "Threat clock advanced to 2/6.",
-            "Token can reveal the crossing route."
+          checkpoint: "lower route revealed",
+          ledger: [
+            ["XP", "+25 for discovering the overlap route without triggering it."],
+            ["Condition", "Focused: advantage on the next clue read in this scene."],
+            ["Clue", "The bellman's ledger is hidden in the dry version of the pier."]
           ],
-          dice: [
-            ["DC 14", "Wisdom (Perception), storm conditions."],
-            ["Roll", "d20 + 3 = 15 + 3 = 18."],
-            ["Result", "Success. Rowan understands the danger before crossing."]
+          messages: [
+            {
+              from: "codex",
+              text:
+                "Roll Wisdom (Perception): <roll>d20 + 3 = 15 + 3 = 18 vs DC 14</roll>. Success. The rain bends around one lantern. The pier is not cracked; it is doubled. One version is wet and present. One is dry, old, and waiting below."
+            },
+            {
+              from: "codex",
+              text:
+                "I generate a 360 POV because this is a look-around moment. In the real plugin it would open as a local photosphere viewer, not as a flat image."
+            }
           ],
           choices: [
-            ["Tie rope to the piling", "Reduces separation risk."],
-            ["Ask about the sealed route", "Press harbor master for history."],
-            ["Step into the overlap", "High risk, direct route."],
-            ["Mark the route with chalk", "Create a return path."]
+            {
+              text: "Promise to recover the ledger",
+              meta: "Persuasion +1, honest bargain.",
+              target: "ledger"
+            },
+            {
+              text: "Demand payment before helping",
+              meta: "Charisma +1, harder social angle.",
+              target: "payment"
+            }
           ]
         },
-        {
-          label: "#3 Consequence",
-          detail: "The token reveals a lower road.",
-          kicker: "Session 1 · Scene 3 · state update",
-          title: "The ferry token warms like a coal.",
-          summary:
-            "The old route appears for one breath: dry stones below the tide, marked by chalk that turns back on itself.",
-          story:
-            "Rowan presses the ferry token to the pier. The image below sharpens: broken planks, dry stone, and a road-mark drawn in white chalk. The bellman is alive, but not in the same version of the harbor. The token was not spent, but something below now knows Rowan has it.",
+        steel: {
+          parent: "intro",
+          choice: "I draw steel and step down before the voice finishes speaking.",
+          label: "#2 Steel",
+          visual: "map",
+          status: "tactical map generated",
+          stageKicker: "#2 / tactical map / generated image",
+          stageTitle: "The lower pier answers with chains.",
+          stageText: "The browser side switches to a top-down map because positioning, cover, and hazards now matter.",
+          hp: "9/12",
+          xp: "0",
+          clock: "3/6",
+          checkpoint: "combat started",
+          ledger: [
+            ["Damage", "Rowan takes 3 bludgeoning damage from a snapping mooring chain."],
+            ["Combat", "Initiative started: Rowan 16, drowned chain 11."],
+            ["Terrain", "Crates grant half cover; lantern oil can ignite the middle span."]
+          ],
+          messages: [
+            {
+              from: "codex",
+              text:
+                "Roll Strength (Athletics): <roll>d20 + 5 = 7 + 5 = 12 vs DC 15</roll>. Failure, but forward. Rowan reaches the lower pier, yet a drowned mooring chain lashes across his shield for 3 damage."
+            },
+            {
+              from: "codex",
+              text:
+                "Because this becomes tactical, I create a map-style visual and record the combatants in game-state.json."
+            }
+          ],
+          choices: [
+            {
+              text: "Cut the mooring chain",
+              meta: "Attack roll, risky but decisive.",
+              target: "chain"
+            },
+            {
+              text: "Hold the line and use cover",
+              meta: "Defense first, safer tempo.",
+              target: "line"
+            }
+          ]
+        },
+        ledger: {
+          parent: "listen",
+          choice: "I promise to recover the ledger if the bellman lets me cross safely.",
+          label: "#3 Oath",
+          visual: "scene",
+          status: "branch resolved",
+          stageKicker: "#3A / scene / consequence frame",
+          stageTitle: "The bellman accepts the oath.",
+          stageText: "The bargain opens a safe descent and creates a future consequence.",
+          hp: "12/12",
+          xp: "75",
+          clock: "2/6",
+          checkpoint: "before ledger search",
+          ledger: [
+            ["XP", "+50 for a peaceful route and actionable clue."],
+            ["Quest", "Recover the bellman's ledger from the dry pier office."],
+            ["Consequence", "Breaking the oath will sour future harbor spirits."]
+          ],
+          messages: [
+            {
+              from: "codex",
+              text:
+                "No roll. Your offer matches what the bellman needs. The lower lanterns part, and a dry stairway appears for three breaths. You gain 50 XP and a clear objective: recover the ledger."
+            },
+            {
+              from: "codex",
+              text:
+                "This is the kind of long-term state Questforge records: oath made, faction attitude improved, future consequence armed."
+            }
+          ],
+          choices: []
+        },
+        payment: {
+          parent: "listen",
+          choice: "I ask what the job pays before I risk my neck.",
+          label: "#3 Price",
+          visual: "pov",
+          status: "social consequence",
+          stageKicker: "#3B / POV-360 / social pressure",
+          stageTitle: "The lanterns turn toward you.",
+          stageText: "The scene remains a POV because the pressure comes from being surrounded by listening lights.",
           hp: "12/12",
           xp: "25",
           clock: "3/6",
-          state: [
-            "XP +25 for discovering the overlap route.",
-            "Token revealed route; not consumed.",
-            "New risk: the lower road knows Rowan's position."
+          checkpoint: "price named",
+          ledger: [
+            ["Money", "Offer: 12 gp now, favor owed later."],
+            ["Risk", "Clock advances: the bellman distrusts Rowan's motive."],
+            ["Choice", "The player can still accept, haggle, or walk away."]
           ],
-          dice: [
-            ["No Roll", "Correct tool for the fiction; token matches the road."],
-            ["Reward", "+25 XP for meaningful discovery."],
-            ["Checkpoint", "Before descending to the lower pier."]
+          messages: [
+            {
+              from: "codex",
+              text:
+                "Roll Charisma (Persuasion): <roll>d20 + 1 = 11 + 1 = 12 vs DC 15</roll>. Mixed result. The bellman names a price, but the lanterns turn colder. You can continue, yet trust is thinner."
+            },
+            {
+              from: "codex",
+              text:
+                "Questforge avoids a dead end: the failed social angle changes the cost and attitude instead of blocking the adventure."
+            }
           ],
-          choices: [
-            ["Descend with rope", "Safer but slower."],
-            ["Send lantern first", "Tests whether flame survives below."],
-            ["Demand a name from the voice", "Social pressure."],
-            ["Rollback checkpoint", "Table control, not in-fiction."]
-          ]
+          choices: []
+        },
+        chain: {
+          parent: "steel",
+          choice: "I step in and cut the chain before it circles my ankle.",
+          label: "#3 Cut",
+          visual: "map",
+          status: "combat resolved",
+          stageKicker: "#3C / tactical map / attack result",
+          stageTitle: "The chain breaks, but the pier shifts.",
+          stageText: "The map stays visible because the terrain changes after the attack.",
+          hp: "9/12",
+          xp: "50",
+          clock: "4/6",
+          checkpoint: "after chain break",
+          ledger: [
+            ["Attack", "Longsword hits AC 13 and deals 7 slashing damage."],
+            ["XP", "+50 for resolving the immediate hazard."],
+            ["Hazard", "Broken chain releases the ferry; the lower pier begins drifting."]
+          ],
+          messages: [
+            {
+              from: "codex",
+              text:
+                "Attack roll: <roll>d20 + 5 = 14 + 5 = 19 vs AC 13</roll>. Hit. Damage: <roll>1d8 + 3 = 4 + 3 = 7</roll>. The chain snaps and recoils into the water."
+            },
+            {
+              from: "codex",
+              text:
+                "Victory has a cost: the lower pier is now drifting. You won the exchange, but the next scene starts under time pressure."
+            }
+          ],
+          choices: []
+        },
+        line: {
+          parent: "steel",
+          choice: "I keep the shield high, use the crates, and force it to come through cover.",
+          label: "#3 Hold",
+          visual: "scene",
+          status: "defensive success",
+          stageKicker: "#3D / scene / defensive frame",
+          stageTitle: "The shield buys enough time.",
+          stageText: "A grounded scene image shows the defensive posture after the tactical decision.",
+          hp: "11/12",
+          xp: "35",
+          clock: "3/6",
+          checkpoint: "cover secured",
+          ledger: [
+            ["Damage", "Reduced to 1 by cover and shield-first posture."],
+            ["XP", "+35 for creating positional advantage."],
+            ["Advantage", "Next attack against the chain has advantage."]
+          ],
+          messages: [
+            {
+              from: "codex",
+              text:
+                "You choose a defensive tactic, so I reduce the risk instead of asking for another entry roll. The chain strikes through crates and loses force. Rowan takes 1 damage and gains advantage on the next attack."
+            },
+            {
+              from: "codex",
+              text:
+                "This is the target feel: D&D-like math is visible, but the story keeps moving and the player understands why the state changed."
+            }
+          ],
+          choices: []
         }
-      ];
+      };
 
-      const timeline = document.querySelector("#timeline");
-      const storyText = document.querySelector("#storyText");
-      const sceneTitle = document.querySelector("#sceneTitle");
-      const sceneSummary = document.querySelector("#sceneSummary");
-      const kicker = document.querySelector("#kicker");
-      const diceLog = document.querySelector("#diceLog");
+      const thread = document.querySelector("#thread");
       const choices = document.querySelector("#choices");
-      const stateList = document.querySelector("#stateList");
+      const choiceLabel = document.querySelector("#choiceLabel");
+      const threadStatus = document.querySelector("#threadStatus");
+      const stage = document.querySelector("#stage");
+      const stageKicker = document.querySelector("#stageKicker");
+      const stageTitle = document.querySelector("#stageTitle");
+      const stageText = document.querySelector("#stageText");
+      const viewerNote = document.querySelector("#viewerNote");
       const hp = document.querySelector("#hp");
       const xp = document.querySelector("#xp");
       const clock = document.querySelector("#clock");
+      const checkpoint = document.querySelector("#checkpoint");
+      const ledger = document.querySelector("#ledger");
+      const visualLog = document.querySelector("#visualLog");
+      const nodeMap = document.querySelector("#nodeMap");
       const copyPrompt = document.querySelector("#copyPrompt");
-      const primaryMedia = document.querySelector("#primaryMedia");
-      const mediaTitle = document.querySelector("#mediaTitle");
-      const mediaText = document.querySelector("#mediaText");
-      const mediaPrompt = document.querySelector("#mediaPrompt");
+      const audio = document.querySelector("#ambience");
+      const audioToggle = document.querySelector("#audioToggle");
+      const speakerWave = document.querySelector("#speakerWave");
+      const speakerSlash = document.querySelector("#speakerSlash");
 
-      function renderMoment(index) {
-        const moment = moments[index];
-        kicker.textContent = moment.kicker;
-        sceneTitle.textContent = moment.title;
-        sceneSummary.textContent = moment.summary;
-        storyText.textContent = moment.story;
-        hp.textContent = moment.hp;
-        xp.textContent = moment.xp;
-        clock.textContent = moment.clock;
+      let currentId = "intro";
+      let selectedPath = ["intro"];
+      let panoCleanup = null;
+      let audioEnabled = localStorage.getItem("questforge-demo-audio") === "on";
 
-        stateList.innerHTML = moment.state.map((item) => `<li>${item}</li>`).join("");
-        diceLog.innerHTML = moment.dice
-          .map(([label, value]) => `<div class="dice-row"><strong>${label}</strong><span>${value}</span></div>`)
+      function ancestorPath(id) {
+        const path = [];
+        let cursor = id;
+        while (cursor) {
+          path.unshift(cursor);
+          cursor = story[cursor].parent;
+        }
+        return path;
+      }
+
+      function interpolateRolls(text) {
+        return text.replaceAll("<roll>", '<span class="inline-roll">').replaceAll("</roll>", "</span>");
+      }
+
+      function messageHtml(message) {
+        const avatar = message.from === "user" ? "You" : "QF";
+        const body = interpolateRolls(message.text)
+          .split("\n")
+          .map((paragraph) => `<p>${paragraph}</p>`)
           .join("");
-        choices.innerHTML = moment.choices
-          .map(([label, value]) => `<button class="choice" type="button"><strong>${label}</strong><span>${value}</span></button>`)
-          .join("");
+        const tool = message.tool ? `<div class="tool-run">${message.tool}</div>` : "";
+        return `
+          <article class="message ${message.from}">
+            <div class="avatar">${avatar}</div>
+            <div class="bubble">${body}${tool}</div>
+          </article>
+        `;
+      }
 
-        [...timeline.querySelectorAll("button")].forEach((button, buttonIndex) => {
-          button.setAttribute("aria-selected", String(buttonIndex === index));
+      function renderThread() {
+        const messages = [];
+        selectedPath.forEach((id, index) => {
+          const node = story[id];
+          if (index > 0 && node.choice) {
+            messages.push({ from: "user", text: node.choice });
+          }
+          messages.push(...node.messages);
+        });
+
+        thread.innerHTML = messages.map(messageHtml).join("");
+        window.requestAnimationFrame(() => {
+          thread.scrollTop = thread.scrollHeight;
         });
       }
 
-      moments.forEach((moment, index) => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.innerHTML = `${moment.label}<small>${moment.detail}</small>`;
-        button.addEventListener("click", () => renderMoment(index));
-        timeline.appendChild(button);
-      });
+      function renderChoices(node) {
+        if (!node.choices.length) {
+          choiceLabel.textContent = "Branch complete. Restart or open the repo to play the full version in Codex.";
+          choices.innerHTML = `
+            <button class="choice-button" type="button" data-restart="true">
+              <strong>Restart the demo</strong>
+              <span>Return to the opening scene and try the other route.</span>
+            </button>
+            <a class="choice-button" href="https://github.com/adrianmelic/codex-questforge">
+              <strong>Install the plugin</strong>
+              <span>Play the open-ended version inside Codex.</span>
+            </a>
+          `;
+          choices.querySelector("[data-restart]").addEventListener("click", () => navigate("intro"));
+          return;
+        }
 
-      function renderMedia(tab) {
-        document.querySelectorAll(".tab").forEach((button) => {
-          button.setAttribute("aria-selected", String(button.dataset.tab === tab));
+        choiceLabel.textContent = "Choose Rowan's next action.";
+        choices.innerHTML = node.choices
+          .map(
+            (choice) => `
+              <button class="choice-button" type="button" data-target="${choice.target}">
+                <strong>${choice.text}</strong>
+                <span>${choice.meta}</span>
+              </button>
+            `
+          )
+          .join("");
+
+        choices.querySelectorAll("[data-target]").forEach((button) => {
+          button.addEventListener("click", () => navigate(button.dataset.target));
         });
+      }
 
-        if (tab === "scene") {
-          primaryMedia.innerHTML = '<img src="assets/blackwater-pier-scene.png" alt="Generated Blackwater Pier scene" />';
-          mediaTitle.textContent = "#1 · scene · Rowan reaches Blackwater Pier";
-          mediaText.textContent =
-            "Static generated images appear in the Codex conversation for mobile play and are also saved into the campaign gallery for desktop review.";
-          mediaPrompt.textContent =
-            "Generated scene prompt: old blackwater harbor pier, amber lanterns under the tide, rain, grounded medieval fantasy.";
-        } else if (tab === "map") {
-          primaryMedia.innerHTML = '<img src="assets/blackwater-pier-map.png" alt="Generated tactical map of Blackwater Pier" />';
-          mediaTitle.textContent = "#2 · map · Tactical layout before descent";
-          mediaText.textContent =
-            "Questforge can ask for tactical maps when combat, cover, hazards, or interactables matter. The text state remains authoritative.";
-          mediaPrompt.textContent =
-            "Generated map prompt: top-down harbor pier, black water channels, lantern markers, crates, rope posts, playable layout.";
-        } else {
-          primaryMedia.innerHTML = '<div class="panorama" id="panorama"><div class="panorama-label">Drag to look around · POV 360</div></div>';
-          mediaTitle.textContent = "#3 · POV-360 · Under Blackwater Pier";
-          mediaText.textContent =
-            "For 360 assets, Questforge links to a local panorama viewer instead of treating the image as a flat frame.";
-          mediaPrompt.textContent =
-            "Generated panorama prompt: equirectangular 360 POV under old harbor pier, amber lanterns, rain, seamless wrap.";
-          attachPanoramaDrag();
+      function renderState(node) {
+        threadStatus.textContent = node.status;
+        hp.textContent = node.hp;
+        xp.textContent = node.xp;
+        clock.textContent = node.clock;
+        checkpoint.textContent = node.checkpoint;
+        ledger.innerHTML = node.ledger
+          .map(([title, value]) => `<li><strong>${title}</strong><span>${value}</span></li>`)
+          .join("");
+      }
+
+      function clearStageMedia() {
+        if (panoCleanup) {
+          panoCleanup();
+          panoCleanup = null;
+        }
+        [...stage.querySelectorAll("img, canvas, .pano-fallback")].forEach((element) => element.remove());
+      }
+
+      async function renderStage(node) {
+        clearStageMedia();
+        viewerNote.classList.toggle("hidden", node.visual !== "pov");
+        stageKicker.textContent = node.stageKicker;
+        stageTitle.textContent = node.stageTitle;
+        stageText.textContent = node.stageText;
+
+        if (node.visual === "pov") {
+          panoCleanup = await createSphereViewer(stage, images.pov);
+          return;
+        }
+
+        const image = document.createElement("img");
+        image.src = images[node.visual];
+        image.alt = node.visual === "map" ? "Generated tactical map" : "Generated scene frame";
+        stage.prepend(image);
+      }
+
+      async function createSphereViewer(container, source) {
+        const canvas = document.createElement("canvas");
+        container.prepend(canvas);
+
+        try {
+          const THREE = await import("https://unpkg.com/three@0.164.1/build/three.module.js");
+          const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+          const scene = new THREE.Scene();
+          const camera = new THREE.PerspectiveCamera(72, 1, 0.1, 1100);
+          const texture = await new THREE.TextureLoader().loadAsync(source);
+          texture.colorSpace = THREE.SRGBColorSpace;
+          const geometry = new THREE.SphereGeometry(500, 64, 40);
+          geometry.scale(-1, 1, 1);
+          const material = new THREE.MeshBasicMaterial({ map: texture });
+          scene.add(new THREE.Mesh(geometry, material));
+
+          let lon = 0;
+          let lat = 0;
+          let dragging = false;
+          let startX = 0;
+          let startY = 0;
+          let frame = 0;
+
+          function resize() {
+            const rect = container.getBoundingClientRect();
+            renderer.setSize(rect.width, rect.height, false);
+            camera.aspect = rect.width / Math.max(rect.height, 1);
+            camera.updateProjectionMatrix();
+          }
+
+          function render() {
+            lat = Math.max(-75, Math.min(75, lat));
+            const phi = THREE.MathUtils.degToRad(90 - lat);
+            const theta = THREE.MathUtils.degToRad(lon);
+            camera.lookAt(
+              500 * Math.sin(phi) * Math.cos(theta),
+              500 * Math.cos(phi),
+              500 * Math.sin(phi) * Math.sin(theta)
+            );
+            renderer.render(scene, camera);
+            frame = window.requestAnimationFrame(render);
+          }
+
+          function onPointerDown(event) {
+            dragging = true;
+            startX = event.clientX;
+            startY = event.clientY;
+            canvas.setPointerCapture(event.pointerId);
+          }
+
+          function onPointerMove(event) {
+            if (!dragging) return;
+            lon -= (event.clientX - startX) * 0.12;
+            lat += (event.clientY - startY) * 0.12;
+            startX = event.clientX;
+            startY = event.clientY;
+          }
+
+          function onPointerUp() {
+            dragging = false;
+          }
+
+          function onWheel(event) {
+            event.preventDefault();
+            camera.fov = Math.max(42, Math.min(86, camera.fov + event.deltaY * 0.03));
+            camera.updateProjectionMatrix();
+          }
+
+          const observer = new ResizeObserver(resize);
+          observer.observe(container);
+          canvas.addEventListener("pointerdown", onPointerDown);
+          canvas.addEventListener("pointermove", onPointerMove);
+          canvas.addEventListener("pointerup", onPointerUp);
+          canvas.addEventListener("pointercancel", onPointerUp);
+          canvas.addEventListener("wheel", onWheel, { passive: false });
+          resize();
+          render();
+
+          return () => {
+            observer.disconnect();
+            window.cancelAnimationFrame(frame);
+            canvas.removeEventListener("pointerdown", onPointerDown);
+            canvas.removeEventListener("pointermove", onPointerMove);
+            canvas.removeEventListener("pointerup", onPointerUp);
+            canvas.removeEventListener("pointercancel", onPointerUp);
+            canvas.removeEventListener("wheel", onWheel);
+            geometry.dispose();
+            material.dispose();
+            texture.dispose();
+            renderer.dispose();
+          };
+        } catch {
+          canvas.remove();
+          const fallback = document.createElement("div");
+          fallback.className = "pano-fallback";
+          container.prepend(fallback);
+          attachFallbackPanorama(fallback);
+          return () => fallback.remove();
         }
       }
 
-      function attachPanoramaDrag() {
-        const panorama = document.querySelector("#panorama");
-        if (!panorama) return;
-        let isDragging = false;
+      function attachFallbackPanorama(element) {
+        let dragging = false;
         let startX = 0;
         let position = 50;
-
-        panorama.addEventListener("pointerdown", (event) => {
-          isDragging = true;
+        element.addEventListener("pointerdown", (event) => {
+          dragging = true;
           startX = event.clientX;
-          panorama.setPointerCapture(event.pointerId);
+          element.setPointerCapture(event.pointerId);
         });
-
-        panorama.addEventListener("pointermove", (event) => {
-          if (!isDragging) return;
+        element.addEventListener("pointermove", (event) => {
+          if (!dragging) return;
           const delta = event.clientX - startX;
           startX = event.clientX;
           position = (position - delta * 0.08) % 100;
           if (position < 0) position += 100;
-          panorama.style.backgroundPosition = `${position}% 50%`;
+          element.style.backgroundPosition = `${position}% 50%`;
         });
-
-        panorama.addEventListener("pointerup", () => {
-          isDragging = false;
+        element.addEventListener("pointerup", () => {
+          dragging = false;
         });
       }
 
-      document.querySelectorAll(".tab").forEach((button) => {
-        button.addEventListener("click", () => renderMedia(button.dataset.tab));
+      function renderNodeMap() {
+        const ids = ["intro", "listen", "ledger", "payment", "steel", "chain", "line"];
+        nodeMap.innerHTML = ids
+          .map((id) => {
+            const node = story[id];
+            const prefix = selectedPath.includes(id) ? "visited" : "branch";
+            return `
+              <button class="node-button" type="button" data-node="${id}" aria-current="${id === currentId}">
+                <strong>${node.label}</strong>
+                <span>${prefix} / ${node.status}</span>
+              </button>
+            `;
+          })
+          .join("");
+        nodeMap.querySelectorAll("[data-node]").forEach((button) => {
+          button.addEventListener("click", () => navigate(button.dataset.node));
+        });
+      }
+
+      function renderVisualLog() {
+        visualLog.innerHTML = selectedPath
+          .map((id, index) => {
+            const node = story[id];
+            const image = node.visual === "pov" ? images.pov : images[node.visual];
+            return `
+              <article class="visual-card">
+                <img src="${image}" alt="${node.label} visual" />
+                <button type="button" data-node="${id}">
+                  <strong>#${index + 1} / ${node.visual} / ${node.stageTitle}</strong>
+                  <small>open</small>
+                </button>
+              </article>
+            `;
+          })
+          .join("");
+        visualLog.querySelectorAll("[data-node]").forEach((button) => {
+          button.addEventListener("click", () => navigate(button.dataset.node));
+        });
+      }
+
+      function maybeResumeAudio() {
+        if (!audioEnabled) return;
+        audio.volume = 0.42;
+        audio.play().catch(() => {});
+      }
+
+      function updateAudioIcon() {
+        speakerSlash.classList.toggle("hidden", audioEnabled);
+        speakerWave.classList.toggle("hidden", !audioEnabled);
+        audioToggle.setAttribute("aria-pressed", String(audioEnabled));
+      }
+
+      function navigate(id) {
+        currentId = id;
+        selectedPath = ancestorPath(id);
+        if (window.location.hash.slice(1) !== `node-${id}`) {
+          window.history.replaceState(null, "", `#node-${id}`);
+        }
+        const node = story[id];
+        renderThread();
+        renderChoices(node);
+        renderState(node);
+        renderStage(node);
+        renderNodeMap();
+        renderVisualLog();
+        maybeResumeAudio();
+      }
+
+      audioToggle.addEventListener("click", () => {
+        audioEnabled = !audioEnabled;
+        localStorage.setItem("questforge-demo-audio", audioEnabled ? "on" : "off");
+        updateAudioIcon();
+        if (audioEnabled) {
+          maybeResumeAudio();
+        } else {
+          audio.pause();
+        }
       });
 
       copyPrompt.addEventListener("click", async () => {
-        const prompt =
-          "Use Codex Questforge. I want to play in English. Create a quick character and start.";
+        const prompt = "Use Codex Questforge. I want to play in English. Create a quick character and start.";
         try {
           await navigator.clipboard.writeText(prompt);
-          copyPrompt.textContent = "Prompt Copied";
+          copyPrompt.textContent = "Copied";
           window.setTimeout(() => {
-            copyPrompt.textContent = "Copy Codex Prompt";
-          }, 1800);
+            copyPrompt.textContent = "Copy Prompt";
+          }, 1400);
         } catch {
           copyPrompt.textContent = prompt;
         }
       });
 
-      renderMoment(0);
+      updateAudioIcon();
+      const hashId = window.location.hash.slice(1).replace(/^node-/, "");
+      const initialId = story[hashId]
+        ? hashId
+        : "intro";
+      navigate(initialId);
     </script>
   </body>
 </html>

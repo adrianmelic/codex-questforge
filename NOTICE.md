@@ -14,3 +14,7 @@ Recommended attribution for campaign notes or generated SRD-derived material:
 
 Do not bundle commercial rulebooks, non-SRD setting lore, official artwork,
 logos, or other protected product identity in this plugin.
+
+The GitHub Pages demo includes one optional ambience track copied from the
+Questforge starter audio pack. The starter audio pack credits and licensing
+notes are documented in `assets/audio/README.md` and `assets/audio/library.json`.
