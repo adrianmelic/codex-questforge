@@ -47,14 +47,31 @@ Controls are natural language. You can say what your character attempts, ask wha
 
 ## Install In Codex
 
-Clone the repo into your personal Codex plugin folder:
+This repository is the plugin folder: the repo root contains
+`.codex-plugin/plugin.json` and `skills/...`, which matches the standard Codex
+plugin layout. Codex also needs a marketplace entry that points at the plugin
+folder.
+
+For the default personal marketplace, clone Questforge to the path Codex expects
+from `~/.agents/plugins/marketplace.json`:
 
 ```powershell
-mkdir $env:USERPROFILE\plugins -Force
-git clone https://github.com/adrianmelic/codex-questforge.git $env:USERPROFILE\plugins\codex-questforge
+New-Item -ItemType Directory -Force "$env:USERPROFILE\plugins"
+git clone https://github.com/adrianmelic/codex-questforge.git "$env:USERPROFILE\plugins\codex-questforge"
 ```
 
-Make sure your personal marketplace file contains an entry for Questforge:
+```bash
+mkdir -p "$HOME/plugins"
+git clone https://github.com/adrianmelic/codex-questforge.git "$HOME/plugins/codex-questforge"
+```
+
+If you cloned the repo somewhere else, move it there or create a junction/symlink
+so `~/plugins/codex-questforge` points at your clone.
+
+Make sure your personal marketplace file contains an entry for Questforge. The
+personal marketplace file is normally `~/.agents/plugins/marketplace.json`
+(`C:\Users\<you>\.agents\plugins\marketplace.json` on Windows), and Codex
+discovers it automatically:
 
 ```json
 {
@@ -79,12 +96,6 @@ Make sure your personal marketplace file contains an entry for Questforge:
 }
 ```
 
-On Windows this file is normally:
-
-```text
-C:\Users\<you>\.agents\plugins\marketplace.json
-```
-
 Then install the plugin:
 
 ```powershell
@@ -92,6 +103,12 @@ codex plugin add codex-questforge@personal
 ```
 
 Start a new Codex thread after installation so the Questforge skills are loaded.
+
+Reference: OpenAI's
+[Codex plugin docs](https://developers.openai.com/codex/plugins/build#create-a-plugin-manually)
+describe the same three-part shape: plugin folder with
+`.codex-plugin/plugin.json`, skills under `skills/...`, and a marketplace entry
+that points to the plugin folder.
 
 ## First-Run Rules Setup
 
