@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Codex Questforge Playable Demo</title>
+    <link rel="icon" href="data:," />
     <meta
       name="description"
       content="A Codex-style playable simulation of Codex Questforge, a fantasy RPG runner plugin for Codex."
@@ -271,6 +272,11 @@
         font-size: 13px;
       }
 
+      .avatar svg {
+        width: 22px;
+        height: 22px;
+      }
+
       .message.user .avatar {
         color: var(--accent-2);
       }
@@ -420,6 +426,15 @@
         height: 100%;
         min-height: 320px;
         object-fit: cover;
+      }
+
+      .stage canvas {
+        cursor: grab;
+        touch-action: none;
+      }
+
+      .stage canvas:active {
+        cursor: grabbing;
       }
 
       .stage::after {
@@ -825,7 +840,11 @@
       const images = {
         scene: "assets/blackwater-pier-scene.png",
         map: "assets/blackwater-pier-map.png",
-        pov: "assets/blackwater-pier-panorama.png"
+        pov: "assets/blackwater-pier-panorama.png",
+        oath: "assets/blackwater-pier-oath.png",
+        price: "assets/blackwater-pier-price.png",
+        chain: "assets/blackwater-pier-chain.png",
+        hold: "assets/blackwater-pier-hold.png"
       };
 
       const story = {
@@ -964,7 +983,7 @@
           parent: "listen",
           choice: "I promise to recover the ledger if the bellman lets me cross safely.",
           label: "#3 Oath",
-          visual: "scene",
+          visual: "oath",
           status: "branch resolved",
           stageKicker: "#3A / scene / consequence frame",
           stageTitle: "The bellman accepts the oath.",
@@ -996,11 +1015,11 @@
           parent: "listen",
           choice: "I ask what the job pays before I risk my neck.",
           label: "#3 Price",
-          visual: "pov",
+          visual: "price",
           status: "social consequence",
-          stageKicker: "#3B / POV-360 / social pressure",
+          stageKicker: "#3B / scene / social pressure",
           stageTitle: "The lanterns turn toward you.",
-          stageText: "The scene remains a POV because the pressure comes from being surrounded by listening lights.",
+          stageText: "A consequence frame shows Rowan asking for payment as the bellman's witnesses measure his motive.",
           hp: "12/12",
           xp: "25",
           clock: "3/6",
@@ -1028,11 +1047,11 @@
           parent: "steel",
           choice: "I step in and cut the chain before it circles my ankle.",
           label: "#3 Cut",
-          visual: "map",
+          visual: "chain",
           status: "combat resolved",
-          stageKicker: "#3C / tactical map / attack result",
+          stageKicker: "#3C / scene / attack result",
           stageTitle: "The chain breaks, but the pier shifts.",
-          stageText: "The map stays visible because the terrain changes after the attack.",
+          stageText: "The action frame shows the decisive hit while the ledger records the terrain consequence.",
           hp: "9/12",
           xp: "50",
           clock: "4/6",
@@ -1060,7 +1079,7 @@
           parent: "steel",
           choice: "I keep the shield high, use the crates, and force it to come through cover.",
           label: "#3 Hold",
-          visual: "scene",
+          visual: "hold",
           status: "defensive success",
           stageKicker: "#3D / scene / defensive frame",
           stageTitle: "The shield buys enough time.",
@@ -1132,7 +1151,14 @@
       }
 
       function messageHtml(message) {
-        const avatar = message.from === "user" ? "You" : "QF";
+        const avatar =
+          message.from === "user"
+            ? "You"
+            : `<svg viewBox="0 0 64 64" role="img" aria-label="Codex Questforge">
+                <rect x="8" y="8" width="48" height="48" rx="8" fill="#111516" stroke="#d39a40" stroke-width="5" />
+                <path d="M18 44 L32 14 L46 44 Z" fill="none" stroke="#83b6b6" stroke-width="5" stroke-linejoin="round" />
+                <path d="M24 42 H40" stroke="#8fbf7d" stroke-width="5" stroke-linecap="round" />
+              </svg>`;
         const body = interpolateRolls(message.text)
           .split("\n")
           .map((paragraph) => `<p>${paragraph}</p>`)
@@ -1236,45 +1262,124 @@
       async function createSphereViewer(container, source) {
         const canvas = document.createElement("canvas");
         container.prepend(canvas);
+        const context = canvas.getContext("2d", { willReadFrequently: true });
 
         try {
-          const THREE = await import("https://unpkg.com/three@0.164.1/build/three.module.js");
-          const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-          renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-          const scene = new THREE.Scene();
-          const camera = new THREE.PerspectiveCamera(72, 1, 0.1, 1100);
-          const texture = await new THREE.TextureLoader().loadAsync(source);
-          texture.colorSpace = THREE.SRGBColorSpace;
-          const geometry = new THREE.SphereGeometry(500, 64, 40);
-          geometry.scale(-1, 1, 1);
-          const material = new THREE.MeshBasicMaterial({ map: texture });
-          scene.add(new THREE.Mesh(geometry, material));
+          const sourceImage = new Image();
+          sourceImage.src = source;
+          await sourceImage.decode();
 
-          let lon = 0;
-          let lat = 0;
+          const sourceCanvas = document.createElement("canvas");
+          sourceCanvas.width = sourceImage.naturalWidth;
+          sourceCanvas.height = sourceImage.naturalHeight;
+          const sourceContext = sourceCanvas.getContext("2d", {
+            willReadFrequently: true,
+          });
+          sourceContext.drawImage(sourceImage, 0, 0);
+          const sourcePixels = sourceContext.getImageData(
+            0,
+            0,
+            sourceCanvas.width,
+            sourceCanvas.height
+          );
+
+          let yaw = 0;
+          let pitch = 0;
+          let fieldOfView = 76;
           let dragging = false;
           let startX = 0;
           let startY = 0;
           let frame = 0;
+          let disposed = false;
+          const maxRenderWidth = 960;
+          const maxRenderHeight = 540;
 
           function resize() {
             const rect = container.getBoundingClientRect();
-            renderer.setSize(rect.width, rect.height, false);
-            camera.aspect = rect.width / Math.max(rect.height, 1);
-            camera.updateProjectionMatrix();
+            const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.4);
+            const targetWidth = Math.min(
+              maxRenderWidth,
+              Math.max(320, Math.round(rect.width * pixelRatio))
+            );
+            const targetHeight = Math.min(
+              maxRenderHeight,
+              Math.max(220, Math.round(rect.height * pixelRatio))
+            );
+            if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+              canvas.width = targetWidth;
+              canvas.height = targetHeight;
+              requestRender();
+            }
           }
 
-          function render() {
-            lat = Math.max(-75, Math.min(75, lat));
-            const phi = THREE.MathUtils.degToRad(90 - lat);
-            const theta = THREE.MathUtils.degToRad(lon);
-            camera.lookAt(
-              500 * Math.sin(phi) * Math.cos(theta),
-              500 * Math.cos(phi),
-              500 * Math.sin(phi) * Math.sin(theta)
-            );
-            renderer.render(scene, camera);
-            frame = window.requestAnimationFrame(render);
+          function requestRender() {
+            if (frame || disposed) return;
+            frame = window.requestAnimationFrame(() => {
+              frame = 0;
+              renderSphere();
+            });
+          }
+
+          function renderSphere() {
+            const width = canvas.width;
+            const height = canvas.height;
+            if (!width || !height) return;
+
+            const output = context.createImageData(width, height);
+            const destination = output.data;
+            const sourceData = sourcePixels.data;
+            const sourceWidth = sourcePixels.width;
+            const sourceHeight = sourcePixels.height;
+            const aspect = width / height;
+            const fovRadians = (fieldOfView * Math.PI) / 180;
+            const scaleY = Math.tan(fovRadians / 2);
+            const scaleX = scaleY * aspect;
+            const yawRadians = (yaw * Math.PI) / 180;
+            const pitchRadians = (pitch * Math.PI) / 180;
+            const cosYaw = Math.cos(yawRadians);
+            const sinYaw = Math.sin(yawRadians);
+            const cosPitch = Math.cos(pitchRadians);
+            const sinPitch = Math.sin(pitchRadians);
+
+            let destinationIndex = 0;
+            for (let y = 0; y < height; y += 1) {
+              const cameraY = (1 - ((y + 0.5) * 2) / height) * scaleY;
+              for (let x = 0; x < width; x += 1) {
+                const cameraX = (((x + 0.5) * 2) / width - 1) * scaleX;
+                const inverseLength =
+                  1 / Math.hypot(cameraX, cameraY, 1);
+                const directionX = cameraX * inverseLength;
+                const directionY = cameraY * inverseLength;
+                const directionZ = inverseLength;
+
+                const pitchedY = directionY * cosPitch - directionZ * sinPitch;
+                const pitchedZ = directionY * sinPitch + directionZ * cosPitch;
+                const rotatedX = directionX * cosYaw + pitchedZ * sinYaw;
+                const rotatedZ = -directionX * sinYaw + pitchedZ * cosYaw;
+                const latitude = Math.asin(
+                  Math.max(-1, Math.min(1, pitchedY))
+                );
+                const longitude = Math.atan2(rotatedX, rotatedZ);
+
+                let sourceX =
+                  ((longitude / (Math.PI * 2) + 0.5) * sourceWidth) | 0;
+                sourceX %= sourceWidth;
+                if (sourceX < 0) sourceX += sourceWidth;
+
+                let sourceY =
+                  ((0.5 - latitude / Math.PI) * sourceHeight) | 0;
+                sourceY = Math.max(0, Math.min(sourceHeight - 1, sourceY));
+
+                const sourceIndex = (sourceY * sourceWidth + sourceX) * 4;
+                destination[destinationIndex] = sourceData[sourceIndex];
+                destination[destinationIndex + 1] = sourceData[sourceIndex + 1];
+                destination[destinationIndex + 2] = sourceData[sourceIndex + 2];
+                destination[destinationIndex + 3] = 255;
+                destinationIndex += 4;
+              }
+            }
+
+            context.putImageData(output, 0, 0);
           }
 
           function onPointerDown(event) {
@@ -1286,10 +1391,12 @@
 
           function onPointerMove(event) {
             if (!dragging) return;
-            lon -= (event.clientX - startX) * 0.12;
-            lat += (event.clientY - startY) * 0.12;
+            yaw -= (event.clientX - startX) * 0.16;
+            pitch += (event.clientY - startY) * 0.16;
+            pitch = Math.max(-78, Math.min(78, pitch));
             startX = event.clientX;
             startY = event.clientY;
+            requestRender();
           }
 
           function onPointerUp() {
@@ -1298,8 +1405,11 @@
 
           function onWheel(event) {
             event.preventDefault();
-            camera.fov = Math.max(42, Math.min(86, camera.fov + event.deltaY * 0.03));
-            camera.updateProjectionMatrix();
+            fieldOfView = Math.max(
+              42,
+              Math.min(92, fieldOfView + event.deltaY * 0.035)
+            );
+            requestRender();
           }
 
           const observer = new ResizeObserver(resize);
@@ -1310,9 +1420,10 @@
           canvas.addEventListener("pointercancel", onPointerUp);
           canvas.addEventListener("wheel", onWheel, { passive: false });
           resize();
-          render();
+          requestRender();
 
           return () => {
+            disposed = true;
             observer.disconnect();
             window.cancelAnimationFrame(frame);
             canvas.removeEventListener("pointerdown", onPointerDown);
@@ -1320,10 +1431,6 @@
             canvas.removeEventListener("pointerup", onPointerUp);
             canvas.removeEventListener("pointercancel", onPointerUp);
             canvas.removeEventListener("wheel", onWheel);
-            geometry.dispose();
-            material.dispose();
-            texture.dispose();
-            renderer.dispose();
           };
         } catch {
           canvas.remove();
@@ -1381,11 +1488,13 @@
           .map((id, index) => {
             const node = story[id];
             const image = node.visual === "pov" ? images.pov : images[node.visual];
+            const visualType =
+              node.visual === "pov" ? "POV-360" : node.visual === "map" ? "map" : "scene";
             return `
               <article class="visual-card">
                 <img src="${image}" alt="${node.label} visual" />
                 <button type="button" data-node="${id}">
-                  <strong>#${index + 1} / ${node.visual} / ${node.stageTitle}</strong>
+                  <strong>#${index + 1} / ${visualType} / ${node.stageTitle}</strong>
                   <small>open</small>
                 </button>
               </article>
