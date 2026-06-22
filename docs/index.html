@@ -763,9 +763,13 @@
       <header class="topbar">
         <div class="brand">
           <svg class="brand-mark" viewBox="0 0 64 64" role="img" aria-label="Codex Questforge">
-            <rect x="6" y="6" width="52" height="52" rx="9" fill="#111516" stroke="#d39a40" stroke-width="3" />
-            <path d="M17 44 L32 13 L47 44 Z" fill="none" stroke="#83b6b6" stroke-width="4" stroke-linejoin="round" />
-            <path d="M23 42 H41" stroke="#8fbf7d" stroke-width="4" stroke-linecap="round" />
+            <rect x="6" y="6" width="52" height="52" rx="14" fill="#111827" stroke="#5bb7ff" stroke-width="3" />
+            <path
+              d="M16 38c0-6 4-10 10-11 3-7 13-8 18-2 6 0 10 5 10 11 0 7-5 12-13 12H27c-7 0-11-4-11-10Z"
+              fill="#f3fbff"
+            />
+            <path d="M25 30 33 37l-8 7" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M37 44h9" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round" />
           </svg>
           <div>
             <h1>Codex Questforge</h1>
@@ -973,30 +977,30 @@
           checkpoint: "combat started",
           ledger: [
             ["Damage", "Rowan takes 3 bludgeoning damage from a yanked mooring chain."],
-            ["Combat", "Initiative started: Rowan 16, dock thieves 11."],
-            ["Terrain", "Crates grant half cover; lantern oil can ignite the middle span."]
+            ["Combat", "Initiative: Rowan 16, two dock thieves 11."],
+            ["Terrain", "Crates grant half cover; the ferry winch can be cut or seized."]
           ],
           messages: [
             {
               from: "codex",
               text:
-                "Roll Strength (Athletics): <roll>d20 + 5 = 7 + 5 = 12 vs DC 15</roll>. Failure, but forward. Rowan hauls the ferry chain loose enough to board, but a hidden dock thief yanks the far end. The chain slams across Rowan's shield for 3 damage, and two thieves step out from the lower awning."
+                "Roll Strength (Athletics): <roll>d20 + 5 = 7 + 5 = 12 vs DC 15</roll>. Failure, but forward. Rowan hauls the ferry chain loose enough to board, but two dock thieves reveal themselves: one cranks the ferry winch, the other hooks the chain around Rowan's shield. Rowan takes 3 damage, and the fight starts on the wet landing."
             },
             {
               from: "codex",
               text:
-                "Because this becomes tactical, I create a map-style visual and record the combatants in game-state.json."
+                "Because this becomes tactical, I create a map-style visual and record the thieves, winch, cover, and ferry position in game-state.json."
             }
           ],
           choices: [
             {
-              text: "Cut the mooring chain",
-              meta: "Attack roll, risky but decisive.",
+              text: "Cut the ferry winch",
+              meta: "Attack roll, decisive but starts a chase clock.",
               target: "chain"
             },
             {
               text: "Hold the line and use cover",
-              meta: "Defense first, safer tempo.",
+              meta: "Defense first, expose the thieves safely.",
               target: "line"
             }
           ]
@@ -1067,64 +1071,64 @@
         },
         chain: {
           parent: "steel",
-          choice: "I step in and cut the chain before it circles my ankle.",
+          choice: "I step in and cut the ferry winch before the thieves can pull me off balance.",
           label: "#3 Cut",
           visual: "chain",
           status: "combat resolved",
           stageKicker: "#3C / scene / attack result",
-          stageTitle: "The chain breaks, but the pier shifts.",
-          stageText: "The action frame shows the decisive hit while the ledger records the terrain consequence.",
+          stageTitle: "The winch breaks. The ferry lurches free.",
+          stageText: "The action frame shows a decisive hit: the hazard ends, but the chase starts.",
           hp: "9/12",
           xp: "50",
           clock: "4/6",
           checkpoint: "after chain break",
           ledger: [
-            ["Attack", "Longsword hits the chain clamp at AC 13 and deals 7 damage."],
+            ["Attack", "Longsword hits the winch clamp at AC 13 and deals 7 damage."],
             ["XP", "+50 for resolving the immediate hazard."],
-            ["Hazard", "Broken chain releases the ferry; the lower pier begins drifting."]
+            ["Consequence", "The ferry is free, but the thief carrying the ledger jumps aboard as it drifts."]
           ],
           messages: [
             {
               from: "codex",
               text:
-                "Attack roll: <roll>d20 + 5 = 14 + 5 = 19 vs AC 13</roll>. Hit. Damage: <roll>1d8 + 3 = 4 + 3 = 7</roll>. Rowan cuts the chain clamp. The nearest thief loses his grip and the chain recoils into the water."
+                "Attack roll: <roll>d20 + 5 = 14 + 5 = 19 vs AC 13</roll>. Hit. Damage: <roll>1d8 + 3 = 4 + 3 = 7</roll>. Rowan cuts through the winch clamp. The chain drops, the ferry lurches free, and one thief falls hard against the rail."
             },
             {
               from: "codex",
               text:
-                "Victory has a cost: the lower pier is now drifting. You won the exchange, but the next scene starts under time pressure."
+                "Victory has a cost: the second thief, the one with the ledger case, jumps onto the loose ferry. You won the exchange, but the next scene starts as a chase across a drifting boat."
             }
           ],
           choices: []
         },
         line: {
           parent: "steel",
-          choice: "I keep the shield high, use the crates, and make the thieves come through cover.",
+          choice: "I keep the shield high, brace behind the crates, and force the thieves into the lantern light.",
           label: "#3 Hold",
           visual: "hold",
           status: "defensive success",
           stageKicker: "#3D / scene / defensive frame",
-          stageTitle: "The shield buys enough time.",
-          stageText: "A grounded scene image shows the defensive posture after the tactical decision.",
+          stageTitle: "The ambush loses its angle.",
+          stageText: "A defensive choice turns the failed shortcut into position, visibility, and a clue.",
           hp: "11/12",
           xp: "35",
           clock: "3/6",
           checkpoint: "cover secured",
           ledger: [
             ["Damage", "Reduced to 1 by cover and shield-first posture."],
-            ["XP", "+35 for creating positional advantage."],
-            ["Advantage", "Next attack against the chain has advantage."]
+            ["XP", "+35 for creating positional advantage without escalating the chase."],
+            ["Clue", "The lead thief wears a torn leather ledger strap at his belt."]
           ],
           messages: [
             {
               from: "codex",
               text:
-                "You choose a defensive tactic, so I reduce the risk instead of asking for another entry roll. The thief's chain strikes through stacked crates and loses force. Rowan takes 1 damage and gains advantage on his next attack."
+                "You choose a defensive tactic, so I reduce the risk instead of asking for another entry roll. The chain strikes through stacked crates and loses force. Rowan takes 1 damage, keeps his footing, and drags both thieves into the lantern light."
             },
             {
               from: "codex",
               text:
-                "This is the target feel: D&D-like math is visible, but the story keeps moving and the player understands why the state changed."
+                "This route is slower but cleaner: the thieves lose cover, the bellman can identify them, and Rowan spots the torn ledger strap before choosing whether to attack, question, or chase."
             }
           ],
           choices: []
@@ -1177,9 +1181,10 @@
           message.from === "user"
             ? "You"
             : `<svg viewBox="0 0 64 64" role="img" aria-label="Codex Questforge">
-                <rect x="8" y="8" width="48" height="48" rx="8" fill="#111516" stroke="#d39a40" stroke-width="5" />
-                <path d="M18 44 L32 14 L46 44 Z" fill="none" stroke="#83b6b6" stroke-width="5" stroke-linejoin="round" />
-                <path d="M24 42 H40" stroke="#8fbf7d" stroke-width="5" stroke-linecap="round" />
+                <rect x="8" y="8" width="48" height="48" rx="13" fill="#111827" stroke="#5bb7ff" stroke-width="4" />
+                <path d="M17 38c0-6 4-10 10-11 3-7 13-8 18-2 6 0 10 5 10 11 0 7-5 12-13 12H28c-7 0-11-4-11-10Z" fill="#f3fbff" />
+                <path d="M25 30 33 37l-8 7" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M37 44h9" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round" />
               </svg>`;
         const body = interpolateRolls(message.text)
           .split("\n")
