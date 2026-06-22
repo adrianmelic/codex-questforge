@@ -1,15 +1,16 @@
 # Codex Questforge
 
-**Codex Questforge is a playable fantasy RPG runner for Codex.** It is intentionally not a conventional browser game: Codex is the play surface, Dungeon Master, rules assistant, local state engine, and visual table. Questforge turns a Codex thread into a persistent 5E-compatible campaign with quick character creation, open dice rolls, a local mechanical ledger, campaign memory, optional generated visuals, 360 scene viewers, and ambience support.
+![Codex Questforge cover](docs/assets/questforge-cover.png)
+
+**What if we did not just use Codex to build a game, but used Codex as the game itself?**
+
+**Codex Questforge is a playable fantasy RPG runner for Codex.** Codex becomes the play surface, Dungeon Master, rules assistant, local state engine, and visual table. Questforge turns a Codex thread into a persistent 5E-compatible campaign with quick character creation, open dice rolls, a local mechanical ledger, campaign memory, optional generated visuals, 360 scene viewers, and ambience support.
 
 This is an unofficial alpha made for the OpenAI Discord Codex game challenge. It is designed to be playable today, then improved in public.
 
 **Playable demo:** <https://adrianmelic.github.io/codex-questforge/>
 
-The playable link is an interactive Codex-style simulation: click a player
-choice, see the simulated Codex DM response, dice result, character state,
-visual gallery update, tactical map or 360 POV viewer, and optional ambience.
-The full open-ended game still runs inside Codex after installing the plugin.
+The playable link is an interactive Codex-style simulation: click a player choice, see the simulated Codex DM response, dice result, character state, visual gallery update, tactical map or 360 POV viewer, and optional ambience. The full open-ended game still runs inside Codex after installing the plugin, where you can say anything and Codex continues as the DM.
 
 ## What You Made
 
@@ -33,20 +34,28 @@ Core features:
 Install or enable the plugin in Codex, open a new Codex thread, and start with one of these prompts:
 
 ```text
-Use Codex Questforge. I want to play in English. Create a quick character and start.
+I want to play @questforge in English. Create a quick character and start.
 ```
 
 ```text
-Use Codex Questforge. I am new to D&D. Guide me through a character with a few choices and then start the first scene.
+I want to play @questforge. I am new to D&D; guide me through a character with a few choices, then start the first scene.
 ```
 
 ```text
-Usa Codex Questforge. Quiero jugar en español. Créame un personaje rápido y empezamos.
+Quiero jugar a @questforge en español. Créame un personaje rápido y empezamos.
 ```
 
 Controls are natural language. You can say what your character attempts, ask what you can do, inspect inventory, request a rollback to the last checkpoint, ask for a rules explanation, or continue the story in any direction that makes sense.
 
+Questforge has been tested in English and Spanish. Players are encouraged to try their own language; first-run setup detects language automatically and can download the public 5E SRD 5.2.1 PDF locally, so the first campaign setup can take a little longer.
+
 ## Install In Codex
+
+Fastest path if you are already using Codex:
+
+```text
+Install the Questforge plugin from https://github.com/adrianmelic/codex-questforge, then start a new thread so I can play @questforge.
+```
 
 This repository is the plugin folder: the repo root contains
 `.codex-plugin/plugin.json` and `skills/...`, which matches the standard Codex
@@ -58,16 +67,16 @@ from `~/.agents/plugins/marketplace.json`:
 
 ```powershell
 New-Item -ItemType Directory -Force "$env:USERPROFILE\plugins"
-git clone https://github.com/adrianmelic/codex-questforge.git "$env:USERPROFILE\plugins\codex-questforge"
+git clone https://github.com/adrianmelic/codex-questforge.git "$env:USERPROFILE\plugins\questforge"
 ```
 
 ```bash
 mkdir -p "$HOME/plugins"
-git clone https://github.com/adrianmelic/codex-questforge.git "$HOME/plugins/codex-questforge"
+git clone https://github.com/adrianmelic/codex-questforge.git "$HOME/plugins/questforge"
 ```
 
 If you cloned the repo somewhere else, move it there or create a junction/symlink
-so `~/plugins/codex-questforge` points at your clone.
+so `~/plugins/questforge` points at your clone.
 
 Make sure your personal marketplace file contains an entry for Questforge. The
 personal marketplace file is normally `~/.agents/plugins/marketplace.json`
@@ -82,10 +91,10 @@ discovers it automatically:
   },
   "plugins": [
     {
-      "name": "codex-questforge",
+      "name": "questforge",
       "source": {
         "source": "local",
-        "path": "./plugins/codex-questforge"
+        "path": "./plugins/questforge"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -100,7 +109,7 @@ discovers it automatically:
 Then install the plugin:
 
 ```powershell
-codex plugin add codex-questforge@personal
+codex plugin add questforge@personal
 ```
 
 Start a new Codex thread after installation so the Questforge skills are loaded.

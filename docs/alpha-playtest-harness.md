@@ -13,7 +13,7 @@ alpha harness runs broader table-feel probes across several play modes:
 ## Run
 
 ```powershell
-python plugins\codex-questforge\scripts\alpha_playtest.py `
+python plugins\questforge\scripts\alpha_playtest.py `
   --output-dir playtests\alpha-001
 ```
 

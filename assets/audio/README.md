@@ -12,8 +12,8 @@ Use the pack as an optional ambience layer. The game must not start audio by def
 Example:
 
 ```powershell
-python plugins\codex-questforge\scripts\audio_library.py select `
-  --library plugins\codex-questforge\assets\audio\library.json `
+python plugins\questforge\scripts\audio_library.py select `
+  --library plugins\questforge\assets\audio\library.json `
   --tag dungeon `
   --tag exploration `
   --intensity 3 `

@@ -9,6 +9,27 @@
       name="description"
       content="A Codex-style playable simulation of Codex Questforge, a fantasy RPG runner plugin for Codex."
     />
+    <meta property="og:title" content="Codex Questforge" />
+    <meta
+      property="og:description"
+      content="A fantasy RPG played inside Codex: DM, dice, local campaign memory, generated scene art, 360 POV, and optional soundtrack."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://adrianmelic.github.io/codex-questforge/" />
+    <meta
+      property="og:image"
+      content="https://adrianmelic.github.io/codex-questforge/assets/questforge-cover.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Codex Questforge" />
+    <meta
+      name="twitter:description"
+      content="A fantasy RPG played inside Codex: DM, dice, local campaign memory, generated scene art, 360 POV, and optional soundtrack."
+    />
+    <meta
+      name="twitter:image"
+      content="https://adrianmelic.github.io/codex-questforge/assets/questforge-cover.png"
+    />
     <style>
       :root {
         color-scheme: dark;
@@ -1546,7 +1567,7 @@
       });
 
       copyPrompt.addEventListener("click", async () => {
-        const prompt = "Use Codex Questforge. I want to play in English. Create a quick character and start.";
+        const prompt = "I want to play @questforge in English. Create a quick character and start.";
         try {
           await navigator.clipboard.writeText(prompt);
           copyPrompt.textContent = "Copied";

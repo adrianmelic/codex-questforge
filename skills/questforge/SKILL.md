@@ -34,25 +34,31 @@ product identity.
 
 1. Ensure setup is ready through `questforge-setup`. Do not ask language by
    default; setup detects it automatically.
-2. Establish only the minimum table preferences needed to start: tone, content
-   boundaries, hero creation/import, and dice ownership.
-3. Use `questforge-campaign` to create or load campaign memory.
-4. Create or import a hero. If the player wants speed, create a quick-start
+2. If the user simply asks to play, default to a quick-start path instead of
+   interviewing them. State the defaults briefly: quick level-1 hero, Codex
+   rolls openly unless the player asks to roll, cinematic but table-safe
+   fantasy tone, and easy rollback to named checkpoints.
+3. If no character exists, offer exactly three hero paths: quick random hero,
+   assisted hero with a few choices, or imported/custom hero. Recommend quick
+   hero for first-time play and make it clear the player can revise details
+   later.
+4. Use `questforge-campaign` to create or load campaign memory.
+5. Create or import a hero. If the player wants speed, create a quick-start
    level-1 hero and record it in `game-state.json` with
    `../../scripts/game_state.py add-character`; make it clear the player can
    revise details later.
-5. Offer a small campaign premise with three concrete hooks.
-6. Draft the campaign promise and first scene using
+6. Offer a small campaign premise with three concrete hooks.
+7. Draft the campaign promise and first scene using
    `../../templates/opening-brief.md`.
-7. Draft the DM-only spine in `dm/adventure-spine.md`: core truths, hook
+8. Draft the DM-only spine in `dm/adventure-spine.md`: core truths, hook
    statuses, clue web, faction plans, and possible outcomes.
-8. Check the premise, opening brief, and major reveals against `../../docs/narrative-diversity.md` or `../../scripts/narrative_lint.py` so the campaign does not default to stacked AI-fiction motifs.
-9. Create a first checkpoint with `../../scripts/game_state.py checkpoint --label "Before session start"` once the hero and starting situation are recorded.
-10. Create or refresh spoiler-free `player-journal.md`: current objective, known clues/NPCs, inventory, XP/rewards, damage/conditions, and open threads visible to the player.
-11. Prepare the visual loop: save/register generated images, show static images once in chat for mobile play, refresh `images/visual-gallery.html` for desktop history, use 360 viewer links only for panorama assets, and select optional ambience from campaign audio or the bundled starter pack when it fits.
-12. Run `../../scripts/preflight.py --campaign-root <campaign-root> --repair-missing-templates --refresh-gallery --title "<campaign title>"` before human beta play or a long continuation; fix errors and use warnings as prep prompts.
-13. Open with a specific scene that demands action.
-14. For the first player-facing scene of a new or continued session, treat an opening visual as the default. Generate and register a fresh establishing image, or explicitly point to an already-current gallery image, unless the turn is only setup/preflight/recap or the user asks for speed.
+9. Check the premise, opening brief, and major reveals against `../../docs/narrative-diversity.md` or `../../scripts/narrative_lint.py` so the campaign does not default to stacked AI-fiction motifs.
+10. Create a first checkpoint with `../../scripts/game_state.py checkpoint --label "Before session start"` once the hero and starting situation are recorded.
+11. Create or refresh spoiler-free `player-journal.md`: current objective, known clues/NPCs, inventory, XP/rewards, damage/conditions, and open threads visible to the player.
+12. Prepare the visual loop: save/register generated images, show static images once in chat for mobile play, refresh `images/visual-gallery.html` for desktop history, use 360 viewer links only for panorama assets, and select optional ambience from campaign audio or the bundled starter pack when it fits.
+13. Run `../../scripts/preflight.py --campaign-root <campaign-root> --repair-missing-templates --refresh-gallery --title "<campaign title>"` before human beta play or a long continuation; fix errors and use warnings as prep prompts.
+14. Open with a specific scene that demands action.
+15. For the first player-facing scene of a new or continued session, treat an opening visual as the default. Generate and register a fresh establishing image, or explicitly point to an already-current gallery image, unless the turn is only setup/preflight/recap or the user asks for speed.
 
 ## Session Loop
 

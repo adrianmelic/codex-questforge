@@ -65,6 +65,13 @@ Use 5E-style DC anchors instead of drifting to 13/14 by default:
 - DC 25: very hard;
 - DC 30: nearly impossible.
 
+The anchors are guidance, not a requirement that every DC be exactly a
+multiple of 5. For ordinary play, prefer anchor values because players can
+learn them. For a specific fictional nuance, choose a nearby value such as 12,
+13, 16, 17, or 18 and say why. Avoid repeated 12-15 clustering; if recent
+checks all sit in that band, intentionally switch to no roll, DC 10, DC 15, DC
+20, an opposed roll, or a resource tradeoff.
+
 Use `../../scripts/dc_planner.py` before important checks or whenever recent
 checks feel clustered:
 

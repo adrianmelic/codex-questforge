@@ -34,7 +34,7 @@ These pressures make fantasy stranger, not smaller, because they give NPCs reaso
 Run the local lint before major prep or after a session recap:
 
 ```powershell
-python plugins\codex-questforge\scripts\narrative_lint.py `
+python plugins\questforge\scripts\narrative_lint.py `
   --file campaigns\the-amber-gate\opening-brief.md
 ```
 

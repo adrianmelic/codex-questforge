@@ -33,15 +33,15 @@ resolution.
 Example:
 
 ```powershell
-python plugins\codex-questforge\scripts\visual_prep.py `
+python plugins\questforge\scripts\visual_prep.py `
   --campaign-root campaigns\rootbound-vault `
-  --spec plugins\codex-questforge\templates\visual-prep-spec.json
+  --spec plugins\questforge\templates\visual-prep-spec.json
 ```
 
 After image generation:
 
 ```powershell
-python plugins\codex-questforge\scripts\campaign_memory.py register-visual-asset `
+python plugins\questforge\scripts\campaign_memory.py register-visual-asset `
   --campaign-root campaigns\rootbound-vault `
   --asset-source <generated-image.png> `
   --asset-filename bramble-sentinel-reference.png `
@@ -55,7 +55,7 @@ python plugins\codex-questforge\scripts\campaign_memory.py register-visual-asset
 If the asset was already registered and later reviewed:
 
 ```powershell
-python plugins\codex-questforge\scripts\campaign_memory.py set-visual-status `
+python plugins\questforge\scripts\campaign_memory.py set-visual-status `
   --campaign-root campaigns\rootbound-vault `
   --kind creature `
   --label "Bramble Sentinel Reference Sheet" `
@@ -67,7 +67,7 @@ python plugins\codex-questforge\scripts\campaign_memory.py set-visual-status `
 Before a live visual beat, list the reusable library:
 
 ```powershell
-python plugins\codex-questforge\scripts\campaign_memory.py list-visual-assets `
+python plugins\questforge\scripts\campaign_memory.py list-visual-assets `
   --campaign-root campaigns\rootbound-vault `
   --status canon `
   --format markdown
@@ -76,7 +76,7 @@ python plugins\codex-questforge\scripts\campaign_memory.py list-visual-assets `
 Then build a scene-frame prompt from specific anchors:
 
 ```powershell
-python plugins\codex-questforge\scripts\visual_reuse.py `
+python plugins\questforge\scripts\visual_reuse.py `
   --campaign-root campaigns\rootbound-vault `
   --session 1 `
   --scene 4 `

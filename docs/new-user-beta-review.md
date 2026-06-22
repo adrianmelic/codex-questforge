@@ -11,7 +11,7 @@ visual reuse, session close, and continuity handoff.
 ## Evidence
 
 Ignored beta workspace:
-`plugins/codex-questforge/outputs/beta-new-user-20260517-questforge/`
+`plugins/questforge/outputs/beta-new-user-20260517-questforge/`
 
 The run proved:
 

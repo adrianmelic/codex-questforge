@@ -8,7 +8,7 @@ Visual run:
 
 - 5 native images generated as separate assets.
 - Assets copied into the local ignored playtest workspace under
-  `plugins/codex-questforge/outputs/visual-beta-rootbound/`.
+  `plugins/questforge/outputs/visual-beta-rootbound/`.
 - `images/visual-index.md` updated from `prompt-saved` to `asset-saved` for
   all five visual beats.
 

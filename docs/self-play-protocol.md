@@ -30,7 +30,7 @@ Run a 10- to 15-turn mini-session with:
 For a deterministic smoke test, run:
 
 ```powershell
-python plugins\codex-questforge\scripts\self_play.py `
+python plugins\questforge\scripts\self_play.py `
   --campaigns-dir campaigns `
   --name "The Amber Gate Self Play"
 ```
@@ -41,7 +41,7 @@ the beta can be reviewed for actual table feel, not only filesystem output.
 For broader alpha testing, run:
 
 ```powershell
-python plugins\codex-questforge\scripts\alpha_playtest.py `
+python plugins\questforge\scripts\alpha_playtest.py `
   --output-dir playtests\alpha-001
 ```
 

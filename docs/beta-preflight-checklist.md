@@ -5,7 +5,7 @@ Use this before a human beta session or any long continuation where continuity, 
 ## 1. Run The Audit
 
 ```powershell
-python plugins\codex-questforge\scripts\preflight.py `
+python plugins\questforge\scripts\preflight.py `
   --campaign-root campaigns\<campaign-slug> `
   --repair-missing-templates `
   --refresh-gallery `

@@ -1,6 +1,6 @@
 {
-  "name": "codex-questforge",
-  "version": "0.6.1",
+  "name": "questforge",
+  "version": "0.7.0",
   "description": "A 5E-compatible Codex plugin for running persistent fantasy campaigns with auto-language SRD setup, structured local rules resources, campaign memory, a mechanical game-state ledger, adventure spines, puzzle beats, dice resolution, self-play, visual planning, native scene image generation, 360 viewers, a local visual gallery, and pre-beta campaign audits.",
   "author": {
     "name": "Adrian and Codex",
@@ -49,13 +49,15 @@
     "privacyPolicyURL": "https://github.com/adrianmelic/codex-questforge#privacy",
     "termsOfServiceURL": "https://github.com/adrianmelic/codex-questforge#terms",
     "defaultPrompt": [
-      "Start a Codex Questforge campaign.",
-      "Continue our last Questforge session.",
-      "Create a new 5E-compatible hero."
+      "I want to play @questforge.",
+      "Create a quick hero and start.",
+      "Continue my Questforge campaign."
     ],
     "brandColor": "#7C3AED",
     "composerIcon": "./assets/icon.svg",
     "logo": "./assets/logo.svg",
-    "screenshots": []
+    "screenshots": [
+      "./assets/screenshot-questforge-cover.png"
+    ]
   }
 }

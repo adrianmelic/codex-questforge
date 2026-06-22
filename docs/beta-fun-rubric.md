@@ -56,7 +56,7 @@ Fix before inviting more testers when:
 After beta play, run:
 
 ```powershell
-python plugins\codex-questforge\scripts\session_analytics.py analyze `
+python plugins\questforge\scripts\session_analytics.py analyze `
   --session-log campaigns\the-amber-gate\sessions\session-001.md `
   --visual-index campaigns\the-amber-gate\images\visual-index.md `
   --events campaigns\the-amber-gate\analytics\session-events.jsonl
@@ -70,7 +70,7 @@ resource tradeoffs, or non-roll choices.
 For the next session after a narrow-DC warning, use:
 
 ```powershell
-python plugins\codex-questforge\scripts\dc_planner.py `
+python plugins\questforge\scripts\dc_planner.py `
   --difficulty medium `
   --position normal `
   --approach clever `
@@ -88,7 +88,7 @@ unexplained `DC 13` or `DC 14`.
 Before a long beta session, run:
 
 ```powershell
-python plugins\codex-questforge\scripts\narrative_lint.py `
+python plugins\questforge\scripts\narrative_lint.py `
   --file campaigns\the-amber-gate\opening-brief.md
 ```
 

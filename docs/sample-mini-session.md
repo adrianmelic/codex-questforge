@@ -44,7 +44,7 @@ Codex ruling:
 Example roll:
 
 ```powershell
-python plugins\codex-questforge\scripts\roll_dice.py d20+4 --seed 9
+python plugins\questforge\scripts\roll_dice.py d20+4 --seed 9
 ```
 
 Example result:
@@ -68,7 +68,7 @@ State changes:
 Save this location prompt before requesting native image generation:
 
 ```powershell
-python plugins\codex-questforge\scripts\campaign_memory.py save-visual-prompt `
+python plugins\questforge\scripts\campaign_memory.py save-visual-prompt `
   --campaign-root campaigns\the-amber-gate `
   --session 1 `
   --scene 1 `
@@ -80,7 +80,7 @@ python plugins\codex-questforge\scripts\campaign_memory.py save-visual-prompt `
 Also save a persistent item prompt:
 
 ```powershell
-python plugins\codex-questforge\scripts\campaign_memory.py save-visual-prompt `
+python plugins\questforge\scripts\campaign_memory.py save-visual-prompt `
   --campaign-root campaigns\the-amber-gate `
   --session 1 `
   --scene 1 `

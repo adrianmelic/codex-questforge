@@ -6,9 +6,11 @@
 
 **Short description:**
 
-Codex Questforge is a Codex-native fantasy RPG runner. It is a game you play inside Codex: Codex becomes the Dungeon Master, rules assistant, local state engine, and visual table. A Codex thread turns into a persistent 5E-compatible campaign with quick character creation, open dice rolls, campaign memory, a mechanical game-state ledger, checkpoints/rollback, optional generated scene images, 360 viewers, and ambience support.
+What if we did not just use Codex to build a game, but used Codex as the game itself?
 
-The browser link is not the full game; it is a playable Codex-style simulation for the challenge. Click a player choice, see the simulated DM response, dice result, character state, generated scene art, tactical map or POV 360 viewer, and optional ambience. The real open-ended game runs inside Codex after installing the plugin.
+**Codex Questforge is a fantasy RPG played inside Codex.** Codex becomes your Dungeon Master: it prepares the adventure, creates your character, reacts to whatever you decide, rolls dice openly, tracks local campaign state, remembers clues and consequences, generates scene images and 360 POV moments, and can choose ambient soundtrack loops for the current situation.
+
+The browser link is a playable Codex-style simulation for the challenge. Click a player prompt, see the simulated DM response, dice result, state update, generated scene image, tactical map, 360 viewer, and optional ambience. The installed plugin is open-ended: in Codex, you can say anything and the DM continues the story.
 
 **What I made:**
 
@@ -25,10 +27,10 @@ Codex helped design the plugin architecture, implement the scripts and templates
 Install the plugin, open a new Codex thread, and type:
 
 ```text
-Use Codex Questforge. I want to play in English. Create a quick character and start.
+I want to play @questforge.
 ```
 
-Controls are natural language: say what your character does, ask what you can do, inspect inventory, request a rollback, ask for rules, or continue the story freely.
+Controls are natural language: say what your character does, ask what you can do, inspect inventory, request a rollback, ask for rules, or continue the story freely. It has been tested in English and Spanish, and players are encouraged to try their own language. On first campaign setup, Questforge can download and index the public 5E SRD 5.2.1 PDF locally, so the first start can take a little longer.
 
 **Alpha note:**
 

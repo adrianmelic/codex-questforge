@@ -43,8 +43,8 @@ Generate in batches, then curate:
 Use the prompt lister to avoid copying prompts by hand from JSON:
 
 ```powershell
-python plugins\codex-questforge\scripts\audio_library.py list-prompts `
-  --library plugins\codex-questforge\templates\sound-atlas-v0.1.json `
+python plugins\questforge\scripts\audio_library.py list-prompts `
+  --library plugins\questforge\templates\sound-atlas-v0.1.json `
   --limit 8
 ```
 
@@ -85,7 +85,7 @@ Questforge should select audio only when it helps sustained ambience:
 Use the selector against the campaign-local approved library when it exists:
 
 ```powershell
-python plugins\codex-questforge\scripts\audio_library.py select `
+python plugins\questforge\scripts\audio_library.py select `
   --library campaigns\the-amber-gate\audio\library.json `
   --tag tavern `
   --tag rain `
@@ -96,8 +96,8 @@ python plugins\codex-questforge\scripts\audio_library.py select `
 For first-run play or challenge demos, use the bundled starter pack:
 
 ```powershell
-python plugins\codex-questforge\scripts\audio_library.py select `
-  --library plugins\codex-questforge\assets\audio\library.json `
+python plugins\questforge\scripts\audio_library.py select `
+  --library plugins\questforge\assets\audio\library.json `
   --tag dungeon `
   --tag exploration `
   --intensity 3 `
@@ -107,7 +107,7 @@ python plugins\codex-questforge\scripts\audio_library.py select `
 The `args` output can be appended to `panorama_viewer.py`:
 
 ```powershell
-python plugins\codex-questforge\scripts\panorama_viewer.py `
+python plugins\questforge\scripts\panorama_viewer.py `
   --image campaigns\the-amber-gate\images\assets\tavern-360.png `
   --output campaigns\the-amber-gate\images\viewers\tavern-360.html `
   --title "Rainy Tavern" `

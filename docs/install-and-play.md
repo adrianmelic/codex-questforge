@@ -4,18 +4,24 @@ This is the external-user happy path for Codex Questforge.
 
 ## 1. Install Or Enable The Plugin
 
+If you are already using Codex, the shortest user-facing request is:
+
+```text
+Install the Questforge plugin from https://github.com/adrianmelic/codex-questforge, then start a new thread so I can play @questforge.
+```
+
 Codex Questforge is published as a plugin-folder repository: the repo root
 contains `.codex-plugin/plugin.json` and `skills/...`. To expose it in Codex,
 put it where the default personal marketplace expects it:
 
 ```powershell
 New-Item -ItemType Directory -Force "$env:USERPROFILE\plugins"
-git clone https://github.com/adrianmelic/codex-questforge.git "$env:USERPROFILE\plugins\codex-questforge"
+git clone https://github.com/adrianmelic/codex-questforge.git "$env:USERPROFILE\plugins\questforge"
 ```
 
 ```bash
 mkdir -p "$HOME/plugins"
-git clone https://github.com/adrianmelic/codex-questforge.git "$HOME/plugins/codex-questforge"
+git clone https://github.com/adrianmelic/codex-questforge.git "$HOME/plugins/questforge"
 ```
 
 Then make sure `~/.agents/plugins/marketplace.json` contains this plugin entry
@@ -23,10 +29,10 @@ under `plugins[]`:
 
 ```json
 {
-  "name": "codex-questforge",
+  "name": "questforge",
   "source": {
     "source": "local",
-    "path": "./plugins/codex-questforge"
+    "path": "./plugins/questforge"
   },
   "policy": {
     "installation": "AVAILABLE",
@@ -39,17 +45,17 @@ under `plugins[]`:
 Install it with:
 
 ```powershell
-codex plugin add codex-questforge@personal
+codex plugin add questforge@personal
 ```
 
 Start a new Codex thread after installation so the Questforge skills are loaded.
 If the repo is cloned elsewhere, create a junction or symlink at
-`~/plugins/codex-questforge`, because the default personal marketplace entry is
-written to point at `./plugins/codex-questforge`.
+`~/plugins/questforge`, because the default personal marketplace entry is
+written to point at `./plugins/questforge`.
 
 The user-facing entry point is:
 
-> Use Codex Questforge to start a campaign.
+> I want to play @questforge.
 
 ## 2. Run First-Time Setup
 
@@ -57,14 +63,14 @@ From the repo or project where the user wants campaign files, use the full
 playable setup:
 
 ```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\codex-questforge"
+$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
 python "$QuestforgePlugin\scripts\questforge_setup.py" --data-dir .questforge --install-pdf-extractor
 ```
 
 The command detects language automatically. To force English or Spanish:
 
 ```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\codex-questforge"
+$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
 python "$QuestforgePlugin\scripts\questforge_setup.py" --data-dir .questforge --install-pdf-extractor --language en
 python "$QuestforgePlugin\scripts\questforge_setup.py" --data-dir .questforge --install-pdf-extractor --language es
 ```
@@ -75,7 +81,7 @@ If the user does not want setup to install `pypdf`, omit
 search is not ready. To finish indexing later:
 
 ```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\codex-questforge"
+$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
 python "$QuestforgePlugin\scripts\questforge_setup.py" --data-dir .questforge --install-pdf-extractor
 ```
 
@@ -100,7 +106,7 @@ Setup creates local, non-committed data under `.questforge/`:
 ## 3. Start A Campaign
 
 ```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\codex-questforge"
+$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
 python "$QuestforgePlugin\scripts\campaign_memory.py" new `
   --campaigns-dir campaigns `
   --name "The Amber Gate" `
@@ -110,12 +116,12 @@ python "$QuestforgePlugin\scripts\campaign_memory.py" new `
 
 Then say:
 
-> Use Codex Questforge with `.questforge` rules. Start `The Amber Gate`.
+> I want to play @questforge with `.questforge` rules. Start `The Amber Gate`.
 
 Before a human beta session or a long continuation, Codex can run:
 
 ```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\codex-questforge"
+$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
 python "$QuestforgePlugin\scripts\preflight.py" `
   --campaign-root campaigns\the-amber-gate `
   --repair-missing-templates `
@@ -135,7 +141,7 @@ Codex should:
 - query rules with:
 
 ```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\codex-questforge"
+$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
 python "$QuestforgePlugin\scripts\rules_index.py" query-setup `
   --manifest .questforge\questforge-setup.json `
   --query "<topic>"
@@ -154,7 +160,7 @@ python "$QuestforgePlugin\scripts\rules_index.py" query-setup `
 - refresh `images/visual-gallery.html` with `visual_gallery.py` after useful
   images are registered, then open the stable `file:///` gallery URL in
   `@Browser` when available for desktop history and 360 viewers;
-- select optional ambience with `audio_library.py` from a campaign-local `audio/library.json` when present, otherwise from `plugins/codex-questforge/assets/audio/library.json`;
+- select optional ambience with `audio_library.py` from a campaign-local `audio/library.json` when present, otherwise from `plugins/questforge/assets/audio/library.json`;
 - reuse canon visual anchors with `list-visual-assets` and `visual_reuse.py`
   when recurring characters, creatures, items, maps, or locations appear again;
 - create local `pov-360` viewers with `panorama_viewer.py` when native image
@@ -164,7 +170,7 @@ python "$QuestforgePlugin\scripts\rules_index.py" query-setup `
 Useful mechanical commands during play:
 
 ```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\codex-questforge"
+$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
 python "$QuestforgePlugin\scripts\game_state.py" status --campaign-root campaigns\the-amber-gate
 python "$QuestforgePlugin\scripts\game_state.py" add-character --campaign-root campaigns\the-amber-gate --name "Mara Vey" --class-name "Wizard" --ancestry "Human" --max-hp 8 --armor-class 12
 python "$QuestforgePlugin\scripts\game_state.py" equip --campaign-root campaigns\the-amber-gate --character "Mara Vey" --item "Stormproof cloak" --slot cloak
@@ -178,7 +184,7 @@ python "$QuestforgePlugin\scripts\game_state.py" checkpoint --campaign-root camp
 Run deterministic self-play:
 
 ```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\codex-questforge"
+$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
 python "$QuestforgePlugin\scripts\self_play.py" `
   --campaigns-dir campaigns `
   --name "The Amber Gate Self Play"
@@ -199,7 +205,7 @@ The self-play should create:
 For broader alpha testing across play styles:
 
 ```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\codex-questforge"
+$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
 python "$QuestforgePlugin\scripts\alpha_playtest.py" `
   --output-dir playtests\alpha-001
 ```

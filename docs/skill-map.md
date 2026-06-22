@@ -16,7 +16,7 @@ Codex Questforge is a plugin made of several skills. Users normally invoke only
 
 Users should be able to say:
 
-> Use Codex Questforge to start a campaign.
+> I want to play @questforge.
 
 The orchestrator should then:
 

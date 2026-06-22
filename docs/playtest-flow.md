@@ -8,7 +8,7 @@ of only storing notes.
 First, prepare local rules data:
 
 ```powershell
-python plugins\codex-questforge\scripts\questforge_setup.py `
+python plugins\questforge\scripts\questforge_setup.py `
   --data-dir .questforge `
   --install-pdf-extractor
 ```
@@ -25,7 +25,7 @@ Setup should create structured Markdown resources in
 is provided.
 
 ```powershell
-python plugins\codex-questforge\scripts\campaign_memory.py new `
+python plugins\questforge\scripts\campaign_memory.py new `
   --campaigns-dir campaigns `
   --name "The Amber Gate" `
   --tone "heroic mystery with eerie ruins" `
@@ -57,7 +57,7 @@ campaigns/the-amber-gate/
 Before handing the campaign to a human beta tester or resuming a long run, audit the workspace:
 
 ```powershell
-python plugins\codex-questforge\scripts\preflight.py `
+python plugins\questforge\scripts\preflight.py `
   --campaign-root campaigns\the-amber-gate `
   --repair-missing-templates `
   --refresh-gallery `
@@ -95,7 +95,7 @@ message.
 When the user attempts something uncertain:
 
 ```powershell
-python plugins\codex-questforge\scripts\roll_dice.py d20+4 --mode normal
+python plugins\questforge\scripts\roll_dice.py d20+4 --mode normal
 ```
 
 Codex should state the ability, DC band, stakes, roll, result, and consequence.
@@ -103,7 +103,7 @@ Before important checks, use DC anchors or the planner instead of defaulting to
 13/14:
 
 ```powershell
-python plugins\codex-questforge\scripts\dc_planner.py `
+python plugins\questforge\scripts\dc_planner.py `
   --difficulty medium `
   --position normal `
   --approach ordinary
@@ -114,7 +114,7 @@ DC 20 for hard, or an opposed roll when an active NPC resists.
 When the player seems unsure, show 2-4 options with modifiers and risk:
 
 ```powershell
-python plugins\codex-questforge\scripts\action_options.py `
+python plugins\questforge\scripts\action_options.py `
   --option "Force the hatch|Dexterity (Thieves' Tools)|+5|DC 14|noise from below|the hatch opens|the patrol hears you, but a new route opens"
 ```
 
@@ -125,7 +125,7 @@ blocker.
 For rules lookup, prefer:
 
 ```powershell
-python plugins\codex-questforge\scripts\rules_index.py query-setup `
+python plugins\questforge\scripts\rules_index.py query-setup `
   --manifest .questforge\questforge-setup.json `
   --query "ability checks"
 ```
@@ -137,7 +137,7 @@ Use `game-state.json` for the pencil-and-paper side of play. The transcript can 
 Create or import the hero before the first real scene:
 
 ```powershell
-python plugins\codex-questforge\scripts\game_state.py add-character `
+python plugins\questforge\scripts\game_state.py add-character `
   --campaign-root campaigns\the-amber-gate `
   --name "Mara Vey" `
   --class-name "Wizard" `
@@ -149,14 +149,14 @@ python plugins\codex-questforge\scripts\game_state.py add-character `
 Show compact state when choices depend on resources:
 
 ```powershell
-python plugins\codex-questforge\scripts\game_state.py status `
+python plugins\questforge\scripts\game_state.py status `
   --campaign-root campaigns\the-amber-gate
 ```
 
 For shops and equipment, record the transaction and the equipped state rather than only narrating it:
 
 ```powershell
-python plugins\codex-questforge\scripts\game_state.py add-shop-item `
+python plugins\questforge\scripts\game_state.py add-shop-item `
   --campaign-root campaigns\the-amber-gate `
   --shop-id low-door `
   --shop-name "Low Door Outfitters" `
@@ -165,13 +165,13 @@ python plugins\codex-questforge\scripts\game_state.py add-shop-item `
   --price 12gp `
   --stock 1
 
-python plugins\codex-questforge\scripts\game_state.py buy-item `
+python plugins\questforge\scripts\game_state.py buy-item `
   --campaign-root campaigns\the-amber-gate `
   --character "Mara Vey" `
   --shop-id low-door `
   --item "Stormproof cloak"
 
-python plugins\codex-questforge\scripts\game_state.py equip `
+python plugins\questforge\scripts\game_state.py equip `
   --campaign-root campaigns\the-amber-gate `
   --character "Mara Vey" `
   --item "Stormproof cloak" `
@@ -181,13 +181,13 @@ python plugins\codex-questforge\scripts\game_state.py equip `
 For combat, start turn order and keep a textual tactical scene:
 
 ```powershell
-python plugins\codex-questforge\scripts\game_state.py start-combat `
+python plugins\questforge\scripts\game_state.py start-combat `
   --campaign-root campaigns\the-amber-gate `
   --name "Warehouse ambush" `
   --combatant "Mara Vey:14" `
   --combatant "Dock Cutthroat:11:6:13:enemy"
 
-python plugins\codex-questforge\scripts\game_state.py set-tactical-scene `
+python plugins\questforge\scripts\game_state.py set-tactical-scene `
   --campaign-root campaigns\the-amber-gate `
   --summary "Crates form half cover around a lantern spill." `
   --terrain "stacked crates" `
@@ -198,7 +198,7 @@ python plugins\codex-questforge\scripts\game_state.py set-tactical-scene `
 Before irreversible or high-regret decisions, create a checkpoint:
 
 ```powershell
-python plugins\codex-questforge\scripts\game_state.py checkpoint `
+python plugins\questforge\scripts\game_state.py checkpoint `
   --campaign-root campaigns\the-amber-gate `
   --label "Before opening the black door"
 ```
@@ -208,7 +208,7 @@ python plugins\codex-questforge\scripts\game_state.py checkpoint `
 When earlier clues can pay off, draft a small non-blocking deduction beat:
 
 ```powershell
-python plugins\codex-questforge\scripts\puzzle_beats.py draft `
+python plugins\questforge\scripts\puzzle_beats.py draft `
   --title "Three Bell Marks" `
   --kind symbolic_order `
   --summary "choose the ritual bell mark from prior bell clues" `
@@ -224,7 +224,7 @@ python plugins\codex-questforge\scripts\puzzle_beats.py draft `
 Then record the beat:
 
 ```powershell
-python plugins\codex-questforge\scripts\campaign_memory.py record-puzzle-beat `
+python plugins\questforge\scripts\campaign_memory.py record-puzzle-beat `
   --campaign-root campaigns\the-amber-gate `
   --title "Three Bell Marks" `
   --kind symbolic_order `
@@ -246,7 +246,7 @@ When a useful visual beat occurs, build the prompt from
 `templates/scene-image-prompt.md`. First plan the format and continuity work:
 
 ```powershell
-python plugins\codex-questforge\scripts\visual_planner.py `
+python plugins\questforge\scripts\visual_planner.py `
   --beat "Iria pays the innkeeper, then goes downstairs for breakfast."
 ```
 
@@ -254,7 +254,7 @@ If `should_generate` is true, satisfy the returned continuity requirements and
 save the prompt with the planned visual kind:
 
 ```powershell
-python plugins\codex-questforge\scripts\campaign_memory.py save-visual-prompt `
+python plugins\questforge\scripts\campaign_memory.py save-visual-prompt `
   --campaign-root campaigns\the-amber-gate `
   --session 1 `
   --scene 1 `
@@ -276,7 +276,7 @@ players can see them, and the gallery should keep the desktop/history view.
 After the native image is saved locally and registered in `images/visual-index.md`, refresh the campaign gallery:
 
 ```powershell
-python plugins\codex-questforge\scripts\visual_gallery.py `
+python plugins\questforge\scripts\visual_gallery.py `
   --campaign-root campaigns\the-amber-gate `
   --title "The Amber Gate"
 ```
@@ -295,7 +295,7 @@ puzzle beat, repeated obstacle, or moment where the player asks how to proceed,
 append a structured event:
 
 ```powershell
-python plugins\codex-questforge\scripts\session_analytics.py log-event `
+python plugins\questforge\scripts\session_analytics.py log-event `
   --campaign-root campaigns\the-amber-gate `
   --event-type check `
   --session 1 `
@@ -314,7 +314,7 @@ python plugins\codex-questforge\scripts\session_analytics.py log-event `
 The goal is not bureaucracy during play. Keep the event short and useful, then analyze it after the session:
 
 ```powershell
-python plugins\codex-questforge\scripts\session_analytics.py analyze `
+python plugins\questforge\scripts\session_analytics.py analyze `
   --session-log campaigns\the-amber-gate\sessions\session-001.md `
   --visual-index campaigns\the-amber-gate\images\visual-index.md `
   --events campaigns\the-amber-gate\analytics\session-events.jsonl
@@ -323,7 +323,7 @@ python plugins\codex-questforge\scripts\session_analytics.py analyze `
 When a later visual includes a recurring element, list canon anchors:
 
 ```powershell
-python plugins\codex-questforge\scripts\campaign_memory.py list-visual-assets `
+python plugins\questforge\scripts\campaign_memory.py list-visual-assets `
   --campaign-root campaigns\the-amber-gate `
   --status canon `
   --format markdown
@@ -332,7 +332,7 @@ python plugins\codex-questforge\scripts\campaign_memory.py list-visual-assets `
 Then create a live scene-frame prompt from those anchors:
 
 ```powershell
-python plugins\codex-questforge\scripts\visual_reuse.py `
+python plugins\questforge\scripts\visual_reuse.py `
   --campaign-root campaigns\the-amber-gate `
   --session 1 `
   --scene 4 `
@@ -348,7 +348,7 @@ When a location deserves first-person inspection, generate or select a 360
 panorama and build a local viewer:
 
 ```powershell
-python plugins\codex-questforge\scripts\panorama_viewer.py `
+python plugins\questforge\scripts\panorama_viewer.py `
   --image <generated-360.png> `
   --output campaigns\the-amber-gate\images\viewers\gorge-bridge-360.html `
   --title "Gorge Bridge POV" `
@@ -376,7 +376,7 @@ At the end:
 - create the next session log when continuing:
 
 ```powershell
-python plugins\codex-questforge\scripts\campaign_memory.py next-session `
+python plugins\questforge\scripts\campaign_memory.py next-session `
   --campaign-root campaigns\the-amber-gate
 ```
 

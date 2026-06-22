@@ -24,7 +24,7 @@ Default style should lean into immersive fantasy realism: grounded materials, cl
 Choose the format before prompting:
 
 ```powershell
-python plugins\codex-questforge\scripts\visual_planner.py `
+python plugins\questforge\scripts\visual_planner.py `
   --beat "<resolved player-facing beat>"
 ```
 
@@ -86,7 +86,7 @@ Use `templates/scene-image-prompt.md` for all visual kinds.
 Use the local visual gallery as the campaign's live image board. After each selected native image is copied into `images/assets/` and registered in `images/visual-index.md`, refresh the gallery:
 
 ```powershell
-python plugins\codex-questforge\scripts\visual_gallery.py `
+python plugins\questforge\scripts\visual_gallery.py `
   --campaign-root campaigns\<campaign-slug> `
   --title "<campaign title>"
 ```
@@ -96,9 +96,9 @@ The script writes `campaigns/<campaign-slug>/images/visual-gallery.html` and pri
 For older campaigns that have panorama viewers outside the campaign folder, pass one or more extra viewer roots:
 
 ```powershell
-python plugins\codex-questforge\scripts\visual_gallery.py `
+python plugins\questforge\scripts\visual_gallery.py `
   --campaign-root campaigns\<campaign-slug> `
-  --viewer-root plugins\codex-questforge\outputs\panorama-viewers
+  --viewer-root plugins\questforge\outputs\panorama-viewers
 ```
 
 Use the same gallery URL through the whole session. During visual-first play, still paste each selected static generated image once into the Codex conversation with Markdown so it works on mobile. Refresh the gallery after registration for desktop history and `#latest`. If `@Browser` is available, open or refresh that URL in the Codex in-app browser after important visual beats. If the current Browser surface refuses `file:///` navigation by policy, return the link and continue rather than interrupting play.
@@ -135,7 +135,7 @@ For important first-person spaces, ask native image generation for an
 equirectangular 360 panorama. Then create a standalone local viewer:
 
 ```powershell
-python plugins\codex-questforge\scripts\panorama_viewer.py `
+python plugins\questforge\scripts\panorama_viewer.py `
   --image <generated-360.png> `
   --output campaigns\<campaign-slug>\images\viewers\<label>-360.html `
   --title "<scene title>" `
@@ -156,7 +156,7 @@ zoom into details.
 For long-lived first-person scenes, the viewer can embed one ambient loop:
 
 ```powershell
-python plugins\codex-questforge\scripts\panorama_viewer.py `
+python plugins\questforge\scripts\panorama_viewer.py `
   --image <generated-360.png> `
   --output campaigns\<campaign-slug>\images\viewers\<label>-360.html `
   --title "<scene title>" `
@@ -175,7 +175,7 @@ resume. Keep the default volume low enough to sit under narration.
 
 ## Ambient Audio Library
 
-Campaigns may keep a local `audio/library.json` so Codex can choose loops by mood. If a campaign has no local library yet, use the bundled starter pack at `plugins/codex-questforge/assets/audio/library.json`. Store campaign-local paths relative to the campaign root and keep license notes with the track:
+Campaigns may keep a local `audio/library.json` so Codex can choose loops by mood. If a campaign has no local library yet, use the bundled starter pack at `plugins/questforge/assets/audio/library.json`. Store campaign-local paths relative to the campaign root and keep license notes with the track:
 
 ```json
 {
@@ -215,7 +215,7 @@ After native image generation:
 2. Register it in `visual-index.md`:
 
 ```powershell
-python plugins\codex-questforge\scripts\campaign_memory.py register-visual-asset `
+python plugins\questforge\scripts\campaign_memory.py register-visual-asset `
   --campaign-root campaigns\<campaign-slug> `
   --asset-path images\assets\<asset-name>.png `
   --kind <kind> `
@@ -228,7 +228,7 @@ If the selected native image is still outside the campaign folder, use
 `--asset-source` and let the script copy it into `images/assets/`:
 
 ```powershell
-python plugins\codex-questforge\scripts\campaign_memory.py register-visual-asset `
+python plugins\questforge\scripts\campaign_memory.py register-visual-asset `
   --campaign-root campaigns\<campaign-slug> `
   --asset-source <generated-image.png> `
   --asset-filename <asset-name>.png `
@@ -241,7 +241,7 @@ python plugins\codex-questforge\scripts\campaign_memory.py register-visual-asset
 Then refresh the gallery:
 
 ```powershell
-python plugins\codex-questforge\scripts\visual_gallery.py `
+python plugins\questforge\scripts\visual_gallery.py `
   --campaign-root campaigns\<campaign-slug>
 ```
 
@@ -265,7 +265,7 @@ map, or location appears again.
 List reusable canon anchors:
 
 ```powershell
-python plugins\codex-questforge\scripts\campaign_memory.py list-visual-assets `
+python plugins\questforge\scripts\campaign_memory.py list-visual-assets `
   --campaign-root campaigns\<campaign-slug> `
   --status canon `
   --format markdown
@@ -274,7 +274,7 @@ python plugins\codex-questforge\scripts\campaign_memory.py list-visual-assets `
 Create a new scene-frame prompt from those anchors:
 
 ```powershell
-python plugins\codex-questforge\scripts\visual_reuse.py `
+python plugins\questforge\scripts\visual_reuse.py `
   --campaign-root campaigns\<campaign-slug> `
   --session <n> `
   --scene <n> `
