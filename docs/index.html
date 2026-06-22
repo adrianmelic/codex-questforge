@@ -877,109 +877,110 @@
           status: "campaign started",
           stageKicker: "#1 / scene / generated image",
           stageTitle: "Blackwater Pier",
-          stageText: "The first generated frame anchors the scene before the player chooses a route.",
+          stageText: "The first generated frame gives the player a clear place, problem, and route forward.",
           hp: "12/12",
           xp: "0",
           clock: "1/6",
           checkpoint: "before crossing",
           ledger: [
             ["Inventory", "Longsword, shield, lantern, sealed ferry token."],
-            ["Known clue", "Three lanterns burn below the tide line."],
+            ["Immediate goal", "Cross Blackwater Pier before the harbor gate closes."],
+            ["Known problem", "The ferry is chained up and its tide ledger is missing."],
             ["Rule posture", "Failure moves the scene forward instead of stalling it."]
           ],
           messages: [
             {
               from: "codex",
               text:
-                "Questforge creates Rowan Tidewell, a level-1 fighter and former harbor guard. The rain has emptied Blackwater Pier, but three lanterns burn underneath the boards where the tide should have drowned them.",
+                "Questforge creates Rowan Tidewell, a level-1 fighter and former harbor guard. Rowan needs the last ferry across Blackwater Pier before the harbor gate closes. Rain hammers the boards. The ferry is chained to the lower steps, the toll booth door hangs open, and the hook where the tide ledger should hang is empty.",
               tool:
                 "Ran 4 commands\npython scripts/questforge_setup.py --data-dir .questforge\npython scripts/game_state.py add-character --name Rowan --class Fighter\npython scripts/game_state.py checkpoint --label \"Before crossing the pier\"\npython scripts/visual_planner.py --scene \"blackwater pier\""
             },
             {
               from: "codex",
               text:
-                "A bell rings below the water. A voice says: \"A crossing is owed.\" The ferry token in your palm warms like a coal."
+                "An older bellman steps from the rain with a storm lantern. \"No ledger, no crossing. Someone took it from my booth ten minutes ago. Find who did it, or force the chain yourself.\""
             }
           ],
           choices: [
             {
-              text: "Lift the lantern and listen",
-              meta: "Wisdom (Perception) +3, careful approach.",
+              text: "Inspect the toll booth",
+              meta: "Wisdom (Perception) +3, careful clue read.",
               target: "listen"
             },
             {
-              text: "Draw steel and step below",
-              meta: "Athletics +5, direct approach.",
+              text: "Force the ferry chain",
+              meta: "Strength (Athletics) +5, dangerous shortcut.",
               target: "steel"
             }
           ]
         },
         listen: {
           parent: "intro",
-          choice: "I lift the lantern and listen before stepping onto the lower pier.",
-          label: "#2 Listen",
+          choice: "I raise the lantern and inspect the toll booth before touching the ferry chain.",
+          label: "#2 Inspect",
           visual: "pov",
           status: "360 POV generated",
           stageKicker: "#2 / POV-360 / generated photosphere",
-          stageTitle: "The pier is doubled.",
-          stageText: "Drag the image: Rowan sees the same harbor twice, one above the water and one beneath it.",
+          stageTitle: "The booth shows a theft.",
+          stageText: "Drag the image: the player can inspect the ferry, the booth, the lower steps, and possible exits.",
           hp: "12/12",
           xp: "25",
           clock: "2/6",
-          checkpoint: "lower route revealed",
+          checkpoint: "ledger trail found",
           ledger: [
-            ["XP", "+25 for discovering the overlap route without triggering it."],
-            ["Condition", "Focused: advantage on the next clue read in this scene."],
-            ["Clue", "The bellman's ledger is hidden in the dry version of the pier."]
+            ["XP", "+25 for finding a concrete trail before danger starts."],
+            ["Condition", "Focused: advantage on the next clue read on the pier."],
+            ["Clue", "Muddy bootprints lead from the empty ledger hook to the lower toll office."]
           ],
           messages: [
             {
               from: "codex",
               text:
-                "Roll Wisdom (Perception): <roll>d20 + 3 = 15 + 3 = 18 vs DC 14</roll>. Success. The rain bends around one lantern. The pier is not cracked; it is doubled. One version is wet and present. One is dry, old, and waiting below."
+                "Roll Wisdom (Perception): <roll>d20 + 3 = 15 + 3 = 18 vs DC 13</roll>. Success. This is a theft, not a riddle. You find a wet glove print on the empty ledger hook, a torn leather strap near the lower steps, and muddy bootprints leading toward the toll office."
             },
             {
               from: "codex",
               text:
-                "I generate a 360 POV because this is a look-around moment. In the real plugin it would open as a local photosphere viewer, not as a flat image."
+                "I generate a 360 POV because this is a spatial investigation moment. In the real plugin it opens as a local photosphere viewer so the player can look around the scene."
             }
           ],
           choices: [
             {
-              text: "Promise to recover the ledger",
-              meta: "Persuasion +1, honest bargain.",
+              text: "Offer to recover the ledger",
+              meta: "No roll if you use the clue and make a clear bargain.",
               target: "ledger"
             },
             {
-              text: "Demand payment before helping",
-              meta: "Charisma +1, harder social angle.",
+              text: "Ask for payment first",
+              meta: "Charisma (Persuasion) +1, possible cost in time.",
               target: "payment"
             }
           ]
         },
         steel: {
           parent: "intro",
-          choice: "I draw steel and step down before the voice finishes speaking.",
+          choice: "I draw steel and try to force the ferry chain before the thief gets farther away.",
           label: "#2 Steel",
           visual: "map",
           status: "tactical map generated",
           stageKicker: "#2 / tactical map / generated image",
-          stageTitle: "The lower pier answers with chains.",
+          stageTitle: "A chain trap snaps tight.",
           stageText: "The browser side switches to a top-down map because positioning, cover, and hazards now matter.",
           hp: "9/12",
           xp: "0",
           clock: "3/6",
           checkpoint: "combat started",
           ledger: [
-            ["Damage", "Rowan takes 3 bludgeoning damage from a snapping mooring chain."],
-            ["Combat", "Initiative started: Rowan 16, drowned chain 11."],
+            ["Damage", "Rowan takes 3 bludgeoning damage from a yanked mooring chain."],
+            ["Combat", "Initiative started: Rowan 16, dock thieves 11."],
             ["Terrain", "Crates grant half cover; lantern oil can ignite the middle span."]
           ],
           messages: [
             {
               from: "codex",
               text:
-                "Roll Strength (Athletics): <roll>d20 + 5 = 7 + 5 = 12 vs DC 15</roll>. Failure, but forward. Rowan reaches the lower pier, yet a drowned mooring chain lashes across his shield for 3 damage."
+                "Roll Strength (Athletics): <roll>d20 + 5 = 7 + 5 = 12 vs DC 15</roll>. Failure, but forward. Rowan hauls the ferry chain loose enough to board, but a hidden dock thief yanks the far end. The chain slams across Rowan's shield for 3 damage, and two thieves step out from the lower awning."
             },
             {
               from: "codex",
@@ -1002,64 +1003,64 @@
         },
         ledger: {
           parent: "listen",
-          choice: "I promise to recover the ledger if the bellman lets me cross safely.",
+          choice: "I offer to recover the ledger if the bellman holds the ferry for me.",
           label: "#3 Oath",
           visual: "oath",
           status: "branch resolved",
           stageKicker: "#3A / scene / consequence frame",
           stageTitle: "The bellman accepts the oath.",
-          stageText: "The bargain opens a safe descent and creates a future consequence.",
+          stageText: "The bargain opens a safer route and gives the player an actionable objective.",
           hp: "12/12",
           xp: "75",
           clock: "2/6",
           checkpoint: "before ledger search",
           ledger: [
             ["XP", "+50 for a peaceful route and actionable clue."],
-            ["Quest", "Recover the bellman's ledger from the dry pier office."],
-            ["Consequence", "Breaking the oath will sour future harbor spirits."]
+            ["Quest", "Recover the tide ledger from the lower toll office."],
+            ["Access", "The bellman opens the chain gate and holds the ferry for ten minutes."]
           ],
           messages: [
             {
               from: "codex",
               text:
-                "No roll. Your offer matches what the bellman needs. The lower lanterns part, and a dry stairway appears for three breaths. You gain 50 XP and a clear objective: recover the ledger."
+                "No roll. Your offer solves the bellman's immediate problem and uses the clue you found. He chalks your ferry token, opens the chain gate, and points to the lower toll office. You gain 50 XP and a clear objective: recover the tide ledger."
             },
             {
               from: "codex",
               text:
-                "This is the kind of long-term state Questforge records: oath made, faction attitude improved, future consequence armed."
+                "This is the kind of long-term state Questforge records: oath made, access granted, bellman attitude improved, and a ten-minute clock running."
             }
           ],
           choices: []
         },
         payment: {
           parent: "listen",
-          choice: "I ask what the job pays before I risk my neck.",
+          choice: "I ask what the job pays before I walk into the lower toll office.",
           label: "#3 Price",
           visual: "price",
           status: "social consequence",
           stageKicker: "#3B / scene / social pressure",
-          stageTitle: "The lanterns turn toward you.",
-          stageText: "A consequence frame shows Rowan asking for payment as the bellman's witnesses measure his motive.",
+          stageTitle: "A hard bargain in the rain.",
+          stageText: "A consequence frame shows an ordinary payment negotiation with a real time cost.",
           hp: "12/12",
           xp: "25",
           clock: "3/6",
           checkpoint: "price named",
           ledger: [
-            ["Money", "Offer: 12 gp now, favor owed later."],
-            ["Risk", "Clock advances: the bellman distrusts Rowan's motive."],
+            ["Money", "6 gp now, 6 gp when the ledger is recovered."],
+            ["Risk", "Clock advances: the thief gains another minute."],
             ["Choice", "The player can still accept, haggle, or walk away."]
           ],
           messages: [
             {
               from: "codex",
               text:
-                "Roll Charisma (Persuasion): <roll>d20 + 1 = 11 + 1 = 12 vs DC 15</roll>. Mixed result. The bellman names a price, but the lanterns turn colder. You can continue, yet trust is thinner."
+                "Roll Charisma (Persuasion): <roll>d20 + 1 = 11 + 1 = 12 vs DC 14</roll>. Mixed result. The bellman dislikes losing time, but he counts six gold into your hand and promises six more when the ledger is back."
             },
             {
               from: "codex",
               text:
-                "Questforge avoids a dead end: the failed social angle changes the cost and attitude instead of blocking the adventure."
+                "Questforge avoids a dead end: the social roll changes money, time, and attitude instead of blocking the adventure."
             }
           ],
           choices: []
@@ -1078,7 +1079,7 @@
           clock: "4/6",
           checkpoint: "after chain break",
           ledger: [
-            ["Attack", "Longsword hits AC 13 and deals 7 slashing damage."],
+            ["Attack", "Longsword hits the chain clamp at AC 13 and deals 7 damage."],
             ["XP", "+50 for resolving the immediate hazard."],
             ["Hazard", "Broken chain releases the ferry; the lower pier begins drifting."]
           ],
@@ -1086,7 +1087,7 @@
             {
               from: "codex",
               text:
-                "Attack roll: <roll>d20 + 5 = 14 + 5 = 19 vs AC 13</roll>. Hit. Damage: <roll>1d8 + 3 = 4 + 3 = 7</roll>. The chain snaps and recoils into the water."
+                "Attack roll: <roll>d20 + 5 = 14 + 5 = 19 vs AC 13</roll>. Hit. Damage: <roll>1d8 + 3 = 4 + 3 = 7</roll>. Rowan cuts the chain clamp. The nearest thief loses his grip and the chain recoils into the water."
             },
             {
               from: "codex",
@@ -1098,7 +1099,7 @@
         },
         line: {
           parent: "steel",
-          choice: "I keep the shield high, use the crates, and force it to come through cover.",
+          choice: "I keep the shield high, use the crates, and make the thieves come through cover.",
           label: "#3 Hold",
           visual: "hold",
           status: "defensive success",
@@ -1118,7 +1119,7 @@
             {
               from: "codex",
               text:
-                "You choose a defensive tactic, so I reduce the risk instead of asking for another entry roll. The chain strikes through crates and loses force. Rowan takes 1 damage and gains advantage on the next attack."
+                "You choose a defensive tactic, so I reduce the risk instead of asking for another entry roll. The thief's chain strikes through stacked crates and loses force. Rowan takes 1 damage and gains advantage on his next attack."
             },
             {
               from: "codex",
