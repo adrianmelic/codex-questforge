@@ -1413,7 +1413,7 @@
           function onPointerMove(event) {
             if (!dragging) return;
             yaw -= (event.clientX - startX) * 0.16;
-            pitch += (event.clientY - startY) * 0.16;
+            pitch -= (event.clientY - startY) * 0.16;
             pitch = Math.max(-78, Math.min(78, pitch));
             startX = event.clientX;
             startY = event.clientY;

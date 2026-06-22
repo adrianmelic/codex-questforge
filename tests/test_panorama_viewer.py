@@ -56,9 +56,9 @@ def test_create_panorama_viewer_embeds_image_data_uri(tmp_path):
     assert "isBlankWebGlFrame" not in html
     assert 'activateFlatViewer("Flat panorama fallback")' not in html
     assert "state.yaw += deltaX" in html
-    assert "state.pitch = clamp(state.pitch + deltaY" in html
+    assert "state.pitch = clamp(state.pitch - deltaY" in html
     assert "flatState.x + deltaX" in html
-    assert "flatState.y = clamp(flatState.y + deltaY" in html
+    assert "flatState.y = clamp(flatState.y - deltaY" in html
     assert "const INITIAL_ZOOM_LEVEL = 14;" in html
     assert "const INITIAL_FOV = zoomLevelToFov" in html
     assert "state.fov = INITIAL_FOV" in html

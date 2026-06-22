@@ -414,7 +414,7 @@
         state.lastX = event.clientX;
         state.lastY = event.clientY;
         state.yaw += deltaX * 0.004;
-        state.pitch = clamp(state.pitch + deltaY * 0.004, -1.48, 1.48);
+        state.pitch = clamp(state.pitch - deltaY * 0.004, -1.48, 1.48);
         render();
       }
 
@@ -434,8 +434,8 @@
         const step = 0.08;
         if (event.key === "ArrowLeft") state.yaw -= step;
         if (event.key === "ArrowRight") state.yaw += step;
-        if (event.key === "ArrowUp") state.pitch = clamp(state.pitch - step, -1.48, 1.48);
-        if (event.key === "ArrowDown") state.pitch = clamp(state.pitch + step, -1.48, 1.48);
+        if (event.key === "ArrowUp") state.pitch = clamp(state.pitch + step, -1.48, 1.48);
+        if (event.key === "ArrowDown") state.pitch = clamp(state.pitch - step, -1.48, 1.48);
         if (event.key === "+") changeFov(-0.08);
         if (event.key === "-") changeFov(0.08);
         if (event.key === "0") resetView();
@@ -486,7 +486,7 @@
         flatState.lastX = event.clientX;
         flatState.lastY = event.clientY;
         flatState.x = ((flatState.x + deltaX * 0.08) % 100 + 100) % 100;
-        flatState.y = clamp(flatState.y + deltaY * 0.08, 12, 88);
+        flatState.y = clamp(flatState.y - deltaY * 0.08, 12, 88);
         renderFlatViewer();
       });
       flatViewer.addEventListener("pointerup", (event) => {
