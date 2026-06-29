@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Codex Questforge Playable Demo</title>
+    <title>Codex Questforge Guided Sample Session</title>
     <link rel="icon" href="data:," />
     <meta
       name="description"
-      content="A Codex-style playable simulation of Codex Questforge, a fantasy RPG runner plugin for Codex."
+      content="A guided sample of Codex Questforge, a fantasy RPG runner plugin played inside Codex."
     />
     <meta property="og:title" content="Codex Questforge" />
     <meta
@@ -773,7 +773,7 @@
           </svg>
           <div>
             <h1>Codex Questforge</h1>
-            <small>A game played inside Codex: DM, rules engine, memory, and visual table.</small>
+            <small>A fantasy RPG played inside Codex: DM, rules engine, memory, and visual table.</small>
           </div>
         </div>
         <div class="top-actions">
@@ -793,8 +793,8 @@
         <section class="codex-pane" aria-label="Simulated Codex thread">
           <div class="pane-header">
             <div class="pane-title">
-              <strong>Codex Thread</strong>
-              <span>this page simulates the Codex surface; the installed plugin is open-ended</span>
+              <strong>Guided Codex Session</strong>
+              <span>a short sample of the real open-ended plugin experience</span>
             </div>
             <div class="status-pill"><span class="status-dot"></span><span id="threadStatus">ready</span></div>
           </div>
@@ -802,7 +802,7 @@
           <div class="thread" id="thread"></div>
 
           <div class="choice-tray">
-            <p class="choice-label" id="choiceLabel">Choose Rowan's next action.</p>
+            <p class="choice-label" id="choiceLabel">Pick a sample player message.</p>
             <div class="choices" id="choices"></div>
           </div>
         </section>
@@ -811,7 +811,7 @@
           <div class="browser-chrome">
             <div class="browser-title">
               <strong>Browser: visual-gallery.html</strong>
-              <span>latest campaign image, state, 360 viewer, and ambience</span>
+              <span>sample campaign image, state, 360 viewer, and ambience</span>
             </div>
             <div class="address">
               <span>file:///campaigns/blackwater-pier/images/visual-gallery.html#latest</span>
@@ -852,8 +852,8 @@
           <p class="footer-note">
             This is the point of Questforge: it is not a normal browser game wearing a fantasy skin.
             Codex is the play surface, the Dungeon Master, the rules assistant, the local state engine,
-            and the table aid. This page simulates that experience for the challenge; the installed plugin
-            is open-ended and runs inside Codex.
+            and the table aid. This guided sample only shows the shape of the experience; the open-ended
+            game runs inside Codex after installing the plugin.
           </p>
         </section>
       </main>
@@ -1217,10 +1217,10 @@
 
       function renderChoices(node) {
         if (!node.choices.length) {
-          choiceLabel.textContent = "Branch complete. Restart or open the repo to play the full version in Codex.";
+          choiceLabel.textContent = "Sample branch complete. Install the plugin to play the open-ended version in Codex.";
           choices.innerHTML = `
             <button class="choice-button" type="button" data-restart="true">
-              <strong>Restart the demo</strong>
+              <strong>Restart the sample</strong>
               <span>Return to the opening scene and try the other route.</span>
             </button>
             <a class="choice-button" href="https://github.com/adrianmelic/codex-questforge">
@@ -1232,7 +1232,7 @@
           return;
         }
 
-        choiceLabel.textContent = "Choose Rowan's next action.";
+        choiceLabel.textContent = "Pick a sample player message.";
         choices.innerHTML = node.choices
           .map(
             (choice) => `

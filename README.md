@@ -4,13 +4,13 @@
 
 **What if we did not just use Codex to build a game, but used Codex as the game itself?**
 
-**Codex Questforge is a playable fantasy RPG runner for Codex.** Codex becomes the play surface, Dungeon Master, rules assistant, local state engine, and visual table. Questforge turns a Codex thread into a persistent 5E-compatible campaign with quick character creation, open dice rolls, a local mechanical ledger, campaign memory, optional generated visuals, 360 scene viewers, and ambience support.
+**Codex Questforge is a Codex-native fantasy RPG runner.** Codex becomes the play surface, Dungeon Master, rules assistant, local state engine, and visual table. Questforge turns a Codex thread into a persistent 5E-compatible campaign with quick character creation, open dice rolls, a local mechanical ledger, campaign memory, optional generated visuals, 360 scene viewers, and ambience support.
 
-This is an unofficial alpha that started during the OpenAI Discord Codex game challenge. It is designed to be playable today, then improved in public.
+This is an unofficial alpha that started during the OpenAI Discord Codex game challenge. It is designed to be played inside Codex today, then improved in public.
 
-**Playable demo:** <https://adrianmelic.github.io/codex-questforge/>
+**Guided sample session:** <https://adrianmelic.github.io/codex-questforge/>
 
-The playable link is an interactive Codex-style simulation: click a player choice, see the simulated Codex DM response, dice result, character state, visual gallery update, tactical map or 360 POV viewer, and optional ambience. The full open-ended game still runs inside Codex after installing the plugin, where you can say anything and Codex continues as the DM.
+The web page is a guided Codex-style sample, not the full game: click through a few representative player messages to see a simulated DM response, dice result, character state, visual gallery update, tactical map or 360 POV viewer, and optional ambience. The open-ended game runs inside Codex after installing the plugin, where you can say anything and Codex continues as the DM.
 
 ## What It Is
 
