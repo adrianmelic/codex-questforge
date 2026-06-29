@@ -12,7 +12,7 @@ Codex Questforge turns a Codex thread into a fantasy RPG: DM, dice, memory, gene
 Preview: https://adrianmelic.github.io/codex-questforge/
 ```
 
-Suggested media: `docs/assets/questforge-cover.png` or, preferably, a short real Codex screen recording showing the prompt, DM response, dice, generated image, and visual gallery.
+Suggested media: `docs/assets/questforge-cover.png` or, preferably, a short real Codex screen recording showing the prompt, DM response, dice, generated image, and visual gallery. Use `docs/video-outline.md` for a tight recording structure.
 
 ## LinkedIn Long Post
 
@@ -40,4 +40,4 @@ https://github.com/adrianmelic/codex-questforge
 Me interesa especialmente esta pregunta: si herramientas como Codex pueden ser entorno de ejecución, memoria, interfaz y colaborador creativo a la vez, ¿qué nuevos formatos de juego aparecen que antes no tenían sentido?
 ```
 
-Suggested media: lead with `docs/assets/questforge-cover.png`; if possible, attach a 20-40 second clip from a real Codex run, then use the guided sample link as supporting context.
+Suggested media: lead with `docs/assets/questforge-cover.png`; if possible, attach a 45-90 second clip from a real Codex run, then use the guided sample link as supporting context. Use `docs/video-outline.md` as the recording checklist.

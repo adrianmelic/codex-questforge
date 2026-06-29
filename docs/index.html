@@ -785,7 +785,7 @@
             </svg>
           </button>
           <a class="button" href="https://github.com/adrianmelic/codex-questforge">GitHub</a>
-          <button class="button primary" id="copyPrompt" type="button">Copy Prompt</button>
+          <button class="button primary" id="copyPrompt" type="button">Copy Start Prompt</button>
         </div>
       </header>
 
@@ -1576,9 +1576,9 @@
         const prompt = "I want to play @questforge in English. Create a quick character and start.";
         try {
           await navigator.clipboard.writeText(prompt);
-          copyPrompt.textContent = "Copied";
+          copyPrompt.textContent = "Prompt Copied";
           window.setTimeout(() => {
-            copyPrompt.textContent = "Copy Prompt";
+            copyPrompt.textContent = "Copy Start Prompt";
           }, 1400);
         } catch {
           copyPrompt.textContent = prompt;

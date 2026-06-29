@@ -185,7 +185,7 @@ Current test status:
 - `skills/questforge-visuals/SKILL.md` - visual cadence, image prompts, gallery, and 360 viewers.
 - `scripts/` - setup, rules search, dice, game state, campaign memory, visual, audio, analytics, and preflight helpers.
 - `templates/` - starter campaign, journal, state, visual, audio, and puzzle files.
-- `docs/` - design notes, playtest protocol, visual playbook, and beta rubrics.
+- `docs/` - design notes, playtest protocol, visual playbook, beta rubrics, social post drafts, and video outline.
 - `assets/audio/starter-pack/` - optional Suno-generated ambience tracks.
 
 ## Privacy
