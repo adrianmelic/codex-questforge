@@ -6,13 +6,13 @@
 
 **Codex Questforge is a playable fantasy RPG runner for Codex.** Codex becomes the play surface, Dungeon Master, rules assistant, local state engine, and visual table. Questforge turns a Codex thread into a persistent 5E-compatible campaign with quick character creation, open dice rolls, a local mechanical ledger, campaign memory, optional generated visuals, 360 scene viewers, and ambience support.
 
-This is an unofficial alpha made for the OpenAI Discord Codex game challenge. It is designed to be playable today, then improved in public.
+This is an unofficial alpha that started during the OpenAI Discord Codex game challenge. It is designed to be playable today, then improved in public.
 
 **Playable demo:** <https://adrianmelic.github.io/codex-questforge/>
 
 The playable link is an interactive Codex-style simulation: click a player choice, see the simulated Codex DM response, dice result, character state, visual gallery update, tactical map or 360 POV viewer, and optional ambience. The full open-ended game still runs inside Codex after installing the plugin, where you can say anything and Codex continues as the DM.
 
-## What You Made
+## What It Is
 
 Codex Questforge is not a conventional browser game. The main game runs inside Codex: you talk naturally, Codex acts as the DM, and local files keep the campaign recoverable between turns and threads.
 
@@ -162,18 +162,13 @@ The alpha was developed through iterative playtests where Codex both ran the gam
 - The local gallery and 360 viewers work best on desktop; static generated images should still be shown in the Codex conversation for mobile play.
 - This is an unofficial fan tool, not an official Dungeons & Dragons product.
 
-## Pendientes
-
-- TODO 2026-06-21: antes de publicar, sustituir los metadatos placeholder de publisher en `.codex-plugin/plugin.json`, revisar posible mojibake en `assets/audio/README.md`, confirmar tamano/licencia de los MP3 trackeados y decidir si la publicacion sale desde este repo o desde un repo limpio separado. Evidencia del smoke local del plugin: `95 passed`, `plugins/*/outputs/` ignorado, y smoke tests del plugin instalado en ingles y espanol bajo `outputs/playtests/installed-plugin-smoke/` sin generar imagen/audio real.
-- Mejorar la demo de GitHub Pages para que se lea mas como Codex siendo la superficie del juego: mostrar las decisiones del jugador como mensajes naturales de usuario, hacer visible una secuencia de ejecucion de Codex con rules lookup, dados, diff de `game-state.json`, checkpoint y generacion visual, anadir momentos de "local artifacts changed", colocar una cover image fuerte en ingles en el primer viewport o en `docs/discord-submission.md`, y anadir imagenes de consecuencia por rama para mostrar divergencia de rutas/estado.
-
 ## Test
 
 ```powershell
 python -m pytest tests
 ```
 
-Current local status before publication:
+Current test status:
 
 ```text
 95 passed
