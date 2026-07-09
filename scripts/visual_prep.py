@@ -1,4 +1,4 @@
-"""Pre-session visual preparation for Codex Questforge."""
+"""Pre-session visual preparation for Questforge."""
 
 from __future__ import annotations
 

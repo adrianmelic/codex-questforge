@@ -1,4 +1,4 @@
-"""Long-form alpha playtests for Codex Questforge."""
+"""Long-form alpha playtests for Questforge."""
 
 from __future__ import annotations
 

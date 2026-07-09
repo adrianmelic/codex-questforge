@@ -1,4 +1,4 @@
-"""Deterministic self-play smoke test for Codex Questforge."""
+"""Deterministic self-play smoke test for Questforge."""
 
 from __future__ import annotations
 

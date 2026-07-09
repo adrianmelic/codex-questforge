@@ -1,6 +1,6 @@
 # Game State Ledger
 
-`game-state.json` is the player-facing mechanical ledger for Codex Questforge. It complements `campaign-state.md`: Markdown keeps readable campaign memory, while the JSON ledger keeps the current playable state precise enough for inventory, equipment, shops, combat, spell resources, rests, death saves, level-ups, and rollback.
+`game-state.json` is the player-facing mechanical ledger for Questforge. It complements `campaign-state.md`: Markdown keeps readable campaign memory, while the JSON ledger keeps the current playable state precise enough for inventory, equipment, shops, combat, spell resources, rests, death saves, level-ups, and rollback.
 
 ## Design Rule
 

@@ -1,6 +1,6 @@
 ---
 name: questforge-puzzles
-description: Design and run Codex Questforge puzzle beats, clue-connection moments, symbolic minigames, route logic, social contradictions, and non-blocking deduction challenges during 5E-compatible campaign play.
+description: Design and run Questforge puzzle beats, clue connections, symbolic minigames, route logic, social contradictions, and non-blocking deductions.
 ---
 
 # Questforge Puzzles

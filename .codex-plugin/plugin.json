@@ -1,9 +1,10 @@
 {
   "name": "questforge",
-  "version": "0.7.0",
-  "description": "A 5E-compatible Codex plugin for running persistent fantasy campaigns with auto-language SRD setup, structured local rules resources, campaign memory, a mechanical game-state ledger, adventure spines, puzzle beats, dice resolution, self-play, visual planning, native scene image generation, 360 viewers, a local visual gallery, and pre-beta campaign audits.",
+  "version": "1.0.0",
+  "description": "Play persistent 5E-compatible fantasy campaigns with an AI Game Master, open dice, local state, and optional generated visuals.",
   "author": {
-    "name": "Adrian and Codex",
+    "name": "Adrian Melic",
+    "email": "info@adrianmelic.com",
     "url": "https://github.com/adrianmelic"
   },
   "homepage": "https://adrianmelic.github.io/codex-questforge/",
@@ -19,45 +20,35 @@
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Codex Questforge",
-    "shortDescription": "Run rich 5E-compatible fantasy campaigns with Codex.",
-    "longDescription": "Codex Questforge helps Codex act as a grounded fantasy campaign runner: it detects the user's language for SRD setup, prepares structured local rules resources, keeps campaign memory, maintains a player-facing mechanical ledger for inventory, equipment, shops, HP, resources, level-ups, combat, death, and rollback, maintains DM-only adventure spines, designs non-blocking puzzle beats, adjudicates play with SRD-compatible rules, resolves dice, plans consequential visuals, saves visual prompts, refreshes a local image gallery, opens 360 viewers, audits campaign readiness before human beta play, and supports deterministic self-play checks.",
-    "developerName": "Adrian and Codex",
+    "displayName": "Questforge",
+    "shortDescription": "Play persistent 5E-compatible fantasy campaigns.",
+    "longDescription": "Questforge turns a conversation into an open-ended fantasy campaign. It creates or imports a hero, runs original adventures with transparent 5E-compatible rulings and dice, preserves campaign and mechanical state, and can add generated scenes, tactical maps, 360 views, and optional ambience when the current surface supports them.",
+    "developerName": "Adrian Melic",
     "category": "Games",
     "capabilities": [
       "Interactive",
       "Write",
-      "Auto-Language Setup",
-      "Local SQLite Rules Search",
       "Rules Lookup",
       "Campaign Memory",
-      "Mechanical Game State",
-      "Inventory And Equipment",
       "Turn-Based Combat",
       "Rollback Checkpoints",
-      "Adventure Spine",
-      "Puzzle Beats",
-      "Visual Planner",
-      "Visual Persistence",
-      "Local Visual Gallery",
-      "360 Viewers",
-      "Preflight Audit",
-      "Self-Play",
       "Image Generation"
     ],
     "websiteURL": "https://adrianmelic.github.io/codex-questforge/",
-    "privacyPolicyURL": "https://github.com/adrianmelic/codex-questforge#privacy",
-    "termsOfServiceURL": "https://github.com/adrianmelic/codex-questforge#terms",
+    "privacyPolicyURL": "https://adrianmelic.github.io/codex-questforge/privacy.html",
+    "termsOfServiceURL": "https://adrianmelic.github.io/codex-questforge/terms.html",
     "defaultPrompt": [
-      "I want to play @questforge.",
-      "Create a quick hero and start.",
-      "Continue my Questforge campaign."
+      "Start a new Questforge campaign with a quick hero.",
+      "Guide me through creating a hero, then begin.",
+      "Continue my latest Questforge campaign."
     ],
     "brandColor": "#7C3AED",
     "composerIcon": "./assets/icon.svg",
     "logo": "./assets/logo.svg",
     "screenshots": [
-      "./assets/screenshot-questforge-cover.png"
+      "./assets/screenshots/questforge-session.png",
+      "./assets/screenshots/questforge-tactical-map.png",
+      "./assets/screenshots/questforge-360-pov.png"
     ]
   }
 }

@@ -1,4 +1,4 @@
-"""Small dice roller for Codex Questforge."""
+"""Small dice roller for Questforge."""
 
 from __future__ import annotations
 

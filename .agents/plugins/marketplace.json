@@ -1,0 +1,21 @@
+{
+  "name": "questforge",
+  "interface": {
+    "displayName": "Questforge"
+  },
+  "plugins": [
+    {
+      "name": "questforge",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/adrianmelic/codex-questforge.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Games"
+    }
+  ]
+}

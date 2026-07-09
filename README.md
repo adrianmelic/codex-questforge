@@ -1,205 +1,156 @@
-# Codex Questforge
+# Questforge
 
-![Codex Questforge cover](docs/assets/questforge-cover.png)
+![Questforge guided session](assets/screenshots/questforge-session.png)
 
-**What if we did not just use Codex to build a game, but used Codex as the game itself?**
+**What if we did not just use Codex to build a game, but used Codex to play it?**
 
-**Codex Questforge is a Codex-native fantasy RPG runner.** Codex becomes the play surface, Dungeon Master, rules assistant, local state engine, and visual table. Questforge turns a Codex thread into a persistent 5E-compatible campaign with quick character creation, open dice rolls, a local mechanical ledger, campaign memory, optional generated visuals, 360 scene viewers, and ambience support.
-
-This is an unofficial alpha that started during the OpenAI Discord Codex game challenge. It is designed to be played inside Codex today, then improved in public.
+Questforge is an open-ended fantasy RPG built for Codex. Codex becomes the Game Master, rules assistant, local state engine, and visual table. A normal conversation becomes a persistent 5E-compatible campaign with quick character creation, transparent dice, mechanical state, campaign memory, generated scenes, tactical maps, optional 360 views, and an original ambience pack.
 
 **Guided sample session:** <https://adrianmelic.github.io/codex-questforge/>
 
-The web page is a guided Codex-style sample, not the full game: click through a few representative player messages to see a simulated DM response, dice result, character state, visual gallery update, tactical map or 360 POV viewer, and optional ambience. The open-ended game runs inside Codex after installing the plugin, where you can say anything and Codex continues as the DM.
+The web page is a guided sample, not the full game. The actual game runs in an OpenAI task after installing the plugin, where the player can attempt anything and Questforge continues the world around that choice.
 
-## What It Is
+## Why It Is Different
 
-Codex Questforge is not a conventional browser game. The main game runs inside Codex: you talk naturally, Codex acts as the DM, and local files keep the campaign recoverable between turns and threads.
+Questforge is not a conventional browser game. Its play surface is the conversation itself: natural language replaces fixed dialogue menus, while local files make the campaign recoverable across turns and tasks.
 
 Core features:
 
-- quick or assisted level-1 character creation;
-- original fantasy campaigns grounded in SRD-compatible 5E rules;
-- local SRD setup with Markdown, JSONL, and SQLite search indexes;
+- instant or assisted level-1 character creation;
+- original fantasy campaigns grounded in 5E-compatible SRD rules;
+- offline English and Spanish core-rules indexes, with optional full SRD 5.2.1 indexing;
 - persistent `game-state.json` for HP, AC, XP, inventory, equipment, shops, rests, spell slots, combat, conditions, death saves, and checkpoints;
-- campaign memory files for clues, NPCs, factions, locations, session logs, player journal, and DM-only adventure spine;
-- open dice rolls and failure-forward adjudication;
-- optional native Codex image generation for scenes, maps, items, comic panels, inventory views, and 360 POV panoramas;
-- local visual gallery and panorama viewer for generated campaign images;
-- optional licensed ambience pack with speaker-toggle playback in viewers;
-- preflight and self-play scripts for testing campaign readiness.
+- campaign memory for clues, NPCs, factions, locations, session logs, a player journal, and a DM-only adventure spine;
+- transparent dice, varied difficulty classes, and failure-forward adjudication;
+- native image generation for scenes, maps, items, comic panels, inventory views, and 360 POV panoramas;
+- local visual history and panorama viewers on supported desktop surfaces;
+- optional licensed ambience with a speaker toggle;
+- chat-only fallback when local files or viewers are unavailable.
 
 ## How To Play
 
-Install or enable the plugin in Codex, open a new Codex thread, and start with one of these prompts:
+Install or enable Questforge, start a new task, and choose a natural-language opening:
 
 ```text
-I want to play @questforge in English. Create a quick character and start.
-```
-
-```text
-I want to play @questforge. I am new to D&D; guide me through a character with a few choices, then start the first scene.
+Start a new Questforge campaign with a quick hero.
 ```
 
 ```text
-Quiero jugar a @questforge en español. Créame un personaje rápido y empezamos.
+I am new to tabletop RPGs. Guide me through creating a hero, then begin.
 ```
-
-Controls are natural language. You can say what your character attempts, ask what you can do, inspect inventory, request a rollback to the last checkpoint, ask for a rules explanation, or continue the story in any direction that makes sense.
-
-Questforge has been tested in English and Spanish. Players are encouraged to try their own language; first-run setup detects language automatically and can download the public 5E SRD 5.2.1 PDF locally, so the first campaign setup can take a little longer.
-
-## Install In Codex
-
-Fastest path if you are already using Codex:
 
 ```text
-Install the Questforge plugin from https://github.com/adrianmelic/codex-questforge, then start a new thread so I can play @questforge.
+Quiero jugar a Questforge. Créame un personaje rápido y empezamos.
 ```
 
-This repository is the plugin folder: the repo root contains
-`.codex-plugin/plugin.json` and `skills/...`, which matches the standard Codex
-plugin layout. Codex also needs a marketplace entry that points at the plugin
-folder.
+You can describe any action, ask what your character can do, inspect inventory, request a rules explanation, rewind to a checkpoint, or take the story in an unexpected direction. Questforge has been tested in English and Spanish and should follow the language of the conversation. Other languages use the English rules index when a localized SRD term is unavailable.
 
-For the default personal marketplace, clone Questforge to the path Codex expects
-from `~/.agents/plugins/marketplace.json`:
+## Install
+
+After public approval, install **Questforge** from the Plugins Directory in ChatGPT Work or Codex, then start a new task so its skills are loaded.
+
+For source installation during development or review, add this repository as a marketplace:
+
+```text
+codex plugin marketplace add adrianmelic/codex-questforge
+```
+
+Then open **Plugins** in the ChatGPT desktop app, or `/plugins` in a current Codex CLI, install Questforge, and start a new task. The repository includes `.agents/plugins/marketplace.json`, `.codex-plugin/plugin.json`, and the complete skills bundle.
+
+You can also ask Codex directly:
+
+```text
+Install the Questforge plugin from https://github.com/adrianmelic/codex-questforge, then start a new task so I can play it.
+```
+
+Official references: [Build plugins](https://learn.chatgpt.com/docs/build-plugins) and [Submit plugins](https://learn.chatgpt.com/docs/submit-plugins).
+
+## First Run
+
+The default setup is offline and installs no packages. From the project where campaign files should live:
 
 ```powershell
-New-Item -ItemType Directory -Force "$env:USERPROFILE\plugins"
-git clone https://github.com/adrianmelic/codex-questforge.git "$env:USERPROFILE\plugins\questforge"
+python scripts\questforge_setup.py --data-dir .questforge
 ```
 
-```bash
-mkdir -p "$HOME/plugins"
-git clone https://github.com/adrianmelic/codex-questforge.git "$HOME/plugins/questforge"
-```
+It detects English or Spanish and builds local Markdown, JSONL, and SQLite indexes from the bundled core-rules primer. The game can begin immediately.
 
-If you cloned the repo somewhere else, move it there or create a junction/symlink
-so `~/plugins/questforge` points at your clone.
-
-Make sure your personal marketplace file contains an entry for Questforge. The
-personal marketplace file is normally `~/.agents/plugins/marketplace.json`
-(`C:\Users\<you>\.agents\plugins\marketplace.json` on Windows), and Codex
-discovers it automatically:
-
-```json
-{
-  "name": "personal",
-  "interface": {
-    "displayName": "Personal"
-  },
-  "plugins": [
-    {
-      "name": "questforge",
-      "source": {
-        "source": "local",
-        "path": "./plugins/questforge"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Games"
-    }
-  ]
-}
-```
-
-Then install the plugin:
+Detailed rules lookup can optionally download and index the official SRD 5.2.1 PDF:
 
 ```powershell
-codex plugin add questforge@personal
+python scripts\questforge_setup.py --data-dir .questforge --full-srd
 ```
 
-Start a new Codex thread after installation so the Questforge skills are loaded.
+If `pypdf` is unavailable, Questforge keeps using the offline core index. Questforge never installs packages; complete extraction can be retried after the user prepares an environment that already contains `pypdf`.
 
-Reference: OpenAI's
-[Codex plugin docs](https://developers.openai.com/codex/plugins/build#create-a-plugin-manually)
-describe the same three-part shape: plugin folder with
-`.codex-plugin/plugin.json`, skills under `skills/...`, and a marketplace entry
-that points to the plugin folder.
+The `.questforge/` directory is local runtime data and should not be committed.
 
-## First-Run Rules Setup
+## What Codex Helped Build
 
-Questforge can download and index the official SRD 5.2.1 PDF into a local `.questforge/` cache. Run this from the project folder where you want campaign files:
-
-```powershell
-python scripts\questforge_setup.py --data-dir .questforge --install-pdf-extractor
-```
-
-The setup command detects language automatically and currently supports English and Spanish SRD resources:
-
-```powershell
-python scripts\questforge_setup.py --data-dir .questforge --install-pdf-extractor --language en
-python scripts\questforge_setup.py --data-dir .questforge --install-pdf-extractor --language es
-```
-
-The downloaded SRD cache is local runtime data. Do not commit `.questforge/`.
-
-## What Codex Helped With
-
-Codex helped design, implement, and test the whole loop:
+Codex helped design, implement, test, and iterate on the full loop:
 
 - plugin and skill architecture;
-- SRD setup and local rules indexing;
-- campaign memory templates;
-- structured mechanical game ledger;
-- dice, difficulty classes, and failure-forward check helpers;
-- visual planning, gallery, and 360 panorama viewer;
-- audio library selection and optional ambience playback;
-- narrative-lint guardrails for avoiding repetitive AI-fiction motifs;
+- SRD setup and local rules search;
+- campaign memory and mechanical state;
+- dice, difficulty, combat, inventory, level-up, and rollback helpers;
+- visual planning, continuity, galleries, and 360 viewers;
+- audio selection and optional ambience playback;
+- narrative guardrails against repetitive AI-fiction motifs;
 - deterministic self-play and human beta review workflows;
 - installed-plugin smoke tests in English and Spanish.
 
-The alpha was developed through iterative playtests where Codex both ran the game and audited the resulting files.
+The system was shaped through long-form playtests where Codex ran the campaign and the resulting conversation, timing, images, choices, and state files were audited afterward.
 
-## Current Alpha Caveats
+## Known Limitations
 
-- Quick-start heroes work, but some state enrichment is still manual inside the orchestration layer.
-- Combat, level-up, shops, and long-term companion play are implemented as ledgers and guidance, but need more human beta mileage.
-- Native image generation is intentionally requested through Codex/ChatGPT, not the OpenAI API.
-- The local gallery and 360 viewers work best on desktop; static generated images should still be shown in the Codex conversation for mobile play.
-- This is an unofficial fan tool, not an official Dungeons & Dragons product.
+- The richest persistent experience requires a writable local workspace; ChatGPT Work can fall back to a conversation ledger when local files are unavailable.
+- Native image generation is requested through the OpenAI product surface, not through an API key bundled with Questforge.
+- Local galleries and 360 viewers are desktop aids. Static generated images remain the portable visual surface.
+- Rules coverage defaults to the compact offline primer; complete SRD indexing is optional.
+- Questforge is an unofficial fan tool, not an OpenAI or Dungeons & Dragons product.
 
-## Test
+## Development
+
+Run the tests:
 
 ```powershell
-python -m pytest tests
+$env:PYTHONDONTWRITEBYTECODE = "1"
+python -m pytest tests -p no:cacheprovider
 ```
 
-Current test status:
+Validate the plugin and skills with the current `plugin-creator` and `skill-creator` validators before a release. Build the deterministic OpenAI Platform archive with:
 
-```text
-95 passed
+```powershell
+python scripts\package_plugin.py
 ```
+
+The archive is written to `dist/`, which is intentionally ignored by Git.
 
 ## Repository Map
 
-- `.codex-plugin/plugin.json` - Codex plugin manifest.
-- `skills/questforge/SKILL.md` - main runtime behavior.
-- `skills/questforge-setup/SKILL.md` - first-run setup and SRD language.
-- `skills/questforge-rules/SKILL.md` - SRD lookup, dice, DCs, and rulings.
-- `skills/questforge-campaign/SKILL.md` - campaign memory and continuity.
-- `skills/questforge-puzzles/SKILL.md` - non-blocking deduction beats.
-- `skills/questforge-visuals/SKILL.md` - visual cadence, image prompts, gallery, and 360 viewers.
-- `scripts/` - setup, rules search, dice, game state, campaign memory, visual, audio, analytics, and preflight helpers.
-- `templates/` - starter campaign, journal, state, visual, audio, and puzzle files.
-- `docs/` - design notes, playtest protocol, visual playbook, beta rubrics, social post drafts, and video outline.
-- `assets/audio/starter-pack/` - optional Suno-generated ambience tracks.
+- `.codex-plugin/plugin.json` - plugin manifest and public install-surface metadata.
+- `.agents/plugins/marketplace.json` - source marketplace for repo installation.
+- `skills/` - runtime orchestration, setup, rules, campaign, puzzles, and visuals.
+- `scripts/` - setup, rules search, dice, state, memory, visuals, audio, analytics, preflight, and packaging.
+- `resources/core-rules/` - offline English and Spanish rules primers derived from SRD 5.2.1.
+- `templates/` - campaign, journal, state, visual, audio, and puzzle templates.
+- `assets/audio/starter-pack/` - curated Suno-generated ambience tracks.
+- `submission/` - OpenAI Platform listing copy, prompts, test cases, and release notes.
+- `docs/` - public site, playtest evidence, design notes, and visual guidance.
 
-## Privacy
+## Privacy, Terms, And Support
 
-Questforge stores campaign state, SRD indexes, generated prompts, logs, images, and optional audio files locally in the folder where you play. Do not commit private campaigns, `.questforge/`, generated images, or personal play logs unless you intend to publish them.
+- [Privacy policy](https://adrianmelic.github.io/codex-questforge/privacy.html)
+- [Terms of use](https://adrianmelic.github.io/codex-questforge/terms.html)
+- [Support](https://adrianmelic.github.io/codex-questforge/support.html)
+- [Security policy](SECURITY.md)
 
-## Terms
-
-Use Questforge at your own table and risk. It is an alpha game/tool for local Codex play. Generated stories, images, and audio may depend on the services you choose to use and their terms.
+Questforge does not operate a publisher-controlled server or transmit campaign data to the publisher. Local campaigns can contain information the player entered; review them before sharing or committing them.
 
 ## License And Notices
 
-Code and original plugin materials are MIT licensed. See `LICENSE`.
+Original code and plugin materials are MIT licensed. See `LICENSE`.
 
-Questforge is unofficial and is not affiliated with, endorsed, sponsored, or approved by Wizards of the Coast LLC. Rules references should be grounded in SRD material released under Creative Commons Attribution 4.0 International. See `NOTICE.md` and `docs/srd-sources.md`.
+Questforge is unofficial and is not affiliated with, endorsed, sponsored, or approved by OpenAI or Wizards of the Coast LLC. Rules references are grounded in SRD material released under Creative Commons Attribution 4.0 International. See `NOTICE.md` and `docs/srd-sources.md`.
 
-The starter audio pack contains curated Suno-generated tracks produced by Adrian Melic for this project on a paid Suno plan. See `assets/audio/README.md`.
+The starter audio pack contains curated tracks generated by Adrian Melic with Suno v5.5 while using a paid plan intended to grant commercial rights for newly generated outputs. See `assets/audio/README.md`.

@@ -1,4 +1,4 @@
-"""Campaign memory helpers for Codex Questforge."""
+"""Campaign memory helpers for Questforge."""
 
 from __future__ import annotations
 

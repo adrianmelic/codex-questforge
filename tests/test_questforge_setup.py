@@ -1,11 +1,11 @@
 import json
-import subprocess
 from pathlib import Path
-from types import SimpleNamespace
 
 import scripts.questforge_setup as questforge_setup
 from scripts.questforge_setup import (
     SRD_SOURCES,
+    SetupPaths,
+    clear_language_resources,
     detect_language,
     get_setup_paths,
     normalize_language,
@@ -38,28 +38,6 @@ def test_detect_language_prefers_explicit_environment():
     assert detect_language({"QUESTFORGE_LANGUAGE": "es"}) == "es"
     assert detect_language({"LANGUAGE": "fr:es:en"}) == "es"
     assert detect_language({"LANG": "en_US.UTF-8"}) == "en"
-
-
-def test_install_pdf_extractor_suppresses_success_output(monkeypatch):
-    calls = []
-
-    def fake_run(command, capture_output, text):
-        calls.append(
-            {
-                "command": command,
-                "capture_output": capture_output,
-                "text": text,
-            }
-        )
-        return SimpleNamespace(returncode=0, stdout="installed", stderr="")
-
-    monkeypatch.setattr(subprocess, "run", fake_run)
-
-    questforge_setup.install_pdf_extractor()
-
-    assert calls[0]["capture_output"] is True
-    assert calls[0]["text"] is True
-    assert "--disable-pip-version-check" in calls[0]["command"]
 
 
 def test_setup_from_rules_text_builds_local_indexes(tmp_path: Path):
@@ -133,9 +111,54 @@ def test_setup_without_extractor_downloads_pdf_and_marks_index_pending(
     result = setup_questforge(
         data_dir=tmp_path / "questforge-data",
         downloader=fake_download,
+        full_srd=True,
     )
 
     assert result.status == "pdf_downloaded_index_pending"
     assert result.pdf_path.endswith("SP_SRD_CC_v5.2.1.pdf")
     assert result.jsonl_index_path is None
     assert result.sqlite_index_path is None
+
+
+def test_default_setup_builds_offline_core_rules_index(tmp_path: Path):
+    data_dir = tmp_path / "questforge-data"
+
+    result = setup_questforge(data_dir=data_dir, language="en")
+
+    assert result.status == "ready"
+    assert result.pdf_path is None
+    assert result.markdown_path is not None
+    assert result.jsonl_index_path is not None
+    assert result.sqlite_index_path is not None
+    assert "offline core-rules index" in " ".join(result.notes)
+
+    results = search_sqlite_index(
+        Path(result.sqlite_index_path),
+        "advantage disadvantage",
+        limit=5,
+    )
+    assert results
+    assert any(result.chunk.heading == "D20 Tests" for result in results)
+
+
+def test_resource_cleanup_rejects_path_outside_srd_cache(tmp_path: Path):
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    paths = get_setup_paths(
+        tmp_path / "questforge-data",
+        SRD_SOURCES["en"]["filename"],
+        "en",
+    )
+    unsafe_paths = SetupPaths(
+        **{
+            **paths.__dict__,
+            "language_resources_dir": outside,
+        }
+    )
+
+    try:
+        clear_language_resources(unsafe_paths)
+    except ValueError as error:
+        assert "outside the scoped SRD" in str(error)
+    else:
+        raise AssertionError("Unsafe resource path was not rejected")

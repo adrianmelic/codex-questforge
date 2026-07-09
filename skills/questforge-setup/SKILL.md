@@ -1,6 +1,6 @@
 ---
 name: questforge-setup
-description: Prepare Codex Questforge for first play with auto-language SRD setup, local rules indexes, licensing boundaries, and troubleshooting.
+description: Prepare Questforge for first play with an offline rules primer, optional full-SRD indexing, language selection, and licensing boundaries.
 ---
 
 # Questforge Setup
@@ -8,13 +8,12 @@ description: Prepare Codex Questforge for first play with auto-language SRD setu
 Use this skill when the user installs Questforge, starts it in a new repo, asks
 about SRD resources, or when `.questforge/questforge-setup.json` is missing.
 
-## Default Playable Setup
+## Default Offline Setup
 
-Run setup without asking for language. Use the extractor flag so a clean
-machine gets searchable local rules, not only a downloaded PDF:
+Run setup without asking for language. The default builds searchable Markdown, JSONL, and SQLite indexes from the bundled core-rules primer. It does not use the network or install packages:
 
 ```powershell
-python ../../scripts/questforge_setup.py --data-dir .questforge --install-pdf-extractor
+python ../../scripts/questforge_setup.py --data-dir .questforge
 ```
 
 Setup detects language in this order:
@@ -27,15 +26,17 @@ Setup detects language in this order:
 6. system locale
 7. English fallback
 
-Use `--language en` or `--language es` only when the user explicitly wants an
-override.
+Conversation language takes priority over machine locale. Pass `--language en` or `--language es` when the user's language is clear from the request. For other languages, use the English rules index and keep narration in the user's language.
 
-## PDF And Indexes
+## Optional Complete SRD
 
-The setup command downloads the matching official SRD 5.2.1 PDF into the local
-`.questforge/downloads/` cache. Do not commit that cache.
+Only download the complete official SRD when the user asks for detailed rules coverage or accepts the optional setup. Explain that the command contacts `media.dndbeyond.com` and writes a local cache before running it:
 
-When `pypdf` is available, setup creates:
+```powershell
+python ../../scripts/questforge_setup.py --data-dir .questforge --full-srd
+```
+
+When `pypdf` is already available, the full setup creates:
 
 - Markdown rules text.
 - JSONL rules chunks.
@@ -43,12 +44,10 @@ When `pypdf` is available, setup creates:
 - Structured Markdown resources under `.questforge/resources/srd/<language>/`.
 - `.questforge/questforge-setup.json` with resolved language and paths.
 
-If the user declines extractor installation, rerun setup without
-`--install-pdf-extractor`. If setup returns `pdf_downloaded_index_pending`, say
-exactly what happened and offer one of these:
+If full setup returns `pdf_downloaded_index_pending`, say exactly what happened and continue playing with the ready bundled core index. Questforge never installs packages. If the user wants complete indexing, explain that `pypdf` must already be installed in their active Python environment, then rerun:
 
 ```powershell
-python ../../scripts/questforge_setup.py --data-dir .questforge --install-pdf-extractor
+python ../../scripts/questforge_setup.py --data-dir .questforge --full-srd
 ```
 
 or:
@@ -56,6 +55,8 @@ or:
 ```powershell
 python ../../scripts/questforge_setup.py --data-dir .questforge --rules-text <path-to-srd-markdown>
 ```
+
+If shell or filesystem access is unavailable, use `../../resources/core-rules/<language>.md` directly and run a chat-only campaign. Do not claim that local indexes were created.
 
 ## Copyright Boundary
 

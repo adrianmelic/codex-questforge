@@ -1,4 +1,4 @@
-"""First-run setup for Codex Questforge."""
+"""First-run setup for Questforge."""
 
 from __future__ import annotations
 
@@ -9,7 +9,6 @@ import locale
 import os
 import re
 import shutil
-import subprocess
 import sys
 import urllib.request
 from dataclasses import asdict, dataclass
@@ -44,6 +43,9 @@ SRD_SOURCES = {
         "filename": "SP_SRD_CC_v5.2.1.pdf",
     },
 }
+
+PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+CORE_RULES_DIR = PLUGIN_ROOT / "resources" / "core-rules"
 
 
 @dataclass(frozen=True)
@@ -180,34 +182,6 @@ def default_download(url: str, destination: Path) -> None:
         destination.write_bytes(response.read())
 
 
-def install_pdf_extractor() -> None:
-    completed_process = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "pip",
-            "--disable-pip-version-check",
-            "install",
-            "pypdf",
-        ],
-        capture_output=True,
-        text=True,
-    )
-    if completed_process.returncode != 0:
-        output = "\n".join(
-            part
-            for part in (
-                completed_process.stdout.strip(),
-                completed_process.stderr.strip(),
-            )
-            if part
-        )
-        raise RuntimeError(
-            "Failed to install pypdf for SRD PDF extraction."
-            + (f"\n{output}" if output else "")
-        )
-
-
 def has_pypdf() -> bool:
     return importlib.util.find_spec("pypdf") is not None
 
@@ -292,8 +266,7 @@ def write_structured_resources(
     """Write Markdown resources and return chunks pointing at those files."""
 
     chunks = list(chunks)
-    if paths.language_resources_dir.exists():
-        shutil.rmtree(paths.language_resources_dir)
+    clear_language_resources(paths)
     sections_dir = paths.language_resources_dir / "sections"
     sections_dir.mkdir(parents=True, exist_ok=True)
 
@@ -352,6 +325,21 @@ def write_structured_resources(
     return resource_chunks
 
 
+def clear_language_resources(paths: SetupPaths) -> None:
+    """Remove only the generated language directory inside the SRD cache."""
+
+    if not paths.language_resources_dir.exists():
+        return
+    language_dir = paths.language_resources_dir.resolve()
+    srd_root = paths.srd_resources_dir.resolve()
+    if language_dir.parent != srd_root or language_dir.name not in SRD_SOURCES:
+        raise ValueError(
+            "Refusing to replace rules resources outside the scoped SRD "
+            f"language directory: {language_dir}"
+        )
+    shutil.rmtree(language_dir)
+
+
 def write_srd_manifest(
     paths: SetupPaths,
     language: str,
@@ -407,25 +395,38 @@ def setup_questforge(
     force: bool = False,
     rules_text: Path | None = None,
     downloader: Downloader = default_download,
-    install_extractor: bool = False,
+    full_srd: bool = False,
 ) -> SetupResult:
     """Prepare local Questforge data and rules indexes."""
 
     language = resolve_language(language)
     source = SRD_SOURCES[language]
-    paths = get_setup_paths(data_dir, source["filename"], language)
+    if force:
+        full_srd = True
+
+    core_rules_path = CORE_RULES_DIR / f"{language}.md"
+    use_core_rules = rules_text is None and not full_srd
+    source_filename = (
+        core_rules_path.name if use_core_rules else source["filename"]
+    )
+    source_label = (
+        f"Questforge Core Rules ({source['label']})"
+        if use_core_rules
+        else source["label"]
+    )
+    source_url = source["url"]
+    paths = get_setup_paths(data_dir, source_filename, language)
     notes: list[str] = []
 
-    paths.downloads_dir.mkdir(parents=True, exist_ok=True)
     paths.rules_dir.mkdir(parents=True, exist_ok=True)
     paths.resources_dir.mkdir(parents=True, exist_ok=True)
 
-    if install_extractor and not has_pypdf():
-        install_pdf_extractor()
-        notes.append("Installed pypdf for PDF text extraction.")
+    if full_srd:
+        paths.downloads_dir.mkdir(parents=True, exist_ok=True)
 
-    if rules_text is not None:
-        markdown_text, chunks = read_rules_text_source(rules_text)
+    effective_rules_text = core_rules_path if use_core_rules else rules_text
+    if effective_rules_text is not None:
+        markdown_text, chunks = read_rules_text_source(effective_rules_text)
         paths.markdown_path.write_text(
             markdown_text,
             encoding="utf-8",
@@ -434,14 +435,26 @@ def setup_questforge(
         resource_chunks = write_structured_resources(
             paths,
             chunks,
-            source["label"],
-            source["url"],
+            source_label,
+            source_url,
             language,
         )
         write_index(resource_chunks, paths.jsonl_index_path)
         write_sqlite_index(resource_chunks, paths.sqlite_index_path)
         status = "ready"
-        notes.append(f"Built rules indexes from text source: {rules_text}")
+        if use_core_rules:
+            notes.append(
+                "Built an offline core-rules index from the bundled "
+                f"CC-BY-4.0 resource: {core_rules_path}"
+            )
+            notes.append(
+                "Use --full-srd when detailed rules lookup requires the "
+                "complete official SRD."
+            )
+        else:
+            notes.append(
+                f"Built rules indexes from text source: {effective_rules_text}"
+            )
     else:
         if force or not paths.pdf_path.exists():
             downloader(source["url"], paths.pdf_path)
@@ -480,14 +493,15 @@ def setup_questforge(
                 "were not generated."
             )
             notes.append(
-                "Install pypdf or rerun with --install-pdf-extractor to build "
-                "the local JSONL and SQLite rules indexes."
+                "Install pypdf in the active Python environment, then rerun "
+                "with --full-srd to build the complete local JSONL and "
+                "SQLite rules indexes. Questforge does not install packages."
             )
 
     result = SetupResult(
         language=language,
-        source_label=source["label"],
-        source_url=source["url"],
+        source_label=source_label,
+        source_url=source_url,
         pdf_path=str(paths.pdf_path) if paths.pdf_path.exists() else None,
         markdown_path=(
             str(paths.markdown_path) if paths.markdown_path.exists() else None
@@ -541,12 +555,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--force",
         action="store_true",
-        help="Redownload the SRD PDF when using the official source.",
+        help="Redownload the SRD PDF. Implies --full-srd.",
     )
     parser.add_argument(
-        "--install-pdf-extractor",
+        "--full-srd",
         action="store_true",
-        help="Install pypdf with pip before extracting the SRD PDF.",
+        help=(
+            "Download and index the complete official SRD. The default "
+            "offline setup uses the bundled core-rules primer."
+        ),
     )
     return parser
 
@@ -562,7 +579,7 @@ def main(arguments: Iterable[str] | None = None) -> int:
         language=parsed_arguments.language,
         force=parsed_arguments.force,
         rules_text=parsed_arguments.rules_text,
-        install_extractor=parsed_arguments.install_pdf_extractor,
+        full_srd=parsed_arguments.full_srd,
     )
     print(json.dumps(asdict(result), indent=2, ensure_ascii=False))
     return 0 if result.status == "ready" else 2

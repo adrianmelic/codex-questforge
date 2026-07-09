@@ -1,11 +1,13 @@
 ---
 name: questforge-campaign
-description: Manage Codex Questforge campaign memory, sessions, clocks, NPCs, factions, inventory, clues, state patches, and continuity between sessions.
+description: Manage Questforge campaign memory, sessions, clocks, NPCs, factions, inventory, clues, state patches, and continuity between sessions.
 ---
 
 # Questforge Campaign
 
 Use this skill when starting, continuing, closing, or auditing a campaign.
+
+When local file access is unavailable, keep a compact spoiler-free state block in the conversation with hero status, inventory, objective, clues, open threads, and the last checkpoint label. Do not claim durable persistence beyond the current task.
 
 ## Campaign Workspace
 

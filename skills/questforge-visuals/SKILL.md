@@ -1,6 +1,6 @@
 ---
 name: questforge-visuals
-description: Use native Codex image generation as a Questforge table aid for scenes, objects, maps, inventory, merchants, outfits, symbols, and recap visuals with persistent visual memory.
+description: Use native image generation as a Questforge table aid for scenes, objects, maps, inventory, merchants, outfits, symbols, and recaps with visual continuity.
 ---
 
 # Questforge Visuals
@@ -8,6 +8,8 @@ description: Use native Codex image generation as a Questforge table aid for sce
 Use this skill when a visual would clarify the shared imagination, preserve an
 important object or location, help spatial decisions, or make inventory/trade
 easier to understand.
+
+If local file or browser access is unavailable, show generated static images in the conversation and skip local galleries and 360 viewers. Never block the next playable turn on an unsupported visual surface.
 
 ## Format Choice
 

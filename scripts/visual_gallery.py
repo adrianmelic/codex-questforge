@@ -279,7 +279,7 @@ HTML_TEMPLATE = """<!doctype html>
 <body>
   <header class="topbar">
     <div>
-      <div class="eyebrow">Codex Questforge</div>
+      <div class="eyebrow">Questforge</div>
       <h1>__TITLE_TEXT__</h1>
     </div>
     <nav class="top-actions" aria-label="Gallery navigation">

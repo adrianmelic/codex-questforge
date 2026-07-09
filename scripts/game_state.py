@@ -1,4 +1,4 @@
-"""Structured player-facing game state for Codex Questforge."""
+"""Structured player-facing game state for Questforge."""
 
 from __future__ import annotations
 

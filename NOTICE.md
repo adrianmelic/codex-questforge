@@ -1,7 +1,7 @@
 # Notices
 
-Codex Questforge is an unofficial alpha game/tool. It is not affiliated with,
-endorsed, sponsored, or approved by Wizards of the Coast LLC.
+Questforge is an unofficial fantasy game tool. It is not affiliated with,
+endorsed, sponsored, or approved by OpenAI or Wizards of the Coast LLC.
 
 Rules references should be grounded in SRD material released under the Creative
 Commons Attribution 4.0 International license.
@@ -14,6 +14,8 @@ Recommended attribution for campaign notes or generated SRD-derived material:
 
 Do not bundle commercial rulebooks, non-SRD setting lore, official artwork,
 logos, or other protected product identity in this plugin.
+
+The bundled English and Spanish core-rules primers are practical summaries derived from SRD 5.2.1 and carry the same CC-BY-4.0 attribution. They are not complete reproductions of the SRD.
 
 The GitHub Pages demo includes one optional ambience track copied from the
 Questforge starter audio pack. The starter audio pack credits and licensing
