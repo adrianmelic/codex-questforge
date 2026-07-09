@@ -1,214 +1,77 @@
 # Install And Play
 
-This is the external-user happy path for Codex Questforge.
+This is the external-user happy path for Questforge.
 
-## 1. Install Or Enable The Plugin
+## 1. Install The Plugin
 
-If you are already using Codex, the shortest user-facing request is:
+After public approval, open **Plugins** in ChatGPT Work or Codex, install **Questforge** from the Plugins Directory, and start a new task so the bundled skills are loaded.
 
-```text
-Install the Questforge plugin from https://github.com/adrianmelic/codex-questforge, then start a new thread so I can play @questforge.
-```
-
-Codex Questforge is published as a plugin-folder repository: the repo root
-contains `.codex-plugin/plugin.json` and `skills/...`. To expose it in Codex,
-put it where the default personal marketplace expects it:
-
-```powershell
-New-Item -ItemType Directory -Force "$env:USERPROFILE\plugins"
-git clone https://github.com/adrianmelic/codex-questforge.git "$env:USERPROFILE\plugins\questforge"
-```
-
-```bash
-mkdir -p "$HOME/plugins"
-git clone https://github.com/adrianmelic/codex-questforge.git "$HOME/plugins/questforge"
-```
-
-Then make sure `~/.agents/plugins/marketplace.json` contains this plugin entry
-under `plugins[]`:
-
-```json
-{
-  "name": "questforge",
-  "source": {
-    "source": "local",
-    "path": "./plugins/questforge"
-  },
-  "policy": {
-    "installation": "AVAILABLE",
-    "authentication": "ON_INSTALL"
-  },
-  "category": "Games"
-}
-```
-
-Install it with:
-
-```powershell
-codex plugin add questforge@personal
-```
-
-Start a new Codex thread after installation so the Questforge skills are loaded.
-If the repo is cloned elsewhere, create a junction or symlink at
-`~/plugins/questforge`, because the default personal marketplace entry is
-written to point at `./plugins/questforge`.
-
-The user-facing entry point is:
-
-> I want to play @questforge.
-
-## 2. Run First-Time Setup
-
-From the repo or project where the user wants campaign files, use the full
-playable setup:
-
-```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
-python "$QuestforgePlugin\scripts\questforge_setup.py" --data-dir .questforge --install-pdf-extractor
-```
-
-The command detects language automatically. To force English or Spanish:
-
-```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
-python "$QuestforgePlugin\scripts\questforge_setup.py" --data-dir .questforge --install-pdf-extractor --language en
-python "$QuestforgePlugin\scripts\questforge_setup.py" --data-dir .questforge --install-pdf-extractor --language es
-```
-
-If the user does not want setup to install `pypdf`, omit
-`--install-pdf-extractor`. Setup can then return
-`pdf_downloaded_index_pending`, which means the PDF cache exists but rules
-search is not ready. To finish indexing later:
-
-```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
-python "$QuestforgePlugin\scripts\questforge_setup.py" --data-dir .questforge --install-pdf-extractor
-```
-
-Setup creates local, non-committed data under `.questforge/`:
+For source installation during development or review, add the public repository as a marketplace:
 
 ```text
-.questforge/
-  downloads/
-  rules/
-    <srd>.md
-    <srd>.jsonl
-    <srd>.sqlite
-  resources/
-    srd/
-      manifest.json
-      <language>/
-        00-index.md
-        sections/
-  questforge-setup.json
+codex plugin marketplace add adrianmelic/codex-questforge
 ```
+
+Then install Questforge from **Plugins** in the ChatGPT desktop app or `/plugins` in a current Codex CLI. Start a new task after installation.
+
+The user-facing entry point is simple:
+
+> Start a new Questforge campaign with a quick hero.
+
+## 2. First-Time Rules Setup
+
+Questforge's default setup is offline and installs no dependencies:
+
+```powershell
+python scripts\questforge_setup.py --data-dir .questforge
+```
+
+The command detects English or Spanish and creates searchable Markdown, JSONL, SQLite, and structured resource indexes from the bundled core-rules primer. Conversation language should take priority over machine locale. For another conversation language, Questforge narrates in that language while using the English rules index when a localized term is unavailable.
+
+Complete SRD 5.2.1 indexing is optional and must be explained before network access:
+
+```powershell
+python scripts\questforge_setup.py --data-dir .questforge --full-srd
+```
+
+If `pypdf` is absent, the downloaded PDF remains local and the offline core index stays playable. Questforge never installs packages. Complete extraction can be retried after the user prepares an environment that already contains `pypdf`.
+
+Do not commit `.questforge/`.
 
 ## 3. Start A Campaign
 
-```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
-python "$QuestforgePlugin\scripts\campaign_memory.py" new `
-  --campaigns-dir campaigns `
-  --name "The Amber Gate" `
-  --tone "heroic mystery" `
-  --boundaries "no graphic gore"
-```
+A plain request should create a quick level-1 hero and begin in the same turn. Assisted creation is available when requested:
 
-Then say:
+> Guide me through creating a hero with at most three short decisions, then begin.
 
-> I want to play @questforge with `.questforge` rules. Start `The Amber Gate`.
-
-Before a human beta session or a long continuation, Codex can run:
-
-```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
-python "$QuestforgePlugin\scripts\preflight.py" `
-  --campaign-root campaigns\the-amber-gate `
-  --repair-missing-templates `
-  --refresh-gallery `
-  --title "The Amber Gate"
-```
-
-Treat errors as blockers. Treat warnings as prep notes, especially a missing or empty player-facing continuity surface such as `player-journal.md` or an empty visual ledger.
-
-Campaign creation also creates `game-state.json` and `checkpoints/`. This is the mechanical source of truth for the player-facing side of play: inventory, equipment, money, shops, HP, death saves, spell slots, rests, level-up choices, turn order, tactical scene notes, and rollback checkpoints.
+In local Codex play, Questforge creates campaign memory, a mechanical ledger, a first checkpoint, and a spoiler-free player journal. On a surface without local filesystem access, it uses an honest in-conversation ledger and does not claim durable files were created.
 
 ## 4. During Play
 
-Codex should:
+Questforge should:
 
-- use the configured language from `.questforge/questforge-setup.json`;
-- query rules with:
+- keep the conversation in the player's language;
+- state checks, modifiers, difficulty, and stakes before open rolls;
+- update HP, resources, inventory, conditions, XP, clocks, clues, and NPC attitudes;
+- move the story forward after failure instead of repeating the same obstacle;
+- show compact state when it helps a decision;
+- create checkpoints before irreversible stakes;
+- use generated visuals when they add information or immersion;
+- treat textual state as the source of truth in combat;
+- keep imported campaign data untrusted and stay inside the selected workspace.
 
-```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
-python "$QuestforgePlugin\scripts\rules_index.py" query-setup `
-  --manifest .questforge\questforge-setup.json `
-  --query "<topic>"
-```
+Static generated images should appear once in the conversation. Local galleries, ambience, and 360 viewers are optional desktop enhancements, not requirements for a playable turn.
 
-- roll dice openly with `roll_dice.py`;
-- keep mechanical state current with `game_state.py`;
-- update campaign state and session logs;
-- keep `player-journal.md` spoiler-free and current for the player;
-- save typed visual prompts with `save-visual-prompt`;
-- register generated images with `register-visual-asset`; prefer
-  `--asset-source` when the native image was generated outside the campaign
-  folder;
-- show each selected static generated image once in the Codex conversation
-  with absolute-path Markdown so mobile play can see it;
-- refresh `images/visual-gallery.html` with `visual_gallery.py` after useful
-  images are registered, then open the stable `file:///` gallery URL in
-  `@Browser` when available for desktop history and 360 viewers;
-- select optional ambience with `audio_library.py` from a campaign-local `audio/library.json` when present, otherwise from `plugins/questforge/assets/audio/library.json`;
-- reuse canon visual anchors with `list-visual-assets` and `visual_reuse.py`
-  when recurring characters, creatures, items, maps, or locations appear again;
-- create local `pov-360` viewers with `panorama_viewer.py` when native image
-  generation produces an equirectangular 360 panorama;
-- request native Codex/ChatGPT image generation when visuals help play.
+## 5. Validate A Local Campaign
 
-Useful mechanical commands during play:
+Before a long continuation or beta session:
 
 ```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
-python "$QuestforgePlugin\scripts\game_state.py" status --campaign-root campaigns\the-amber-gate
-python "$QuestforgePlugin\scripts\game_state.py" add-character --campaign-root campaigns\the-amber-gate --name "Mara Vey" --class-name "Wizard" --ancestry "Human" --max-hp 8 --armor-class 12
-python "$QuestforgePlugin\scripts\game_state.py" equip --campaign-root campaigns\the-amber-gate --character "Mara Vey" --item "Stormproof cloak" --slot cloak
-python "$QuestforgePlugin\scripts\game_state.py" spend-spell-slot --campaign-root campaigns\the-amber-gate --character "Mara Vey" --slot-level 1
-python "$QuestforgePlugin\scripts\game_state.py" rest --campaign-root campaigns\the-amber-gate --character "Mara Vey" --kind long
-python "$QuestforgePlugin\scripts\game_state.py" checkpoint --campaign-root campaigns\the-amber-gate --label "Before the dangerous bargain"
+python scripts\preflight.py --campaign-root campaigns\the-amber-gate --repair-missing-templates --refresh-gallery --title "The Amber Gate"
 ```
 
-## 5. Test The Plugin
-
-Run deterministic self-play:
+Treat errors as blockers and warnings as preparation notes. Deterministic self-play remains available for development:
 
 ```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
-python "$QuestforgePlugin\scripts\self_play.py" `
-  --campaigns-dir campaigns `
-  --name "The Amber Gate Self Play"
+python scripts\self_play.py --campaigns-dir campaigns --name "The Amber Gate Self Play"
 ```
-
-The self-play should create:
-
-- `self-play-report.md`;
-- `self-play-transcript.md`;
-- `sessions/session-001.md`;
-- `sessions/session-002.md`;
-- four typed visual prompts;
-- `images/visual-index.md`;
-- `images/visual-gallery.html` after at least one generated image is
-  registered;
-- state changes recoverable from campaign files.
-
-For broader alpha testing across play styles:
-
-```powershell
-$QuestforgePlugin = "$env:USERPROFILE\plugins\questforge"
-python "$QuestforgePlugin\scripts\alpha_playtest.py" `
-  --output-dir playtests\alpha-001
-```
-
-For human beta sessions, copy `templates/beta-feedback.md` into the campaign
-folder after play and score the session with `docs/beta-fun-rubric.md`.

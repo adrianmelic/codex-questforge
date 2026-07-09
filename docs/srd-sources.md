@@ -1,6 +1,6 @@
 # SRD Sources And License Notes
 
-Verified on 2026-05-17.
+Verified on 2026-07-09.
 
 Use SRD sources as the reusable rules base:
 
@@ -13,6 +13,7 @@ Use SRD sources as the reusable rules base:
 Operational rules for the plugin:
 
 - Prefer SRD 5.2.1 for rules, classes, spells, monsters, and equipment.
+- Use the bundled `resources/core-rules/` primers for immediate offline play.
 - Download SRD PDFs into `.questforge/downloads/` or another local cache rather
   than committing them to the plugin repo.
 - Generate structured Markdown resources under `.questforge/resources/srd/` so

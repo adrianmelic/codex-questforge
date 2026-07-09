@@ -1,6 +1,6 @@
 # Skill Map
 
-Codex Questforge is a plugin made of several skills. Users normally invoke only
+Questforge is a plugin made of several skills. Users normally invoke only
 `questforge`; the other skills are specialized modes used by the orchestrator.
 
 | Skill | Role | Trigger |

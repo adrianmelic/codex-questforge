@@ -4,7 +4,7 @@ Date: 2026-05-17
 
 Scenario: `La Campana del Cienagal`
 
-Goal: test Codex Questforge as a first-time user from clean setup through a
+Goal: test Questforge as a first-time user from clean setup through a
 playable scene with SRD rules, dice, visual prep, native image generation,
 visual reuse, session close, and continuity handoff.
 
@@ -33,7 +33,7 @@ The run proved:
 
 | Friction | Fix |
 | --- | --- |
-| `--install-pdf-extractor` printed noisy pip notices during the happy path. | `questforge_setup.py` now captures successful pip output and disables pip version checks. |
+| The former `--install-pdf-extractor` path printed noisy pip notices during setup. | Removed for the 1.0 release. Default setup is offline, and Questforge never installs packages. |
 | Live scene-frame prompts could contradict a resolved roll if the action text was manually written wrong. | `visual_reuse.py` now accepts `--roll` and `--outcome`, and includes them in saved prompts. |
 | Docs focused on `--asset-path`, but native image generation usually saves outside the campaign folder. | Docs and `questforge-visuals` now show `--asset-source` for copying selected generated images into `images/assets/`. |
 

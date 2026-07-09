@@ -1,6 +1,6 @@
 # Sample Mini-Session
 
-This is a compact target experience for Codex Questforge. It is not official
+This is a compact target experience for Questforge. It is not official
 D&D content and does not use an official setting, official characters, official
 art, or commercial rulebook text.
 

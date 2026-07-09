@@ -1,6 +1,6 @@
 # Questforge Playtest Flow
 
-Use this flow to test whether Codex Questforge can run a rich session instead
+Use this flow to test whether Questforge can run a rich session instead
 of only storing notes.
 
 ## 1. Create The Campaign Workspace
@@ -9,20 +9,14 @@ First, prepare local rules data:
 
 ```powershell
 python plugins\questforge\scripts\questforge_setup.py `
-  --data-dir .questforge `
-  --install-pdf-extractor
+  --data-dir .questforge
 ```
 
-If testing the no-install path, omit `--install-pdf-extractor`. Setup should
-then either reuse an existing extractor or report `pdf_downloaded_index_pending`
-with a clear instruction to rerun with `--install-pdf-extractor` or provide a
-converted SRD Markdown file with `--rules-text`.
+This is the default offline path and must produce a ready core-rules index without network access or package installation. Test the optional complete-SRD path separately with `--full-srd`; Questforge itself must never install dependencies.
 
 Setup auto-detects language from `QUESTFORGE_LANGUAGE`, the system locale, then
 English. Use `--language es` or `--language en` only to override detection.
-Setup should create structured Markdown resources in
-`.questforge/resources/srd/<language>/` when extraction succeeds or `--rules-text`
-is provided.
+Setup should create structured Markdown resources in `.questforge/resources/srd/<language>/` from the bundled primer, full extraction, or `--rules-text`.
 
 ```powershell
 python plugins\questforge\scripts\campaign_memory.py new `

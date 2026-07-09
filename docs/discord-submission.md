@@ -10,7 +10,7 @@ Historical note: this was the submission framing for the OpenAI Discord challeng
 
 What if we did not just use Codex to build a game, but used Codex as the game itself?
 
-**Codex Questforge is a fantasy RPG played inside Codex.** Codex becomes your Dungeon Master: it prepares the adventure, creates your character, reacts to whatever you decide, rolls dice openly, tracks local campaign state, remembers clues and consequences, generates scene images and 360 POV moments, and can choose ambient soundtrack loops for the current situation.
+**Questforge is a fantasy RPG played inside Codex.** Codex becomes your Dungeon Master: it prepares the adventure, creates your character, reacts to whatever you decide, rolls dice openly, tracks local campaign state, remembers clues and consequences, generates scene images and 360 POV moments, and can choose ambient soundtrack loops for the current situation.
 
 The browser link is a guided Codex-style sample session. Click a player prompt, see the simulated DM response, dice result, state update, generated scene image, tactical map, 360 viewer, and optional ambience. The installed plugin is open-ended: in Codex, you can say anything and the DM continues the story.
 

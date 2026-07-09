@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Codex Questforge Guided Sample Session</title>
+    <title>Questforge Guided Sample Session</title>
     <link rel="icon" href="data:," />
     <meta
       name="description"
-      content="A guided sample of Codex Questforge, a fantasy RPG runner plugin played inside Codex."
+      content="A guided sample of Questforge, a fantasy RPG plugin built for Codex."
     />
-    <meta property="og:title" content="Codex Questforge" />
+    <meta property="og:title" content="Questforge" />
     <meta
       property="og:description"
       content="A fantasy RPG played inside Codex: DM, dice, local campaign memory, generated scene art, 360 POV, and optional soundtrack."
@@ -18,17 +18,17 @@
     <meta property="og:url" content="https://adrianmelic.github.io/codex-questforge/" />
     <meta
       property="og:image"
-      content="https://adrianmelic.github.io/codex-questforge/assets/questforge-cover.png"
+      content="https://adrianmelic.github.io/codex-questforge/assets/questforge-session.png"
     />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Codex Questforge" />
+    <meta name="twitter:title" content="Questforge" />
     <meta
       name="twitter:description"
       content="A fantasy RPG played inside Codex: DM, dice, local campaign memory, generated scene art, 360 POV, and optional soundtrack."
     />
     <meta
       name="twitter:image"
-      content="https://adrianmelic.github.io/codex-questforge/assets/questforge-cover.png"
+      content="https://adrianmelic.github.io/codex-questforge/assets/questforge-session.png"
     />
     <style>
       :root {
@@ -677,6 +677,19 @@
         background: #080a0b;
       }
 
+      .legal-links {
+        display: flex;
+        justify-content: center;
+        gap: 18px;
+        padding: 18px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .legal-links a {
+        color: inherit;
+      }
+
       .hidden {
         display: none !important;
       }
@@ -762,7 +775,7 @@
     <div class="page">
       <header class="topbar">
         <div class="brand">
-          <svg class="brand-mark" viewBox="0 0 64 64" role="img" aria-label="Codex Questforge">
+          <svg class="brand-mark" viewBox="0 0 64 64" role="img" aria-label="Questforge">
             <rect x="6" y="6" width="52" height="52" rx="14" fill="#111827" stroke="#5bb7ff" stroke-width="3" />
             <path
               d="M16 38c0-6 4-10 10-11 3-7 13-8 18-2 6 0 10 5 10 11 0 7-5 12-13 12H27c-7 0-11-4-11-10Z"
@@ -772,8 +785,8 @@
             <path d="M37 44h9" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round" />
           </svg>
           <div>
-            <h1>Codex Questforge</h1>
-            <small>A fantasy RPG played inside Codex: DM, rules engine, memory, and visual table.</small>
+            <h1>Questforge</h1>
+            <small>A fantasy RPG built for Codex: Game Master, rules, memory, and visual table.</small>
           </div>
         </div>
         <div class="top-actions">
@@ -857,6 +870,11 @@
           </p>
         </section>
       </main>
+      <nav class="legal-links" aria-label="Legal and support">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="support.html">Support</a>
+      </nav>
     </div>
 
     <audio id="ambience" src="assets/questforge-demo-loop.mp3" loop preload="metadata"></audio>
@@ -1180,7 +1198,7 @@
         const avatar =
           message.from === "user"
             ? "You"
-            : `<svg viewBox="0 0 64 64" role="img" aria-label="Codex Questforge">
+            : `<svg viewBox="0 0 64 64" role="img" aria-label="Questforge">
                 <rect x="8" y="8" width="48" height="48" rx="13" fill="#111827" stroke="#5bb7ff" stroke-width="4" />
                 <path d="M17 38c0-6 4-10 10-11 3-7 13-8 18-2 6 0 10 5 10 11 0 7-5 12-13 12H28c-7 0-11-4-11-10Z" fill="#f3fbff" />
                 <path d="M25 30 33 37l-8 7" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
@@ -1419,7 +1437,7 @@
           function onPointerMove(event) {
             if (!dragging) return;
             yaw -= (event.clientX - startX) * 0.16;
-            pitch -= (event.clientY - startY) * 0.16;
+            pitch += (event.clientY - startY) * 0.16;
             pitch = Math.max(-78, Math.min(78, pitch));
             startX = event.clientX;
             startY = event.clientY;
@@ -1573,7 +1591,7 @@
       });
 
       copyPrompt.addEventListener("click", async () => {
-        const prompt = "I want to play @questforge in English. Create a quick character and start.";
+        const prompt = "Start a new Questforge campaign with a quick hero.";
         try {
           await navigator.clipboard.writeText(prompt);
           copyPrompt.textContent = "Prompt Copied";
