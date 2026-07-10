@@ -17,6 +17,7 @@ Questforge is not a conventional browser game. Its play surface is the conversat
 Core features:
 
 - instant or assisted level-1 character creation;
+- atomic local quick-start from one structured spec, avoiding a chain of manual state writes before the first scene;
 - original fantasy campaigns grounded in 5E-compatible SRD rules;
 - offline English and Spanish core-rules indexes, with optional full SRD 5.2.1 indexing;
 - persistent `game-state.json` for HP, AC, XP, inventory, equipment, shops, rests, spell slots, combat, conditions, death saves, and checkpoints;
@@ -67,7 +68,7 @@ Official references: [Build plugins](https://learn.chatgpt.com/docs/build-plugin
 
 ## First Run
 
-The default setup is offline and installs no packages. From the project where campaign files should live:
+The default setup is offline and installs no packages. During normal play, Questforge handles setup and the atomic campaign bootstrap. For manual review, from the project where campaign files should live:
 
 ```powershell
 python scripts\questforge_setup.py --data-dir .questforge
@@ -85,6 +86,14 @@ If `pypdf` is unavailable, Questforge keeps using the offline core index. Questf
 
 The `.questforge/` directory is local runtime data and should not be committed.
 
+Developers and reviewers can reproduce the complete local campaign scaffold in one command:
+
+```powershell
+python scripts/quick_start.py --workspace-root <play-workspace> --spec templates/quick-start-spec.json
+```
+
+The command creates campaign memory, hero state, equipment, checkpoint, minimum DM spine, opening brief, player journal, first session, analytics event, visual continuity, and the opening visual prompt. Native image generation remains a product-surface action and is not performed through an API key.
+
 ## What Codex Helped Build
 
 Codex helped design, implement, test, and iterate on the full loop:
@@ -97,6 +106,7 @@ Codex helped design, implement, test, and iterate on the full loop:
 - audio selection and optional ambience playback;
 - narrative guardrails against repetitive AI-fiction motifs;
 - deterministic self-play and human beta review workflows;
+- long-form conversational playtests in English and Spanish, with structured event and state audits;
 - installed-plugin smoke tests in English and Spanish.
 
 The system was shaped through long-form playtests where Codex ran the campaign and the resulting conversation, timing, images, choices, and state files were audited afterward.

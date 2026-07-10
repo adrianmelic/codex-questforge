@@ -46,6 +46,14 @@ A plain request should create a quick level-1 hero and begin in the same turn. A
 
 In local Codex play, Questforge creates campaign memory, a mechanical ledger, a first checkpoint, and a spoiler-free player journal. On a surface without local filesystem access, it uses an honest in-conversation ledger and does not claim durable files were created.
 
+For a reproducible developer or reviewer bootstrap, adapt the bundled spec and run:
+
+```powershell
+python scripts/quick_start.py --workspace-root <play-workspace> --spec templates/quick-start-spec.json
+```
+
+Questforge uses this atomic path for new local campaigns so campaign files and hero state are ready together. The generated visual prompt remains pending until the product's native image generator creates and registers the asset.
+
 ## 4. During Play
 
 Questforge should:

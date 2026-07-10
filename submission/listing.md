@@ -34,7 +34,7 @@ Select all countries and regions where skills-only plugins are supported. Questf
 
 ## Release Notes
 
-Initial public submission of Questforge 1.0.0, a skills-only, open-ended fantasy campaign runner. The release includes six scoped skills, an offline English/Spanish rules primer, optional full SRD 5.2.1 indexing, persistent local campaign and mechanical state, transparent dice and failure-forward adjudication, inventory/combat/advancement/checkpoint workflows, native visual planning, 360 viewers, optional original ambience, chat-only fallbacks, and deterministic validation. No authentication or publisher-controlled server is required.
+Initial public submission of Questforge 1.0.1, a skills-only, open-ended fantasy campaign runner. The release includes six scoped skills, an atomic quick-start bootstrap, an offline English/Spanish rules primer, optional full SRD 5.2.1 indexing, persistent local campaign and mechanical state, transparent dice and failure-forward adjudication, multilingual session analytics, inventory/combat/advancement/checkpoint workflows, native visual planning, 360 viewers, optional original ambience, chat-only fallbacks, and deterministic validation. No authentication or publisher-controlled server is required.
 
 ## Reviewer Notes
 

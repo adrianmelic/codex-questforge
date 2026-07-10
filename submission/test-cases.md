@@ -10,11 +10,11 @@ The OpenAI Platform requires exactly five positive and three negative cases. Run
 
 **Expected workflow behavior**
 
-Questforge activates the main, setup, and campaign skills. It uses the bundled offline English core rules without downloading a PDF or installing a package. It creates a level-1 hero and initial checkpoint when local writes are available; otherwise it creates an honest in-conversation ledger. It does not stop on a character-creation menu.
+Questforge activates the main, setup, and campaign skills. It uses the bundled offline English core rules without downloading a PDF or installing a package. It creates a level-1 hero and initial checkpoint with the atomic quick-start flow when local writes are available; otherwise it creates an honest in-conversation ledger. It does not stop on a character-creation menu.
 
 **Expected result shape**
 
-A compact hero summary, a specific original opening scene with pressure and a clear reason to act, the current objective or risk, and one broad “What do you do?” question. If native image generation is available, an establishing image can follow without replacing the text state.
+A compact hero summary, a specific original opening scene with pressure and a clear reason to act, the current objective or risk, and one broad “What do you do?” question. If native image generation is available, one establishing image follows without replacing the text state. If it is unavailable, Questforge says so once and does not leave a silent prompt-only visual.
 
 **Fixture data**
 
