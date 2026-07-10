@@ -1,6 +1,6 @@
 {
   "name": "questforge",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Play persistent 5E-compatible fantasy campaigns with an AI Game Master, open dice, local state, and optional generated visuals.",
   "author": {
     "name": "Adrian Melic",

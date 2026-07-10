@@ -47,9 +47,13 @@ def test_preflight_passes_fresh_campaign_with_only_continuity_warning(
 
     assert result.ok is True
     assert result.error_count == 0
-    assert result.warning_count == 1
-    assert result.issues[0].code == "empty_visual_ledger"
+    assert result.warning_count == 2
+    assert {issue.code for issue in result.issues} == {
+        "empty_visual_ledger",
+        "no_generated_visuals",
+    }
     assert result.visual_asset_count == 0
+    assert result.pending_visual_count == 0
 
 
 def test_preflight_reports_missing_registered_visual_asset(tmp_path):
@@ -67,6 +71,30 @@ def test_preflight_reports_missing_registered_visual_asset(tmp_path):
     assert result.error_count == 1
     assert result.missing_visual_asset_count == 1
     assert result.issues[0].code == "missing_visual_asset"
+
+
+def test_preflight_reports_visual_prompts_without_assets(tmp_path):
+    paths = create_campaign(
+        tmp_path,
+        "Prompt Only",
+        session_date=date(2026, 5, 23),
+    )
+    save_visual_prompt(
+        campaign_root=paths.root,
+        session_number=1,
+        scene_number=1,
+        kind="scene",
+        label="Unfinished Harbor",
+        prompt="A storm over a harbor.",
+    )
+
+    result = run_preflight(paths.root)
+
+    assert result.visual_asset_count == 0
+    assert result.pending_visual_count == 1
+    assert any(
+        issue.code == "pending_visual_generation" for issue in result.issues
+    )
 
 
 def test_preflight_can_refresh_gallery(tmp_path):
@@ -111,6 +139,7 @@ def test_preflight_can_repair_safe_missing_templates(tmp_path):
     assert {issue.code for issue in result.issues} == {
         "created_missing_template",
         "empty_visual_ledger",
+        "no_generated_visuals",
     }
 
 

@@ -79,3 +79,117 @@ def test_append_event_writes_structured_jsonl(tmp_path):
     assert payload["event_type"] == "check"
     assert payload["dc"] == 16
     assert payload["tags"] == ["stealth", "failure-forward"]
+
+
+def test_structured_events_make_analysis_language_independent(tmp_path):
+    session_log = tmp_path / "session-001.md"
+    session_log.write_text(
+        """# Registro de sesión
+
+## Escenas
+
+### Escena 1
+
+- Tirada: Destreza +4 contra CD 10; total 8, fallo.
+
+### Escena 2
+
+- Tirada: Carisma +5 contra CD 15; total 18, éxito.
+""",
+        encoding="utf-8",
+    )
+    events_path = tmp_path / "session-events.jsonl"
+    events_path.write_text(
+        "\n".join(
+            [
+                json.dumps(
+                    {
+                        "event_type": "check",
+                        "session": 1,
+                        "scene": 1,
+                        "dc": 10,
+                        "modifier": "4",
+                        "roll_total": 8,
+                        "advantage_state": "normal",
+                        "outcome": "failure",
+                    }
+                ),
+                json.dumps(
+                    {
+                        "event_type": "check",
+                        "session": 1,
+                        "scene": 2,
+                        "dc": 15,
+                        "modifier": "5",
+                        "roll_total": 18,
+                        "advantage_state": "advantage",
+                        "outcome": "success",
+                    }
+                ),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    result = analyze_session(session_log, events_path=events_path)
+
+    assert result.scenes == 2
+    assert result.checks == 2
+    assert result.dc_distribution == {10: 1, 15: 1}
+    assert result.successes == 1
+    assert result.failures == 1
+    assert result.advantage_count == 1
+    assert result.modifier_distribution == {"+4": 1, "+5": 1}
+
+
+def test_analysis_distinguishes_prompts_from_generated_visuals(tmp_path):
+    session_log = tmp_path / "session-001.md"
+    session_log.write_text("# Session Log\n", encoding="utf-8")
+    visual_index = tmp_path / "visual-index.md"
+    visual_index.write_text(
+        """# Visual Index
+
+| Kind | Label | Session | Scene | Prompt Path | Status | Asset Path |
+| --- | --- | ---: | ---: | --- | --- | --- |
+| scene | Harbor | 1 | 1 | images/prompts/harbor.md | prompt-saved | - |
+""",
+        encoding="utf-8",
+    )
+
+    result = analyze_session(session_log, visual_index=visual_index)
+
+    assert result.visual_count == 1
+    assert result.generated_visual_count == 0
+    assert result.pending_visual_count == 1
+    assert any(
+        warning.code == "visuals_not_generated" for warning in result.warnings
+    )
+
+
+def test_analysis_warns_when_one_dc_dominates(tmp_path):
+    session_log = tmp_path / "session-001.md"
+    session_log.write_text("# Session Log\n", encoding="utf-8")
+    events_path = tmp_path / "session-events.jsonl"
+    events = [
+        {
+            "event_type": "check",
+            "session": 1,
+            "scene": 1,
+            "dc": dc,
+            "modifier": 3,
+            "roll_total": 12,
+            "outcome": "success",
+        }
+        for dc in [10, 10, 10, 10, 15]
+    ]
+    events_path.write_text(
+        "\n".join(json.dumps(event) for event in events) + "\n",
+        encoding="utf-8",
+    )
+
+    result = analyze_session(session_log, events_path=events_path)
+
+    assert any(
+        warning.code == "dc_value_dominant" for warning in result.warnings
+    )

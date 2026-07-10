@@ -75,6 +75,8 @@ EQUIPMENT_SLOTS = [
     "ring_1",
     "ring_2",
     "amulet",
+    "instrument",
+    "focus",
 ]
 
 
@@ -322,6 +324,13 @@ def add_item(
         raise ValueError("Quantity must be positive.")
     if not name.strip():
         raise ValueError("Item name is required.")
+    if slot and slot not in EQUIPMENT_SLOTS:
+        raise ValueError(
+            "Unsupported equipment slot. Use one of: "
+            + ", ".join(EQUIPMENT_SLOTS)
+        )
+    if slot:
+        location = "equipped"
     character = get_character(state, character_name)
     item = {
         "id": unique_item_id(character, name),

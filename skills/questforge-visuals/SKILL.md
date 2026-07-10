@@ -24,6 +24,8 @@ If `should_generate` is false, answer in chat and skip image generation.
 If `should_generate` is true, satisfy the continuity requirements before
 requesting native image generation.
 
+A saved prompt is preparation, not a completed visual. Count a beat as generated only after an image asset exists, is registered, and is shown once in chat for static formats or linked through its viewer for `pov-360`.
+
 The planner chooses among:
 
 - `single_scene`: one location, one moment, one main action.
@@ -47,7 +49,7 @@ reveals, movement, danger, spell effects, item discoveries, maps, and scene
 transitions. Skip images for brief rules questions, quick clarifications, purely
 mechanical back-and-forth, or beats already covered by a recent useful image.
 
-At the start of a new or continued session, the first player-facing scene should have a visual by default. After setup, preflight, file loading, or recap is complete, either generate and register a fresh establishing image for the current scene or explicitly point to a still-current gallery image. Do not let the first actionable scene be text-only unless the user asks for speed, the turn is only out-of-character setup, or no in-fiction scene has started yet.
+At the start of a new or continued session, the first player-facing scene should have a visual by default. After setup, file loading, or recap is complete, actually generate and register a fresh establishing image for the current scene or explicitly point to a still-current generated gallery image. Do not treat `prompt-saved` as completion and do not defer the opening visual merely because the scene is urgent. Do not let the first actionable scene be text-only unless the user asks for speed, the turn is only out-of-character setup, no in-fiction scene has started yet, or native image generation is unavailable.
 
 Do not set a hard image cap by default. If the user enjoys a visual-first game,
 keep generating scene frames as the fiction advances. Static generated images
@@ -56,6 +58,10 @@ they should also be registered in the local gallery for desktop history and
 review. Do not paste duplicate thumbnails or extra file links for the same
 static image. Use fewer images only when the user asks for speed, is asking
 rules questions, or is clearly trying to move quickly.
+
+If native image generation is unavailable, say so only once when it first matters, log `visual_unavailable`, and continue play. Do not repeatedly save prompts, rebuild empty galleries, or imply that an image exists. When generation is available, invoke it; generating a prompt without invoking the tool is not a latency optimization.
+
+Before returning any turn that selected a visual, check the corresponding visual-index status. `prompt-saved` requires one of two explicit outcomes in that same reply: generate/register/show the asset, or report the unavailable surface once and record `visual_unavailable`. Silent pending prompts are not allowed.
 
 Default visual style should be immersive fantasy realism: grounded materials,
 clear staging, dramatic but plausible light, and no unwanted film grain. Use a

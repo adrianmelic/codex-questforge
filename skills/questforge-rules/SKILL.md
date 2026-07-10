@@ -55,6 +55,8 @@ Before rolling, state:
 - stakes of success and failure;
 - whether advantage/disadvantage applies and why.
 
+Never hide a completed roll in local files or analytics. When Codex rolls and resolves in one response, show the check block before narrating the consequence: natural d20 result or kept die, modifier, total, DC or opposing total, and outcome. If a rule or tool call produced a roll that was not shown, surface it before continuing the fiction rather than silently replacing it with a new roll.
+
 Use 5E-style DC anchors instead of drifting to 13/14 by default:
 
 - no roll: safe, obvious, already solved, or failure would only mean trying again;
@@ -71,6 +73,8 @@ learn them. For a specific fictional nuance, choose a nearby value such as 12,
 13, 16, 17, or 18 and say why. Avoid repeated 12-15 clustering; if recent
 checks all sit in that band, intentionally switch to no roll, DC 10, DC 15, DC
 20, an opposed roll, or a resource tradeoff.
+
+Do not let a successful approach turn every later check into the same easy DC. Preserve the benefit through Advantage, reduced consequences, automatic success on established steps, extra information, or a resource tradeoff. If one DC represents about 70 percent of recent checks, deliberately review the next uncertain action against the full ladder or use a contest/no-roll resolution.
 
 Use `../../scripts/dc_planner.py` before important checks or whenever recent
 checks feel clustered:

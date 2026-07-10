@@ -30,6 +30,7 @@ class CheckRecord:
     modifier: str = ""
     advantage_state: str = "normal"
     source: str = "markdown"
+    outcome: str = ""
 
 
 @dataclass(frozen=True)
@@ -56,6 +57,8 @@ class SessionAnalytics:
     disadvantage_count: int
     modifier_distribution: dict[str, int]
     visual_count: int = 0
+    generated_visual_count: int = 0
+    pending_visual_count: int = 0
     visual_kind_distribution: dict[str, int] = field(default_factory=dict)
     visual_status_distribution: dict[str, int] = field(default_factory=dict)
     analytics_event_count: int = 0
@@ -70,9 +73,9 @@ def analyze_session(
 ) -> SessionAnalytics:
     text = session_log.read_text(encoding="utf-8")
     scene_texts = extract_scene_blocks(text)
-    checks = []
+    markdown_checks = []
     for scene_number, scene_text in scene_texts:
-        checks.extend(parse_scene_checks(scene_number, scene_text))
+        markdown_checks.extend(parse_scene_checks(scene_number, scene_text))
 
     visual_rows = (
         read_visual_rows(visual_index, infer_session_number(session_log))
@@ -80,12 +83,27 @@ def analyze_session(
         else []
     )
     events = read_events(events_path) if events_path else []
+    event_checks = parse_event_checks(events)
+    checks = event_checks or markdown_checks
+    event_scene_numbers = {
+        int(event["scene"])
+        for event in events
+        if isinstance(event.get("scene"), int) and int(event["scene"]) > 0
+    }
+    scene_count = max(
+        len(scene_texts),
+        max(event_scene_numbers, default=0),
+    )
     warnings = build_warnings(checks, visual_rows, events)
     paired = [check for check in checks if check.result is not None]
     dcs = [check.dc for check in checks]
+    generated_visual_statuses = {"asset-saved", "canon", "variant"}
+    generated_visual_count = sum(
+        1 for row in visual_rows if row["status"] in generated_visual_statuses
+    )
     return SessionAnalytics(
         session_log=str(session_log),
-        scenes=len(scene_texts),
+        scenes=scene_count,
         checks=len(checks),
         paired_checks=len(paired),
         dc_distribution=dict(sorted(Counter(dcs).items())),
@@ -93,16 +111,8 @@ def analyze_session(
         max_dc=max(dcs) if dcs else None,
         mean_dc=round(sum(dcs) / len(dcs), 2) if dcs else None,
         median_dc=median(dcs) if dcs else None,
-        successes=sum(
-            1
-            for check in paired
-            if check.result is not None and check.result >= check.dc
-        ),
-        failures=sum(
-            1
-            for check in paired
-            if check.result is not None and check.result < check.dc
-        ),
+        successes=sum(1 for check in paired if check_succeeded(check)),
+        failures=sum(1 for check in paired if check_failed(check)),
         exact_successes=sum(
             1
             for check in paired
@@ -118,6 +128,8 @@ def analyze_session(
             sorted(Counter(check.modifier or "+0" for check in paired).items())
         ),
         visual_count=len(visual_rows),
+        generated_visual_count=generated_visual_count,
+        pending_visual_count=len(visual_rows) - generated_visual_count,
         visual_kind_distribution=dict(
             sorted(Counter(row["kind"] for row in visual_rows).items())
         ),
@@ -177,6 +189,66 @@ def parse_scene_checks(
         )
         for index, dc in enumerate(dcs)
     ]
+
+
+def parse_event_checks(events: list[dict[str, object]]) -> list[CheckRecord]:
+    checks = []
+    for event in events:
+        if event.get("event_type") != "check":
+            continue
+        dc = event.get("dc")
+        if not isinstance(dc, int):
+            continue
+        result = event.get("roll_total")
+        checks.append(
+            CheckRecord(
+                session=integer_or_zero(event.get("session")),
+                scene=integer_or_zero(event.get("scene")),
+                dc=dc,
+                result=result if isinstance(result, int) else None,
+                modifier=normalize_modifier(event.get("modifier")),
+                advantage_state=normalize_advantage_state(
+                    event.get("advantage_state")
+                ),
+                source="event",
+                outcome=str(event.get("outcome", "")).casefold(),
+            )
+        )
+    return checks
+
+
+def integer_or_zero(value: object) -> int:
+    return value if isinstance(value, int) else 0
+
+
+def normalize_modifier(value: object) -> str:
+    text = str(value or "+0").replace(" ", "")
+    if text.startswith(("+", "-")):
+        return text
+    return f"+{text}"
+
+
+def normalize_advantage_state(value: object) -> str:
+    normalized = str(value or "normal").casefold()
+    if normalized in {"advantage", "disadvantage"}:
+        return normalized
+    return "normal"
+
+
+def check_succeeded(check: CheckRecord) -> bool:
+    if check.outcome == "success":
+        return True
+    if check.outcome == "failure":
+        return False
+    return check.result is not None and check.result >= check.dc
+
+
+def check_failed(check: CheckRecord) -> bool:
+    if check.outcome == "failure":
+        return True
+    if check.outcome == "success":
+        return False
+    return check.result is not None and check.result < check.dc
 
 
 def extract_label_blocks(text: str, label: str) -> list[str]:
@@ -276,6 +348,25 @@ def build_warnings(
 ) -> list[AnalyticsWarning]:
     warnings = []
     dcs = [check.dc for check in checks]
+    if len(dcs) >= 5 and len(set(dcs)) == 1:
+        warnings.append(
+            AnalyticsWarning(
+                code="dc_single_value",
+                message=f"All {len(dcs)} recorded checks use DC {dcs[0]}.",
+            )
+        )
+    if len(dcs) >= 5:
+        dominant_dc, dominant_count = Counter(dcs).most_common(1)[0]
+        if dominant_count / len(dcs) >= 0.7 and len(set(dcs)) > 1:
+            warnings.append(
+                AnalyticsWarning(
+                    code="dc_value_dominant",
+                    message=(
+                        f"DC {dominant_dc} appears in {dominant_count} of "
+                        f"{len(dcs)} recorded checks."
+                    ),
+                )
+            )
     if dcs and min(dcs) >= 12 and max(dcs) <= 15:
         warnings.append(
             AnalyticsWarning(
@@ -310,6 +401,33 @@ def build_warnings(
             AnalyticsWarning(
                 code="visual_kind_low_variety",
                 message="Visuals use only one or two kinds in this session.",
+            )
+        )
+    generated_visual_statuses = {"asset-saved", "canon", "variant"}
+    if visual_rows and not any(
+        row["status"] in generated_visual_statuses for row in visual_rows
+    ):
+        warnings.append(
+            AnalyticsWarning(
+                code="visuals_not_generated",
+                message=(
+                    "Visual prompts were saved, but no generated visual asset "
+                    "was registered."
+                ),
+            )
+        )
+    if (
+        not visual_rows
+        and events
+        and any(
+            event.get("event_type") in {"scene_start", "session_start"}
+            for event in events
+        )
+    ):
+        warnings.append(
+            AnalyticsWarning(
+                code="visuals_missing",
+                message="The played session contains no recorded visual beat.",
             )
         )
     if not events:
@@ -361,6 +479,10 @@ def format_markdown(result: SessionAnalytics) -> str:
         f"- Outcomes: {result.successes} successes, {result.failures} failures, {result.exact_successes} exact",
         f"- Advantage/disadvantage: {result.advantage_count}/{result.disadvantage_count}",
         f"- Visuals: {result.visual_count}",
+        (
+            f"- Generated/pending visuals: "
+            f"{result.generated_visual_count}/{result.pending_visual_count}"
+        ),
         f"- Structured events: {result.analytics_event_count}",
         "",
         "## DC Distribution",

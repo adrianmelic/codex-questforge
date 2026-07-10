@@ -40,23 +40,22 @@ product identity.
 1. Ensure setup is ready through `questforge-setup`. Default setup is offline and uses the bundled core rules, so starting play must not require a download or package installation.
 2. If the user simply asks to play, create a quick level-1 hero and begin in the same turn instead of presenting a setup menu. State the hero, open-roll preference, tone, and rollback option in a compact prelude; make it clear that details can be revised later.
 3. Offer quick, assisted, and imported/custom hero paths only when the user asks to create or choose a character, asks how setup works, or rejects the quick hero. Recommend quick creation for first-time play.
-4. Use `questforge-campaign` to create or load campaign memory.
-5. Create or import a hero. If the player wants speed, create a quick-start
-   level-1 hero and record it in `game-state.json` with
-   `../../scripts/game_state.py add-character`; make it clear the player can
-   revise details later.
+4. Use `questforge-campaign` to create or load campaign memory. For a new local campaign, prefer one structured bootstrap: adapt `../../templates/quick-start-spec.json` to the player and run `python ../../scripts/quick_start.py --workspace-root <workspace> --spec <spec.json>`. It atomically creates the campaign, hero, inventory/equipment, state, checkpoint, minimum spine, opening notes, journal, first session, analytics start event, and optional opening visual prompt. Do not repeat those writes with separate commands.
+5. Create or import a hero. If the player wants speed, define a coherent level-1 hero directly in the quick-start spec; make it clear the player can revise details later.
 6. Offer a small campaign premise with three concrete hooks.
 7. Draft the campaign promise and first scene using
    `../../templates/opening-brief.md`.
-8. Draft the DM-only spine in `dm/adventure-spine.md`: core truths, hook
-   statuses, clue web, faction plans, and possible outcomes.
+8. Draft only the minimum DM spine needed to keep the opening coherent: core truth, active hooks, three clue routes, faction intent, and two plausible outcomes. Expand it at the first scene boundary instead of delaying the opening response.
 9. Check the premise, opening brief, and major reveals against `../../docs/narrative-diversity.md` or `../../scripts/narrative_lint.py` so the campaign does not default to stacked AI-fiction motifs.
 10. Create a first checkpoint with `../../scripts/game_state.py checkpoint --label "Before session start"` once the hero and starting situation are recorded.
 11. Create or refresh spoiler-free `player-journal.md`: current objective, known clues/NPCs, inventory, XP/rewards, damage/conditions, and open threads visible to the player.
-12. Prepare the visual loop: save/register generated images, show static images once in chat for mobile play, refresh `images/visual-gallery.html` for desktop history, use 360 viewer links only for panorama assets, and select optional ambience from campaign audio or the bundled starter pack when it fits.
-13. Run `../../scripts/preflight.py --campaign-root <campaign-root> --repair-missing-templates --refresh-gallery --title "<campaign title>"` before human beta play or a long continuation; fix errors and use warnings as prep prompts.
-14. Open with a specific scene that demands action.
-15. For the first player-facing scene of a new or continued session, treat an opening visual as the default. Generate and register a fresh establishing image, or explicitly point to an already-current gallery image, unless the turn is only setup/preflight/recap or the user asks for speed.
+12. Open with a specific scene that demands action.
+13. For the first player-facing scene of a new or continued session, treat an opening visual as the default. When native image generation is available, actually generate, register, and show a fresh establishing image; saving a prompt alone does not satisfy this step. Point to an already-current gallery image only when it still depicts the current scene. Skip only when the turn is setup-only, the user asks for speed, or native generation is unavailable.
+14. Before sending the opening reply, inspect its visual-index row. If it is still `prompt-saved`, either invoke native generation and register the asset or state once that native visual generation is unavailable on this surface and log `visual_unavailable`. Never leave a pending prompt silent while presenting the actionable scene as complete.
+
+### Fast Start Boundary
+
+The first actionable scene is the product. Before showing it, do only the work required for truthful play: offline setup if missing, campaign skeleton, hero state, minimum DM spine, first checkpoint, opening situation, and its selected visual. Do not run full SRD download, exhaustive lore preparation, beta preflight, gallery repair, or broad campaign analysis before the first scene. Run preflight before an explicitly requested beta/readiness pass or when continuing a campaign with suspected missing files.
 
 ## Session Loop
 
@@ -85,6 +84,22 @@ For each scene:
 13. In combat, keep the table textual first: initiative, current turn, HP, AC, visible conditions, available spell slots/resources, tactical scene, terrain, hazards, and interactables. Use visuals as support, not as the source of truth.
 14. Log structured analytics for meaningful checks, choices, consequences, rewards, visuals, puzzles, repeated obstacles, and pacing friction so later beta reviews can detect hidden patterns.
 15. Update the session log, `game-state.json`, and campaign state before ending or switching scenes.
+
+### Player-Facing Turn Contract
+
+- Never resolve an uncertain action with a hidden roll. If a d20 was rolled or an opposing total was generated, the same player-facing reply must show the ability or attack, modifier, DC or opposing result, advantage state, natural roll, total, and outcome. A roll written only to the session log or analytics is a release-blocking error.
+- Random character, premise, encounter, loot, or other table rolls that materially affect player state are also player-visible when used. For a fast start, choosing a coherent hero directly is preferable to making several invisible random-table rolls.
+- Put the check block before the consequence narration when action and resolution share one response. If the player must decide who rolls, stop after presenting the stakes and wait for that choice.
+- Read `game-state.json` before naming, consuming, equipping, selling, or relying on an item or limited resource. A generic pack does not grant an unlisted candle, tool, potion, ammunition, or other convenient object. If contents have not been itemized, ask or use another established method.
+- Treat `game-state.json` as authoritative when chat memory, prose files, and mechanical state disagree. Correct the narration openly, preserve the valid state, and log the continuity repair.
+
+### Live Turn Budget
+
+- Mutate mechanical state immediately when HP, currency, inventory, equipment, XP, conditions, spell slots, limited-use resources, combat, rests, or checkpoints change.
+- Update the session log, player journal, campaign summary, DM spine, and puzzle ledger at scene boundaries, after roughly three meaningful turns, or when the session ends. Do not rewrite every narrative file after every short clarification.
+- Do not run preflight, rebuild an unchanged gallery, reread the complete session log, or re-index rules during an ordinary turn.
+- Read only the current state and the active scene/hook sections needed for the decision. Keep older session logs closed unless continuity requires them.
+- One generated image file per player turn is normally enough. If several moments must be shown, use a comic page rather than several independent generation calls. This is a latency rule, not an image-frequency cap.
 
 ## Structured Game State
 

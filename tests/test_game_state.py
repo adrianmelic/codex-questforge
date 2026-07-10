@@ -72,6 +72,29 @@ def test_game_state_tracks_inventory_equipment_and_status(tmp_path):
     assert "Stormproof cloak" in format_status(loaded)
 
 
+def test_add_item_with_slot_creates_consistent_equipped_state(tmp_path):
+    _paths, state = create_stateful_campaign(tmp_path)
+
+    item = add_item(
+        state,
+        "Mara Vey",
+        "Travel harp",
+        slot="instrument",
+    )
+
+    character = state["characters"]["Mara Vey"]
+    assert item["location"] == "equipped"
+    assert item["equipped_slot"] == "instrument"
+    assert character["equipment"]["instrument"] == item["id"]
+
+
+def test_add_item_rejects_unknown_equipment_slot(tmp_path):
+    _paths, state = create_stateful_campaign(tmp_path)
+
+    with pytest.raises(ValueError, match="Unsupported equipment slot"):
+        add_item(state, "Mara Vey", "Odd trinket", slot="pocket_dimension")
+
+
 def test_game_state_handles_shopping_and_currency(tmp_path):
     paths, state = create_stateful_campaign(tmp_path)
     state["characters"]["Mara Vey"]["currency"]["gp"] = 15

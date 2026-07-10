@@ -47,6 +47,7 @@ class PreflightResult:
     error_count: int
     warning_count: int
     visual_asset_count: int
+    pending_visual_count: int
     missing_visual_asset_count: int
     latest_gallery_url: str
     issues: list[PreflightIssue]
@@ -66,6 +67,7 @@ def run_preflight(
     paths = get_campaign_paths(campaign_root)
     issues: list[PreflightIssue] = []
     visual_asset_count = 0
+    pending_visual_count = 0
     missing_visual_asset_count = 0
     latest_gallery_url = ""
 
@@ -82,6 +84,7 @@ def run_preflight(
             paths.root,
             issues,
             visual_asset_count,
+            pending_visual_count,
             missing_visual_asset_count,
             latest_gallery_url,
         )
@@ -134,10 +137,31 @@ def run_preflight(
         )
 
     if paths.visual_index.exists():
-        visual_asset_count, missing_visual_asset_count = audit_visual_assets(
-            paths.root,
-            paths.visual_index,
-            issues,
+        (
+            visual_asset_count,
+            pending_visual_count,
+            missing_visual_asset_count,
+        ) = audit_visual_assets(paths.root, paths.visual_index, issues)
+    if pending_visual_count:
+        issues.append(
+            PreflightIssue(
+                level="warning",
+                code="pending_visual_generation",
+                message=(
+                    f"{pending_visual_count} visual prompt(s) have no "
+                    "registered generated asset."
+                ),
+                path=str(paths.visual_index),
+            )
+        )
+    elif existing_session_numbers(paths.sessions) and not visual_asset_count:
+        issues.append(
+            PreflightIssue(
+                level="warning",
+                code="no_generated_visuals",
+                message="Session logs exist, but no visual asset is registered.",
+                path=str(paths.visual_index),
+            )
         )
     if paths.visual_ledger.exists() and not has_table_data_rows(
         paths.visual_ledger
@@ -191,6 +215,7 @@ def run_preflight(
         paths.root,
         issues,
         visual_asset_count,
+        pending_visual_count,
         missing_visual_asset_count,
         latest_gallery_url,
     )
@@ -271,11 +296,13 @@ def audit_visual_assets(
     campaign_root: Path,
     visual_index_path: Path,
     issues: list[PreflightIssue],
-) -> tuple[int, int]:
+) -> tuple[int, int, int]:
     visual_asset_count = 0
+    pending_visual_count = 0
     missing_visual_asset_count = 0
     for entry in read_visual_index(visual_index_path):
         if not entry.asset_path:
+            pending_visual_count += 1
             continue
         visual_asset_count += 1
         asset_path = resolve_index_path(campaign_root, entry.asset_path)
@@ -292,7 +319,7 @@ def audit_visual_assets(
                     path=str(asset_path),
                 )
             )
-    return visual_asset_count, missing_visual_asset_count
+    return visual_asset_count, pending_visual_count, missing_visual_asset_count
 
 
 def resolve_index_path(campaign_root: Path, index_path: str) -> Path:
@@ -326,6 +353,7 @@ def build_result(
     campaign_root: Path,
     issues: list[PreflightIssue],
     visual_asset_count: int,
+    pending_visual_count: int,
     missing_visual_asset_count: int,
     latest_gallery_url: str,
 ) -> PreflightResult:
@@ -338,6 +366,7 @@ def build_result(
         error_count=error_count,
         warning_count=warning_count,
         visual_asset_count=visual_asset_count,
+        pending_visual_count=pending_visual_count,
         missing_visual_asset_count=missing_visual_asset_count,
         latest_gallery_url=latest_gallery_url,
         issues=issues,
@@ -354,6 +383,7 @@ def format_preflight_markdown(result: PreflightResult) -> str:
         f"- Issues: {result.error_count} errors, "
         f"{result.warning_count} warnings",
         f"- Visual assets: {result.visual_asset_count} registered, "
+        f"{result.pending_visual_count} pending, "
         f"{result.missing_visual_asset_count} missing",
     ]
     if result.latest_gallery_url:

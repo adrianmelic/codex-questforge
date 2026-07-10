@@ -60,9 +60,9 @@ For each scene:
    beat or symbolic minigame.
 9. Use `questforge-visuals` for useful visual beats and refresh the local
    gallery when a generated image is registered.
-10. Update `player-journal.md` with spoiler-free current objective, known clues/NPCs, inventory, XP/rewards, damage/conditions, and open threads.
-11. Append a compact analytics event for meaningful checks, choices, consequences, rewards, visuals, puzzles, repeated obstacles, and pacing notes with `../../scripts/session_analytics.py log-event`.
-12. Update session log and campaign state.
+10. At a scene boundary or after roughly three meaningful turns, update `player-journal.md` with spoiler-free current objective, known clues/NPCs, inventory, XP/rewards, damage/conditions, and open threads.
+11. Append compact analytics events for meaningful checks, choices, consequences, rewards, visuals, puzzles, repeated obstacles, and pacing notes with `../../scripts/session_analytics.py log-event`.
+12. Update the session log, campaign state, and DM spine at scene boundaries or session end. Mechanical changes in `game-state.json` remain immediate.
 
 ## State Patch
 
@@ -112,6 +112,8 @@ python ../../scripts/game_state.py checkpoint --campaign-root <campaign-root> --
 
 Before a choice that could kill the hero, permanently spend rare resources, or radically branch the campaign, create a checkpoint. If the player regrets a decision out of character, use `restore-checkpoint` and explain the rollback as table control, not as an in-world retcon unless the table wants that.
 
+Before narrating the use of equipment or a limited resource, verify it in `game-state.json`. Do not infer specific contents from a generic pack. When prose and structured state disagree, structured state wins and the correction must be visible to the player.
+
 Use `../../scripts/session_analytics.py analyze --session-log <session.md> --visual-index <campaign-root>/images/visual-index.md --events <campaign-root>/analytics/session-events.jsonl` after beta play to detect hidden patterns such as narrow DC ranges, repeated modifiers, missing disadvantage, thin visual variety, repeated obstacle stalls, or pacing friction. If DCs cluster, use `../../scripts/dc_planner.py` during the next session to choose no-roll, DC 10, DC 15, DC 20, contests, or resource tradeoffs intentionally.
 
 Before human beta play or a long continuation, run:
@@ -120,7 +122,7 @@ Before human beta play or a long continuation, run:
 python ../../scripts/preflight.py --campaign-root <campaign-root> --repair-missing-templates --refresh-gallery --title "<campaign title>"
 ```
 
-Fix preflight errors before play. Treat warnings as prep notes, especially empty visual-ledger continuity and missing player-facing recovery notes. For a manual readiness pass, use `../../docs/beta-preflight-checklist.md`.
+Run preflight for an explicitly requested beta/readiness pass, after a migration, or when continuing a campaign with suspected missing files. Do not run it in every live turn or delay a new player's first actionable scene with it. Fix preflight errors before the planned beta or continuation. Treat warnings as prep notes, especially empty visual-ledger continuity and missing player-facing recovery notes. For a manual readiness pass, use `../../docs/beta-preflight-checklist.md`.
 
 Create the next session log with:
 
