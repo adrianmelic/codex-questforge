@@ -2,7 +2,7 @@
 
 Effective date: July 9, 2026
 
-Questforge is an open-source, skills-only fantasy role-playing plugin published by Adrian Melic. By installing or using Questforge, you agree to these terms.
+Questforge is an open-source, skills-only fantasy role-playing plugin published by Adrián Melic. By installing or using Questforge, you agree to these terms.
 
 ## Use
 

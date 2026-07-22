@@ -92,7 +92,7 @@ Verification completed:
 - Desktop and 390 px mobile browser checks found no horizontal overflow or console warnings.
 - The WebGL photosphere rendered nonblank pixels; a pointer drag changed 98.2 percent of the captured canvas and revealed another coherent direction of the same scene.
 - The soundtrack remained off for a new viewer, played after a voluntary click, and preserved the preference for later viewers. When browser autoplay policy blocks restoration, the control offers an explicit resume action without discarding that preference.
-- The submission archive was rebuilt at `29,713,593` bytes with SHA-256 `67a8f77fd39094c171953002808a1c0ed0a48d9fa3836925cb2c769fbfabd656`.
+- The submission archive was rebuilt at `29,713,642` bytes with SHA-256 `3c9f5ad9051ca0e5b5ef9a3ab1fc46440b1a28117391826d34c22fbdd167afac`.
 
 One external check remains intentionally open:
 

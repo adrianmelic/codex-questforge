@@ -7,7 +7,7 @@ Skills only.
 ## Public Info
 
 - Plugin name: `Questforge`
-- Developer identity: `Adrian Melic`
+- Developer identity: `Adrián Melic`
 - Category: `Entertainment`
 - Short description: `Open-ended fantasy RPG`
 - Website: `https://adrianmelic.github.io/codex-questforge/`

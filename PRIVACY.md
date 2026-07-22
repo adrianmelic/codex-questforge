@@ -2,7 +2,7 @@
 
 Effective date: July 9, 2026
 
-Questforge is a skills-only plugin published by Adrian Melic. It runs within the OpenAI product surface where you install it and does not operate a publisher-controlled server.
+Questforge is a skills-only plugin published by Adrián Melic. It runs within the OpenAI product surface where you install it and does not operate a publisher-controlled server.
 
 ## Data Questforge Uses
 
@@ -16,7 +16,7 @@ This information is used only to run the requested campaign, preserve continuity
 
 ## Storage And Retention
 
-Questforge does not transmit campaign data to Adrian Melic or to a Questforge server. Local campaign files remain on your device or in the workspace you selected until you delete them. Chat and generated-media retention is controlled by the OpenAI product and account settings you use.
+Questforge does not transmit campaign data to Adrián Melic or to a Questforge server. Local campaign files remain on your device or in the workspace you selected until you delete them. Chat and generated-media retention is controlled by the OpenAI product and account settings you use.
 
 The optional local analytics log records game events such as checks, choices, rewards, visuals, and pacing notes. It is stored in the campaign folder and is not telemetry sent to the publisher.
 

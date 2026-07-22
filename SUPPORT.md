@@ -1,6 +1,6 @@
 # Questforge Support
 
-Questforge is maintained by Adrian Melic.
+Questforge is maintained by Adrián Melic.
 
 - Setup and play guide: https://github.com/adrianmelic/codex-questforge#how-to-play
 - Bug reports and feature requests: https://github.com/adrianmelic/codex-questforge/issues
