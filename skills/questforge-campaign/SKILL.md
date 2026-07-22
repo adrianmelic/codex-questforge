@@ -21,6 +21,7 @@ Recommended layout:
 
 ```text
 campaigns/<campaign-slug>/
+  campaign-conception.json
   campaign-state.md
   game-state.json
   checkpoints/
@@ -100,10 +101,10 @@ Use `../../scripts/game_state.py` for the player-facing mechanical source of tru
 ```powershell
 python ../../scripts/game_state.py status --campaign-root <campaign-root>
 python ../../scripts/game_state.py add-character --campaign-root <campaign-root> --name "<hero>" --class-name "<class>" --ancestry "<ancestry>" --max-hp 10 --armor-class 13
-python ../../scripts/game_state.py add-item --campaign-root <campaign-root> --character "<hero>" --name "Stormproof cloak" --value 12gp
-python ../../scripts/game_state.py equip --campaign-root <campaign-root> --character "<hero>" --item "Stormproof cloak" --slot cloak
-python ../../scripts/game_state.py start-combat --campaign-root <campaign-root> --name "Warehouse ambush" --combatant "<hero>:14" --combatant "Cutthroat:11:6:13:enemy"
-python ../../scripts/game_state.py set-tactical-scene --campaign-root <campaign-root> --summary "Crates, oil lamp, north door, rain-slick balcony." --terrain "crates grant half cover" --hazard "oil lamp can spread fire" --interactable "rope pulley can drop sacks"
+python ../../scripts/game_state.py add-item --campaign-root <campaign-root> --character "<hero>" --name "Reinforced gloves" --value 12gp
+python ../../scripts/game_state.py equip --campaign-root <campaign-root> --character "<hero>" --item "Reinforced gloves" --slot gloves
+python ../../scripts/game_state.py start-combat --campaign-root <campaign-root> --name "Workshop skirmish" --combatant "<hero>:14" --combatant "Saboteur:11:6:13:enemy"
+python ../../scripts/game_state.py set-tactical-scene --campaign-root <campaign-root> --summary "Worktables, brazier, east door, raised loading platform." --terrain "worktables grant half cover" --hazard "brazier can spread fire" --interactable "rope pulley can drop sacks"
 python ../../scripts/game_state.py spend-spell-slot --campaign-root <campaign-root> --character "<hero>" --slot-level 1
 python ../../scripts/game_state.py apply-damage --campaign-root <campaign-root> --character "<hero>" --amount 5
 python ../../scripts/game_state.py rest --campaign-root <campaign-root> --character "<hero>" --kind long

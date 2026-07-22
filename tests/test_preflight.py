@@ -4,6 +4,7 @@ from scripts.campaign_memory import (
     create_campaign,
     register_visual_asset,
     save_visual_prompt,
+    set_visual_status,
 )
 from scripts.preflight import format_preflight_markdown, run_preflight
 
@@ -97,6 +98,84 @@ def test_preflight_reports_visual_prompts_without_assets(tmp_path):
     )
 
 
+def test_preflight_distinguishes_unavailable_visual_from_pending(tmp_path):
+    paths = create_campaign(
+        tmp_path,
+        "No Native Image Surface",
+        session_date=date(2026, 5, 23),
+    )
+    prompt_path = save_visual_prompt(
+        campaign_root=paths.root,
+        session_number=1,
+        scene_number=1,
+        kind="scene",
+        label="Sunlit Terrace",
+        prompt="A sunlit terrace above a crowded market.",
+    )
+    set_visual_status(
+        campaign_root=paths.root,
+        prompt_path=prompt_path.relative_to(paths.root),
+        status="unavailable",
+    )
+
+    result = run_preflight(paths.root)
+
+    assert result.pending_visual_count == 0
+    assert result.unavailable_visual_count == 1
+    assert all(
+        issue.code != "pending_visual_generation" for issue in result.issues
+    )
+
+
+def test_release_preflight_blocks_prompt_only_opening(tmp_path):
+    paths = create_campaign(
+        tmp_path,
+        "Prompt Only Release",
+        session_date=date(2026, 5, 23),
+    )
+    save_visual_prompt(
+        campaign_root=paths.root,
+        session_number=1,
+        scene_number=1,
+        kind="scene",
+        label="Opening",
+        prompt="An original opening scene.",
+    )
+
+    result = run_preflight(
+        paths.root,
+        require_generated_visuals=True,
+        require_opening_visual=True,
+    )
+
+    assert result.ok is False
+    assert {issue.code for issue in result.issues} >= {
+        "pending_visual_generation",
+        "missing_opening_visual",
+    }
+
+
+def test_release_preflight_accepts_registered_opening_visual(tmp_path):
+    paths = create_campaign(
+        tmp_path,
+        "Visual Release",
+        session_date=date(2026, 5, 23),
+    )
+    add_registered_asset(tmp_path, paths.root, "opening.png")
+
+    result = run_preflight(
+        paths.root,
+        require_generated_visuals=True,
+        require_opening_visual=True,
+    )
+
+    assert result.ok is True
+    assert result.visual_asset_count == 1
+    assert all(
+        issue.code != "missing_opening_visual" for issue in result.issues
+    )
+
+
 def test_preflight_can_refresh_gallery(tmp_path):
     paths = create_campaign(
         tmp_path,
@@ -156,3 +235,4 @@ def test_preflight_markdown_is_human_readable(tmp_path):
     assert "# Questforge Preflight" in report
     assert "Status: PASS" in report
     assert "empty_visual_ledger" in report
+    assert "0 unavailable" in report

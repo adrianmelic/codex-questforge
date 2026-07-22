@@ -61,7 +61,7 @@ rules questions, or is clearly trying to move quickly.
 
 If native image generation is unavailable, say so only once when it first matters, log `visual_unavailable`, and continue play. Do not repeatedly save prompts, rebuild empty galleries, or imply that an image exists. When generation is available, invoke it; generating a prompt without invoking the tool is not a latency optimization.
 
-Before returning any turn that selected a visual, check the corresponding visual-index status. `prompt-saved` requires one of two explicit outcomes in that same reply: generate/register/show the asset, or report the unavailable surface once and record `visual_unavailable`. Silent pending prompts are not allowed.
+Before returning any turn that selected a visual, check the corresponding visual-index status. `prompt-saved` requires one of two explicit outcomes in that same reply: generate/register/show the asset, or report the unavailable surface once, set the row to `unavailable`, and record `visual_unavailable`. Silent pending prompts are not allowed.
 
 Default visual style should be immersive fantasy realism: grounded materials,
 clear staging, dramatic but plausible light, and no unwanted film grain. Use a
@@ -129,7 +129,7 @@ For important scenes, prepare visuals before live play. Use this for recurring
 characters, NPCs, enemies, maps, locations, persistent items, rewards, symbols,
 outfits, and likely action beats.
 
-Create reference prompts from a spec:
+Complete a campaign-specific copy of the neutral prep spec from the accepted conception and current visual ledger. Never run the bundled empty structure unchanged or infer its subjects from a documentation example. Then create reference prompts:
 
 ```powershell
 python ../../scripts/visual_prep.py --campaign-root <campaign-root> --spec ../../templates/visual-prep-spec.json
@@ -188,7 +188,7 @@ file paths.
 For sustained ambience, add one licensed or user-provided loop. Prefer a campaign-local approved library at `<campaign-root>/audio/library.json`; if it does not exist, use the bundled starter pack at `../../assets/audio/library.json`. Select by scene tags before creating the viewer:
 
 ```powershell
-python ../../scripts/audio_library.py select --library <campaign-root>/audio/library.json --tag tavern --tag rain --intensity 2 --format args
+python ../../scripts/audio_library.py select --library <campaign-root>/audio/library.json --tag archive --tag mystery --intensity 2 --format args
 ```
 
 Fallback example:
@@ -277,8 +277,10 @@ items, maps, and locations, then compare the result with earlier assets.
 Use `visual_reuse.py` for those composite scenes when canon anchors already
 exist.
 
-Valid statuses are `prompt-saved`, `asset-saved`, `canon`, `variant`, and
-`rejected`.
+Valid statuses are `prompt-saved`, `asset-saved`, `canon`, `variant`,
+`rejected`, and `unavailable`. Use `unavailable` only when the current product
+surface cannot invoke native image generation; it is not a substitute for a
+failed or deferred generation attempt.
 
 ## Fog Of War
 

@@ -1,5 +1,7 @@
 # New User Beta Review
 
+This document is archived test evidence for one historical campaign. Its marsh setting and imagery are not runtime examples and must not be used as creative input for a new campaign.
+
 Date: 2026-05-17
 
 Scenario: `La Campana del Cienagal`

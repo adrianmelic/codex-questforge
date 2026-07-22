@@ -14,6 +14,20 @@ python plugins\questforge\scripts\preflight.py `
 
 Continue only when errors are zero. Warnings are prep prompts, not automatic blockers.
 
+For a public release candidate, use the stricter visual gate:
+
+```powershell
+python scripts\preflight.py `
+  --campaign-root campaigns\<campaign-slug> `
+  --require-player-journal `
+  --require-generated-visuals `
+  --require-opening-visual `
+  --refresh-gallery `
+  --title "<campaign title>"
+```
+
+This command fails when the opening is still only `prompt-saved`, when no generated asset is registered, or when an indexed asset is missing. A row marked `unavailable` is distinct from a silent pending prompt, but it does not satisfy the release requirement for a surface that advertises native image generation.
+
 ## 2. Fill The Player Surface
 
 Update `player-journal.md` with only spoiler-free facts:
@@ -61,3 +75,16 @@ For each meaningful turn:
 - update `player-journal.md`, `campaign-state.md`, and `images/visual-ledger.md` as states change;
 - show each selected static generated image once in chat with absolute-path Markdown;
 - refresh the gallery after registering a generated image.
+
+## 7. Product-Surface Acceptance
+
+The filesystem cannot prove that an image was rendered in the conversation. Before submitting a plugin release, perform one clean installed-plugin run on the target OpenAI surface and retain review evidence that:
+
+- the first actionable scene invoked native image generation rather than only saving a prompt;
+- the selected static image appeared once in the same conversation;
+- the image was copied into `images/assets/` and registered in `images/visual-index.md` when a writable local workspace was available;
+- `visual-gallery.html#latest` displayed that same asset;
+- the strict preflight command above returned zero errors;
+- the task did not claim a gallery, 360 viewer, audio loop, or local persistence on a surface that could not create it.
+
+Treat any silent `prompt-saved` opening as a failed acceptance run.

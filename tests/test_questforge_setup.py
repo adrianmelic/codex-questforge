@@ -112,6 +112,7 @@ def test_setup_without_extractor_downloads_pdf_and_marks_index_pending(
         data_dir=tmp_path / "questforge-data",
         downloader=fake_download,
         full_srd=True,
+        language="es",
     )
 
     assert result.status == "pdf_downloaded_index_pending"

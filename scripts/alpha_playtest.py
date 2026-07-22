@@ -603,29 +603,29 @@ def build_amber_gate_scenario() -> Scenario:
     turns = [
         Turn(
             "DM",
-            "The bridge is slick with black rain. The far lantern burns in a "
-            "place the storm refuses to touch. Mara can study it, cross now, "
+            "The pale bridge hums in a hard plateau wind. The far lantern "
+            "burns where airborne chalk refuses to settle. Mara can study it, cross now, "
             "or push Brother Caldus for the truth.",
         ),
         Turn(
             "Player",
-            "Mara studies the rain first. She does not step onto the bridge "
+            "Mara studies the drifting chalk first. She does not step onto the bridge "
             "until she knows whether the lantern is bait.",
         ),
         Turn(
             "DM",
             "Ruling target: ability checks. Wisdom (Survival) fits the "
-            "weather and tracks. The stakes are clear: a success reveals the "
+            "wind and tracks. The stakes are clear: a success reveals the "
             "safe edge of the phenomenon, and a failure advances the gate.",
         ),
         Turn(
             "Player",
-            "She accepts the risk and uses the bow tip to mark the wet stones "
-            "where rain changes direction.",
+            "She accepts the risk and uses the bow tip to mark the pale stones "
+            "where chalk dust changes direction.",
         ),
         Turn(
             "DM",
-            "Open roll: {ROLL_1}. Success. The rain curves around the lantern "
+            "Open roll: {ROLL_1}. Success. Chalk dust curves around the lantern "
             "in a perfect oval. The bridge is not haunted by a light; it is "
             "overlapping another place.",
         ),
@@ -638,7 +638,7 @@ def build_amber_gate_scenario() -> Scenario:
             "DM",
             "Caldus admits the tube came from a shrine that should be on the "
             "far side. He has hidden it for thirty years because the road on "
-            "the seal changes after every storm.",
+            "the seal changes after every equinox.",
         ),
         Turn(
             "Player",
@@ -661,13 +661,13 @@ def build_amber_gate_scenario() -> Scenario:
         ),
         Turn(
             "Player",
-            "Mara sketches a fog-of-war map and marks only the west approach, "
+            "Mara sketches a player-known map and marks only the west approach, "
             "the bridge span, the lanterns, and the abbey silhouette.",
         ),
         Turn(
             "DM",
-            "Visual saved: Gorge Bridge Fog Map. Hidden rooms, secret paths, "
-            "traps, and creature positions remain under blank mist.",
+            "Visual saved: Gorge Bridge Exploration Map. Hidden rooms, secret paths, "
+            "traps, and creature positions remain under blank parchment.",
         ),
         Turn(
             "Player",
@@ -696,7 +696,7 @@ def build_amber_gate_scenario() -> Scenario:
         ),
         Turn(
             "DM",
-            "Visual saved: Rain Bent Around The Lantern. Abbey Gate clock "
+            "Visual saved: Chalk Bent Around The Lantern. Abbey Gate clock "
             "advances to 2/6, but Mara now has a fair route onto the bridge.",
         ),
         Turn(
@@ -723,8 +723,8 @@ def build_amber_gate_scenario() -> Scenario:
         continuity_anchors=[
             "Mara's dark travel cloak and wrapped bow",
             "Brother Caldus clutching the copper tube",
-            "three amber lanterns on the rain-slick gorge bridge",
-            "fog-of-war bridge map that hides the abbey interior",
+            "three amber lanterns on the wind-scoured pale bridge",
+            "player-known bridge map that hides the abbey interior",
         ],
         fun_targets=[
             "Open with pressure in the first message.",
@@ -743,7 +743,7 @@ def build_amber_gate_scenario() -> Scenario:
                 "location",
                 "Gorge Bridge",
                 original_visual_prompt(
-                    "rain-slick green stone bridge over a storm gorge, three "
+                    "wind-scoured pale stone bridge over a sunlit gorge, three "
                     "amber lanterns glowing across the span",
                     "establish the opening spatial problem",
                     "painterly fantasy realism, cinematic wide shot",
@@ -757,15 +757,15 @@ def build_amber_gate_scenario() -> Scenario:
                     "sealed copper map tube with amber wax, pilgrim-road "
                     "etching, dented cap, and leather cord",
                     "persistent clue and inventory object",
-                    "isolated prop view on wet dark stone",
+                    "isolated prop view on chalk-dusted pale stone",
                 ),
             ),
             VisualBeat(
                 2,
                 "map",
-                "Gorge Bridge Fog Map",
+                "Gorge Bridge Exploration Map",
                 original_visual_prompt(
-                    "fog-of-war parchment map showing only the west approach, "
+                    "player-known parchment map showing only the west approach, "
                     "bridge span, three lantern marks, and distant abbey "
                     "silhouette while hiding unexplored spaces",
                     "make spatial choices fair without spoilers",
@@ -775,12 +775,12 @@ def build_amber_gate_scenario() -> Scenario:
             VisualBeat(
                 3,
                 "recap",
-                "Rain Bent Around The Lantern",
+                "Chalk Bent Around The Lantern",
                 original_visual_prompt(
-                    "Mara Vey noticing rain bending around a floating amber "
+                    "Mara Vey noticing chalk dust bending around a floating amber "
                     "lantern while Brother Caldus clutches the copper tube",
                     "end-of-session memory postcard",
-                    "heroic mystery, cool storm light, warm amber glow",
+                    "heroic mystery, hard plateau light, warm amber glow",
                 ),
             ),
             VisualBeat(
@@ -841,7 +841,7 @@ def build_saltglass_market_scenario() -> Scenario:
         ),
         Turn(
             "DM",
-            "The merchant offers three concrete options: a stormproof cloak, a "
+            "The merchant offers three concrete options: a road cloak, a "
             "sealed courier box, and a cracked mirror charm that reflects "
             "doors which are behind you.",
         ),
@@ -955,7 +955,7 @@ def build_saltglass_market_scenario() -> Scenario:
                 "merchant",
                 "Saltglass Merchant Board",
                 original_visual_prompt(
-                    "merchant display with stormproof cloak, sealed courier "
+                    "merchant display with road cloak, sealed courier "
                     "box, cracked mirror charm, coin piles, and visible quality "
                     "tags represented without readable text",
                     "help the player compare purchases",
@@ -1014,12 +1014,12 @@ def build_rootbound_vault_scenario() -> Scenario:
         ),
         Turn(
             "DM",
-            "Visual saved: Rootbound Vault Fog Map. Only the entry chamber, "
-            "root door, water channel, and two visible exits are shown.",
+            "Visual saved: Rootbound Vault Exploration Map. Only the entry "
+            "chamber, root door, ash bed, and two visible exits are shown.",
         ),
         Turn(
             "Player",
-            "Tamsin moves quietly to the water channel and checks whether the "
+            "Tamsin moves quietly to the old ash bed and checks whether the "
             "roots react to vibration.",
         ),
         Turn(
@@ -1030,7 +1030,7 @@ def build_rootbound_vault_scenario() -> Scenario:
         ),
         Turn(
             "Player",
-            "She wraps the metal buckles on her pack and steps on wet moss.",
+            "She wraps the metal buckles on her pack and steps on dry lichen.",
         ),
         Turn(
             "DM",
@@ -1039,12 +1039,12 @@ def build_rootbound_vault_scenario() -> Scenario:
         ),
         Turn(
             "Player",
-            "Tamsin marks that on the map and offers the door a drop of water "
-            "instead of blood.",
+            "Tamsin marks that on the map and offers the door a pinch of seed "
+            "ash instead of blood.",
         ),
         Turn(
             "DM",
-            "The door drinks the water and reveals a hollow containing a seed "
+            "The door absorbs the ash and reveals a hollow containing a seed "
             "of green fire. The table gets a clear choice: take it, speak to "
             "it, or leave it as a ward.",
         ),
@@ -1111,7 +1111,7 @@ def build_rootbound_vault_scenario() -> Scenario:
         ),
         Turn(
             "Player",
-            "She ends at the water channel with the seed still in place. Next "
+            "She ends at the old ash bed with the seed still in place. Next "
             "time she can parley, distract the sentinel, or retreat and return "
             "with wooden tools.",
         ),
@@ -1142,13 +1142,13 @@ def build_rootbound_vault_scenario() -> Scenario:
             "root lattice door that reacts to metal",
             "green fire seed inside the hollow",
             "bramble sentinel with ember eyes and cracked stone mask",
-            "fog map showing safe moss path and blocked metal grate",
+            "player-known map showing safe lichen path and blocked metal grate",
         ],
         fun_targets=[
             "Make dungeon mapping useful at the table.",
             "Offer non-combat choices even when a creature wakes.",
             "Keep failed rolls active instead of punitive.",
-            "Protect fog-of-war secrets.",
+            "Protect unexplored-map secrets.",
         ],
         watch_risks=[
             "Dungeon pressure can become puzzle-box opacity.",
@@ -1159,10 +1159,10 @@ def build_rootbound_vault_scenario() -> Scenario:
             VisualBeat(
                 1,
                 "map",
-                "Rootbound Vault Fog Map",
+                "Rootbound Vault Exploration Map",
                 original_visual_prompt(
-                    "fog-of-war dungeon map with entry chamber, living root "
-                    "door, water channel, two visible exits, safe moss path, "
+                    "player-known dungeon map with entry chamber, living root "
+                    "door, ash bed, two visible exits, safe lichen path, "
                     "and blank unexplored areas",
                     "support exploration without revealing secrets",
                     "top-down parchment map, restrained labels, hidden rooms obscured",
@@ -1173,7 +1173,7 @@ def build_rootbound_vault_scenario() -> Scenario:
                 "location",
                 "Living Root Door",
                 original_visual_prompt(
-                    "vault door made from breathing root lattice, wet moss, "
+                    "vault door made from breathing root lattice, dry lichen, "
                     "black stone, and tiny green fire leaking through cracks",
                     "anchor the dungeon's central pressure",
                     "painterly fantasy realism, eerie but readable",
@@ -1185,7 +1185,7 @@ def build_rootbound_vault_scenario() -> Scenario:
                 "Green Fire Seed",
                 original_visual_prompt(
                     "small seed of green fire nested inside root hollow, "
-                    "lighting wet bark and old stone without burning them",
+                    "lighting dry bark and old stone without burning them",
                     "persistent magical object and temptation",
                     "macro fantasy prop, high detail, no text",
                 ),

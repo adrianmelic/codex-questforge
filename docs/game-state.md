@@ -11,7 +11,7 @@ Narration stays flexible. Mechanical state does not. If a choice changes HP, mon
 Use status before decisions that depend on resources:
 
 ```powershell
-python plugins\questforge\scripts\game_state.py status --campaign-root campaigns\the-amber-gate
+python plugins\questforge\scripts\game_state.py status --campaign-root campaigns\example-campaign
 ```
 
 Show a compact summary in conversation: objective, immediate risk, HP, relevant equipment, useful inventory, available spell slots/resources, conditions, and pending level-up or reward.
@@ -21,8 +21,8 @@ Show a compact summary in conversation: objective, immediate risk, HP, relevant 
 Use inventory for meaningful objects, not every apple in every crate. Use equipment slots when visuals or rules depend on what the character is wearing or holding.
 
 ```powershell
-python plugins\questforge\scripts\game_state.py add-item --campaign-root campaigns\the-amber-gate --character "Mara Vey" --name "Stormproof cloak" --value 12gp --mechanical-effect "Advantage against cold rain exposure"
-python plugins\questforge\scripts\game_state.py equip --campaign-root campaigns\the-amber-gate --character "Mara Vey" --item "Stormproof cloak" --slot cloak
+python plugins\questforge\scripts\game_state.py add-item --campaign-root campaigns\example-campaign --character "Mara Vey" --name "Reinforced gloves" --value 12gp --mechanical-effect "Advantage when gripping hot or rough mechanisms"
+python plugins\questforge\scripts\game_state.py equip --campaign-root campaigns\example-campaign --character "Mara Vey" --item "Reinforced gloves" --slot gloves
 ```
 
 If a generated image shows the character after an equipment change, the prompt should include the equipped state from `game-state.json`.
@@ -32,8 +32,8 @@ If a generated image shows the character after an equipment change, the prompt s
 Merchants should be playable, not just menus. Track stock and purchases so repeated visits stay coherent.
 
 ```powershell
-python plugins\questforge\scripts\game_state.py add-shop-item --campaign-root campaigns\the-amber-gate --shop-id low-door --shop-name "Low Door Outfitters" --merchant "Sella" --item-name "Iron lantern" --price 5gp --stock 1
-python plugins\questforge\scripts\game_state.py buy-item --campaign-root campaigns\the-amber-gate --character "Mara Vey" --shop-id low-door --item "Iron lantern"
+python plugins\questforge\scripts\game_state.py add-shop-item --campaign-root campaigns\example-campaign --shop-id tool-stall --shop-name "Tool Stall" --merchant "Sella" --item-name "Iron pry bar" --price 5gp --stock 1
+python plugins\questforge\scripts\game_state.py buy-item --campaign-root campaigns\example-campaign --character "Mara Vey" --shop-id tool-stall --item "Iron pry bar"
 ```
 
 ## Combat
@@ -41,10 +41,10 @@ python plugins\questforge\scripts\game_state.py buy-item --campaign-root campaig
 Combat is turn-based by default. Keep the textual state authoritative: initiative, whose turn it is, HP, AC, conditions, available resources, terrain, hazards, and interactables. Visual maps can help, but they must not become the only source of truth.
 
 ```powershell
-python plugins\questforge\scripts\game_state.py start-combat --campaign-root campaigns\the-amber-gate --name "Warehouse ambush" --combatant "Mara Vey:14" --combatant "Dock Cutthroat:11:6:13:enemy"
-python plugins\questforge\scripts\game_state.py set-tactical-scene --campaign-root campaigns\the-amber-gate --summary "Crates form half cover around a lantern spill." --terrain "stacked crates" --hazard "oil lamp can spread fire" --interactable "rope pulley can drop sacks"
-python plugins\questforge\scripts\game_state.py combat-action --campaign-root campaigns\the-amber-gate --actor "Mara Vey" --summary "Mara shoves the lamp toward the cutthroat." --target "Dock Cutthroat" --damage 3
-python plugins\questforge\scripts\game_state.py end-turn --campaign-root campaigns\the-amber-gate
+python plugins\questforge\scripts\game_state.py start-combat --campaign-root campaigns\example-campaign --name "Workshop skirmish" --combatant "Mara Vey:14" --combatant "Saboteur:11:6:13:enemy"
+python plugins\questforge\scripts\game_state.py set-tactical-scene --campaign-root campaigns\example-campaign --summary "Worktables form half cover around a brazier." --terrain "worktables grant half cover" --hazard "brazier can spread fire" --interactable "rope pulley can drop sacks"
+python plugins\questforge\scripts\game_state.py combat-action --campaign-root campaigns\example-campaign --actor "Mara Vey" --summary "Mara shoves the brazier toward the saboteur." --target "Saboteur" --damage 3
+python plugins\questforge\scripts\game_state.py end-turn --campaign-root campaigns\example-campaign
 ```
 
 ## Spells, Rests, And Conditions
@@ -52,10 +52,10 @@ python plugins\questforge\scripts\game_state.py end-turn --campaign-root campaig
 Use SRD lookup for rules, then record the outcome.
 
 ```powershell
-python plugins\questforge\scripts\game_state.py set-spell-slots --campaign-root campaigns\the-amber-gate --character "Mara Vey" --slot-level 1 --max 3
-python plugins\questforge\scripts\game_state.py spend-spell-slot --campaign-root campaigns\the-amber-gate --character "Mara Vey" --slot-level 1
-python plugins\questforge\scripts\game_state.py add-condition --campaign-root campaigns\the-amber-gate --character "Mara Vey" --name "Poisoned" --effect "Disadvantage on attack rolls and ability checks" --ends-on long_rest
-python plugins\questforge\scripts\game_state.py rest --campaign-root campaigns\the-amber-gate --character "Mara Vey" --kind long
+python plugins\questforge\scripts\game_state.py set-spell-slots --campaign-root campaigns\example-campaign --character "Mara Vey" --slot-level 1 --max 3
+python plugins\questforge\scripts\game_state.py spend-spell-slot --campaign-root campaigns\example-campaign --character "Mara Vey" --slot-level 1
+python plugins\questforge\scripts\game_state.py add-condition --campaign-root campaigns\example-campaign --character "Mara Vey" --name "Poisoned" --effect "Disadvantage on attack rolls and ability checks" --ends-on long_rest
+python plugins\questforge\scripts\game_state.py rest --campaign-root campaigns\example-campaign --character "Mara Vey" --kind long
 ```
 
 ## Level Up
@@ -63,9 +63,9 @@ python plugins\questforge\scripts\game_state.py rest --campaign-root campaigns\t
 XP can unlock a pending level-up. Codex should present a guided choice, consult SRD rules for class-specific options, then record the chosen result.
 
 ```powershell
-python plugins\questforge\scripts\game_state.py award-xp --campaign-root campaigns\the-amber-gate --character "Mara Vey" --amount 300 --reason "Solved the bridge ward"
-python plugins\questforge\scripts\game_state.py level-up-options --campaign-root campaigns\the-amber-gate --character "Mara Vey"
-python plugins\questforge\scripts\game_state.py apply-level-up --campaign-root campaigns\the-amber-gate --character "Mara Vey" --new-level 2 --hp-increase 5 --feature "Arcane recovery recorded from SRD lookup"
+python plugins\questforge\scripts\game_state.py award-xp --campaign-root campaigns\example-campaign --character "Mara Vey" --amount 300 --reason "Solved the sabotage"
+python plugins\questforge\scripts\game_state.py level-up-options --campaign-root campaigns\example-campaign --character "Mara Vey"
+python plugins\questforge\scripts\game_state.py apply-level-up --campaign-root campaigns\example-campaign --character "Mara Vey" --new-level 2 --hp-increase 5 --feature "Arcane recovery recorded from SRD lookup"
 ```
 
 ## Death And Rollback
@@ -73,10 +73,10 @@ python plugins\questforge\scripts\game_state.py apply-level-up --campaign-root c
 Death mode defaults to `heroic`: 0 HP triggers death saves, but Codex should frame consequences dramatically and avoid cheap random anticlimax unless the table wants a hard mode. `narrative` mode can treat 0 HP as defeat rather than death. Hard irreversible moments should get checkpoints.
 
 ```powershell
-python plugins\questforge\scripts\game_state.py checkpoint --campaign-root campaigns\the-amber-gate --label "Before opening the black door"
-python plugins\questforge\scripts\game_state.py apply-damage --campaign-root campaigns\the-amber-gate --character "Mara Vey" --amount 20
-python plugins\questforge\scripts\game_state.py death-save --campaign-root campaigns\the-amber-gate --character "Mara Vey" --result success
-python plugins\questforge\scripts\game_state.py restore-checkpoint --campaign-root campaigns\the-amber-gate --id before-opening-the-black-door-2026-06-09T120000+0000
+python plugins\questforge\scripts\game_state.py checkpoint --campaign-root campaigns\example-campaign --label "Before entering the sealed workshop"
+python plugins\questforge\scripts\game_state.py apply-damage --campaign-root campaigns\example-campaign --character "Mara Vey" --amount 20
+python plugins\questforge\scripts\game_state.py death-save --campaign-root campaigns\example-campaign --character "Mara Vey" --result success
+python plugins\questforge\scripts\game_state.py restore-checkpoint --campaign-root campaigns\example-campaign --id before-entering-the-sealed-workshop-2026-06-09T120000+0000
 ```
 
 Rollback is table control, not automatically an in-world retcon. If the player says they regret a choice, offer the last checkpoint plainly.

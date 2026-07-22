@@ -50,7 +50,7 @@ class SelfPlayResult:
 
 def run_self_play(
     campaigns_dir: Path,
-    name: str = "The Amber Gate",
+    name: str = "The Clockwork Apiary",
     session_date: date | None = None,
 ) -> SelfPlayResult:
     """Run a deterministic mini-session that exercises the Questforge loop."""
@@ -59,34 +59,34 @@ def run_self_play(
     paths = create_campaign(
         campaigns_dir=campaigns_dir,
         name=name,
-        tone="heroic mystery with eerie ruins",
+        tone="bright rural investigation with practical stakes",
         boundaries="no graphic gore",
         session_date=session_date,
     )
     write_hero_sheet(paths.characters / "mara-vey.md")
     record_hook_status(
         paths.root,
-        hook="The amber lantern is out of phase",
+        hook="A false queen scent is emptying the communal hives",
         origin="opening scene",
         status="active",
         current_meaning=(
-            "the bridge can be crossed safely only if the lantern is understood"
+            "the bees can be recovered only if the decoy route is understood"
         ),
-        next_payoff="Mara can parley with the whisper or force the lantern back",
+        next_payoff="Mara can trace the scent, move the hives, or expose the buyer",
     )
     record_puzzle_beat(
         paths.root,
-        title="Three Lantern Intervals",
+        title="Three Waggle Angles",
         kind="clue_connection",
         required_clues=[
-            "rain bends around the floating amber lantern",
-            "the copper tube shows the pilgrim road etched in three gaps",
+            "the returning bees carry blue orchard pollen",
+            "the brass hive key has three angles cut into its bow",
         ],
-        ask_at_table="Which gap in the pilgrim-road etching matches the lantern?",
-        solution="the middle gap matches the bridge span",
-        fallback="the lantern flares and advances the clock, but reveals the path",
-        reward="lower the next bridge crossing DC by 2",
-        symbolic_weight="a broken map can still teach where the light is missing",
+        ask_at_table="Which key angle matches the bees' repeated waggle turn?",
+        solution="the shallow angle points toward the blue orchard terraces",
+        fallback="another hive empties, but the departing swarm reveals the route",
+        reward="lower the next tracking DC by 2",
+        symbolic_weight="shared labor leaves a direction even when words fail",
         status="prepared",
     )
 
@@ -97,13 +97,14 @@ def run_self_play(
             session_number=1,
             scene_number=1,
             kind="location",
-            label="Gorge Bridge",
+            label="Sunwheel Apiary",
             prompt=(
                 "Original 5E-compatible fantasy location, unofficial and not "
                 "using official D&D setting, logo, product art, or named "
-                "copyrighted character. Subject: a rain-slick green stone "
-                "bridge over a storm gorge, with three amber lanterns glowing "
-                "across the span. Purpose: establish the opening location. "
+                "copyrighted character. Subject: a sunlit hillside apiary "
+                "with painted wooden hives, orchard terraces, and a decoy "
+                "wagon drawing a visible stream of bees. Purpose: establish "
+                "the opening location. "
                 "Style: painterly fantasy realism, cinematic wide shot, "
                 "readable staging. Avoid: official logos, copied product art."
             ),
@@ -113,13 +114,13 @@ def run_self_play(
             session_number=1,
             scene_number=1,
             kind="item",
-            label="Copper Map Tube",
+            label="Brass Hive Key",
             prompt=(
                 "Original 5E-compatible fantasy item, unofficial and not using "
-                "official D&D product art. Subject: sealed copper map tube, "
-                "amber wax seal, thin pilgrim-road etching, small dent near "
-                "one cap, leather cord. Purpose: persistent clue and inventory "
-                "object. Style: isolated prop view on wet dark stone."
+                "official D&D product art. Subject: heavy brass hive key, "
+                "three angle notches in the bow, blue pollen in the teeth, "
+                "and a red cord. Purpose: persistent clue and inventory "
+                "object. Style: isolated prop view on pale workbench wood."
             ),
         ),
         save_visual_prompt(
@@ -127,13 +128,13 @@ def run_self_play(
             session_number=1,
             scene_number=2,
             kind="map",
-            label="Gorge Bridge Fog Map",
+            label="Apiary Terrace Map",
             prompt=(
-                "Original fantasy exploration map with fog of war. Subject: "
-                "known west approach, visible bridge span, three lantern marks, "
-                "and the first abbey silhouette. Hide unexplored abbey rooms, "
-                "secret paths, enemy positions, and trap mechanisms under mist "
-                "and blank parchment. Sparse table-useful labels only."
+                "Original fantasy player-known exploration map. Subject: "
+                "known hive rows, communal press, decoy wagon track, and blue "
+                "orchard edge. Hide unvisited storehouses, concealed paths, "
+                "and unknown workers under blank parchment. Sparse "
+                "table-useful labels only."
             ),
         ),
         save_visual_prompt(
@@ -141,13 +142,14 @@ def run_self_play(
             session_number=1,
             scene_number=3,
             kind="recap",
-            label="Rain Bent Around The Lantern",
+            label="The Bees Choose The Decoy",
             prompt=(
                 "Original 5E-compatible fantasy recap image. Subject: Mara Vey "
-                "realizing rain bends around a floating amber lantern while "
-                "Brother Caldus clutches the copper tube behind her. Purpose: "
-                "end-of-session postcard. Mood: heroic mystery, eerie but not "
-                "grim. Avoid official setting identifiers and copied art."
+                "realizing a stream of bees follows blue pollen toward a "
+                "painted decoy wagon while apprentice Nilo holds the brass "
+                "hive key behind her. Purpose: end-of-session postcard. Mood: "
+                "bright investigation with practical urgency. Avoid official "
+                "setting identifiers and copied art."
             ),
         ),
     ]
@@ -164,18 +166,18 @@ def run_self_play(
         session_date=session_date,
         characters_present="Mara Vey",
         recap=[
-            "Mara discovered that the amber lantern exists out of phase with "
-            "the bridge.",
-            "Brother Caldus now trusts Mara and still holds the copper map "
-            "tube.",
-            "The first fog-of-war map shows only the west approach and "
-            "visible bridge.",
+            "Mara discovered that blue queen scent is drawing the bees toward "
+            "the decoy wagon.",
+            "Apprentice Nilo now trusts Mara and still holds the brass hive "
+            "key.",
+            "The first exploration map shows only the known hive terraces and "
+            "blue orchard edge.",
         ],
-        start_location="west side of the gorge bridge",
-        pressure="the lantern waits at the edge of the overlapping ruin",
+        start_location="upper row of the Sunwheel Apiary",
+        pressure="a second communal hive is beginning to empty",
         next_choice=(
-            "cross, parley with the whisper, or force the lantern back into "
-            "phase"
+            "trace the decoy wagon, move the remaining queens, or confront "
+            "the honey factor"
         ),
     )
     transcript_text = build_turn_transcript(name, session_date, roll.summary())
@@ -227,8 +229,8 @@ def write_hero_sheet(path: Path) -> None:
                 "",
                 "- Concept: practical human ranger",
                 "- Level: 1",
-                "- Visual anchors: dark travel cloak, wrapped bow, rain-worn boots",
-                "- Current goal: escort Brother Caldus and understand the Amber Gate",
+                "- Visual anchors: russet work cloak, wrapped bow, blue pollen on boots",
+                "- Current goal: protect the communal hives and find the decoy buyer",
                 "",
             ]
         ),
@@ -253,35 +255,35 @@ def build_session_log(
 
 ## Recap
 
-- Mara escorts Brother Caldus to the old gorge bridge during a storm.
-- Three amber lanterns burn across the span without visible holders.
+- Mara arrives while the Sunwheel Apiary is losing its bees to a decoy wagon.
+- Apprentice Nilo holds the only hive key while the honey factor demands entry.
 
 ## Scenes
 
 ### Scene 1
 
-- Location: west side of the gorge bridge.
-- Pressure: a whisper demands the copper map tube.
-- Player action: Mara studies rain, tracks, and wind around the lanterns.
+- Location: upper row of the Sunwheel Apiary.
+- Pressure: another communal hive is beginning to empty.
+- Player action: Mara studies flight paths, pollen, and wheel marks.
 - Roll: {roll_summary}
-- Outcome: success. The rain bends around the lantern instead of touching it.
-- State changes: clue added; Brother Caldus trusts Mara; Abbey Gate clock 1/6.
+- Outcome: success. Blue pollen links the departing bees to the decoy wagon.
+- State changes: clue added; Nilo trusts Mara; Empty Hives clock 1/6.
 - Visual prompts saved: location, item.
 
 ### Scene 2
 
-- Location: bridge approach.
-- Pressure: crossing may pull Mara into an overlapping ruin.
+- Location: apiary terraces.
+- Pressure: the wagon route disappears among working orchard lanes.
 - Player action: Mara sketches known terrain before advancing.
-- Outcome: fog-of-war map saved without revealing hidden abbey rooms.
+- Outcome: exploration map saved without revealing unvisited storehouses.
 - State changes: map reference added to visual index.
 - Visual prompts saved: map.
 
 ### Scene 3
 
-- Location: west side of the gorge bridge.
-- Pressure: the lantern waits at the edge of the visible world.
-- Player action: Mara keeps the copper tube and prepares to step forward.
+- Location: upper row of the Sunwheel Apiary.
+- Pressure: the second hive begins to empty toward the orchard.
+- Player action: Mara keeps the hive key visible and prepares to follow.
 - Outcome: session closes on a clear next choice.
 - Visual prompts saved: recap.
 
@@ -289,16 +291,16 @@ def build_session_log(
 
 | Ruling | Reason | Keep As House Rule |
 | --- | --- | --- |
-| Wisdom (Survival), moderate DC | Reading storm-distorted tracks is uncertain and meaningful. | no |
+| Wisdom (Survival), moderate DC | Reading mixed pollen and wagon tracks is uncertain and meaningful. | no |
 
 ## End State
 
-- Party position: west side of the gorge bridge.
-- Immediate next choice: cross, parley with the whisper, or force the lantern
-  back into phase.
-- Changed clocks: Abbey Gate 1/6.
-- Changed NPC attitudes: Brother Caldus trusts Mara.
-- Rewards: clue about overlapping ruins.
+- Party position: upper row of the Sunwheel Apiary.
+- Immediate next choice: trace the wagon, move the queens, or confront the
+  honey factor.
+- Changed clocks: Empty Hives 1/6.
+- Changed NPC attitudes: Apprentice Nilo trusts Mara.
+- Rewards: clue connecting blue pollen to the decoy route.
 - Damage, conditions, resources: none.
 """
 
@@ -315,7 +317,7 @@ def write_campaign_state(
 
 - Campaign: {campaign_name}
 - System: 5E-compatible, SRD-grounded
-- Tone: heroic mystery with eerie ruins
+- Tone: bright rural investigation with practical stakes
 - Content boundaries: no graphic gore
 - House rules:
 - SRD attribution included: yes
@@ -325,63 +327,63 @@ def write_campaign_state(
 
 | Character | Player | Ancestry | Class | Level | Notes |
 | --- | --- | --- | --- | --- | --- |
-| Mara Vey | Self-play | Human | Ranger | 1 | Practical escort for Brother Caldus |
+| Mara Vey | Self-play | Human | Ranger | 1 | Practical protector of the apiary |
 
 ## Current Situation
 
-- Location: west side of the gorge bridge
-- Immediate pressure: the lantern waits at the edge of the overlapping ruin
-- Open decision: cross, parley with the whisper, or force the lantern back into phase
+- Location: upper row of the Sunwheel Apiary
+- Immediate pressure: a second communal hive is beginning to empty
+- Open decision: trace the wagon, move the queens, or confront the honey factor
 
 ## Fronts And Clocks
 
 | Front Or Clock | Segments | Filled | Advances When |
 | --- | --- | --- | --- |
-| Abbey Gate | 6 | 1 | Delay, failed occult investigation, or surrendering the copper tube |
+| Empty Hives | 6 | 1 | Delay, failed tracking, or surrendering the hive key |
 
 ## Factions
 
 | Name | Goal | Leverage | Relationship |
 | --- | --- | --- | --- |
-| The Amber Gate | Overlay ruined places onto the present | Out-of-phase lanterns and whispers | Unknown threat |
+| South Orchard Factors | Control communal honey contracts | Tax seals and hired collectors | Commercial threat |
 
 ## NPCs
 
 | Name | Role | Wants | Visual Anchor | Attitude |
 | --- | --- | --- | --- | --- |
-| Brother Caldus | Village archivist | Keep the copper map tube safe | Clutches the tube when frightened | Trusts Mara |
+| Apprentice Nilo | Apiary key keeper | Keep the communal queens together | Blue pollen on sleeves | Trusts Mara |
 
 ## Locations
 
 | Name | Role | Secret Or Pressure | Status |
 | --- | --- | --- | --- |
-| Gorge Bridge | Threshold to the abbey road | It overlaps a parallel ruin | Visible but unstable |
+| Sunwheel Apiary | Communal hillside workplace | A decoy scent redirects its bees | Active and exposed |
 
 ## Clues
 
 | Clue | Meaning | Confirmed |
 | --- | --- | --- |
-| Rain bends around the lantern | The lantern is out of phase, not invisible | yes |
+| Blue pollen on returning bees | The decoy route passes the blue orchard | yes |
 
 ## Inventory And Rewards
 
 | Item | Holder | Mechanical Notes | Story Notes |
 | --- | --- | --- | --- |
-| Copper Map Tube | Brother Caldus | none known | Key object demanded by the whisper |
+| Brass Hive Key | Apprentice Nilo | Opens communal queen frames | Its angle marks encode terrace directions |
 
 ## Visual Continuity
 
 | Subject | Type | Anchor Details | Reuse Notes |
 | --- | --- | --- | --- |
-| Gorge Bridge | location | rain-slick green stone, storm gorge, three amber lanterns | opening location and recurring threshold |
-| Copper Map Tube | item | copper cylinder, amber wax, pilgrim-road etching, leather cord | persistent clue and inventory object |
-| Gorge Bridge Fog Map | map | west approach visible, abbey hidden by mist | reveal only explored areas |
+| Sunwheel Apiary | location | painted hives, ochre terraces, orchard edge, bright work light | opening location and recurring workplace |
+| Brass Hive Key | item | brass key, three angle notches, blue pollen, red cord | persistent clue and inventory object |
+| Apiary Terrace Map | map | known hive rows and orchard edge only | reveal only explored areas |
 
 ## Open Threads
 
-- What happens if Mara crosses into the overlapping ruin?
-- Who is the whisper claiming to speak for?
-- Why does the Amber Gate want the copper map tube?
+- Who bought the decoy queen scent?
+- Why did Pell cut matching angles into the hive key?
+- Can the communal bees be recovered before collection day?
 """,
         encoding="utf-8",
         newline="\n",
@@ -404,69 +406,68 @@ def build_turn_transcript(
 
 ### Turn 1 - DM
 
-Rain lashes the gorge bridge. Three amber lanterns glow across the span, but no
-hands hold them. Brother Caldus keeps the copper map tube under his cloak and
-asks whether Mara wants to cross, study the bridge, or question him first.
+Bees stream away from the Sunwheel Apiary toward a painted wagon on the lower
+terrace. Apprentice Nilo holds the brass hive key and asks whether Mara wants to
+trace the swarm, secure the queen frames, or question the honey factor first.
 
 ### Turn 2 - Player
 
-Mara stays on the west side and studies the rain, the lantern light, and the
-stonework before stepping onto the bridge.
+Mara stays beside the upper hives and studies flight paths, pollen, and wagon
+marks before anyone moves the queen frames.
 
 ### Turn 3 - DM
 
 The action is uncertain and meaningful. Rules lookup target: ability checks.
-Ruling: Wisdom (Survival), moderate DC, because Mara is reading weather,
-tracks, and unnatural movement rather than recalling lore.
+Ruling: Wisdom (Survival), moderate DC, because Mara is reading animal movement,
+mixed pollen, and traffic rather than recalling lore.
 
 ### Turn 4 - Player
 
-Mara accepts the risk and keeps Brother Caldus behind the parapet while she
-checks where the storm refuses to fall.
+Mara accepts the risk and keeps Nilo beside the closed frames while she checks
+which returning bees carry pollen from outside the communal terraces.
 
 ### Turn 5 - DM
 
-Open roll: {roll_summary}. Success. The rain bends around the nearest lantern
-instead of striking it. The lantern is not invisible; it is out of phase with
-the bridge.
+Open roll: {roll_summary}. Success. Blue pollen appears only on bees returning
+from the decoy wagon. Someone painted the wagon with imported queen scent and
+parked it along a deliberate route.
 
 ### Turn 6 - Player
 
-Mara asks Brother Caldus why the whisper wants the copper tube, and she asks to
-see the seal without breaking it.
+Mara asks Nilo who cut the three angles into the brass hive key, and she asks to
+see it before the honey factor takes it.
 
 ### Turn 7 - DM
 
-Caldus admits the tube came from the abbey road. He has never opened it. The
-amber wax seal carries a pilgrim-road mark that matches the road on the old
-map fragments.
+Nilo admits clerk Pell recut the key after the spring inspection. The three
+angles match the bees' repeated waggle turns and point toward different orchard
+terraces.
 
 ### Turn 8 - Player
 
-Mara wants a clear visual record of the tube before anyone tampers with it.
+Mara wants a clear visual record of the key before anyone tampers with it.
 
 ### Turn 9 - DM
 
-Visual prompt saved: item, Copper Map Tube. The prompt records the copper
-cylinder, amber seal, pilgrim-road etching, dented cap, and leather cord so the
-object can remain visually consistent later.
+Visual prompt saved: item, Brass Hive Key. The prompt records the three angle
+notches, blue pollen, worn teeth, and red cord so the object can remain visually
+consistent later.
 
 ### Turn 10 - Player
 
-Mara sketches only what she can verify: the west approach, the bridge, the
-three lantern positions, and the abbey silhouette. She refuses to mark rooms
-she has not seen.
+Mara sketches only what she can verify: the hive rows, communal press, wagon
+track, and blue orchard edge. She refuses to mark storehouses she has not seen.
 
 ### Turn 11 - DM
 
-Visual prompt saved: fog-of-war map. Hidden abbey rooms, traps, and enemy
-positions stay covered by mist and blank parchment. Abbey Gate clock advances
-to 1/6 because the lantern has noticed the copper tube.
+Visual prompt saved: exploration map. Unvisited storehouses, concealed routes,
+and unknown workers stay covered by blank parchment. Empty Hives clock advances
+to 1/6 because another queen frame begins to lose its workers.
 
 ### Turn 12 - Player
 
 Mara ends the session holding position. Next time she will choose whether to
-cross, parley with the whisper, or force the lantern back into phase.
+trace the wagon, move the remaining queens, or confront the honey factor.
 """
 
 
@@ -514,7 +515,7 @@ generation.
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run Questforge self-play.")
     parser.add_argument("--campaigns-dir", required=True, type=Path)
-    parser.add_argument("--name", default="The Amber Gate")
+    parser.add_argument("--name", default="The Clockwork Apiary")
     parser.add_argument("--date", dest="date_text")
     return parser
 

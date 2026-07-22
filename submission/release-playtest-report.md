@@ -1,6 +1,10 @@
 # Questforge Release Playtest Report
 
-Date: 2026-07-10
+Playtests: 2026-07-10
+
+Release audit: 2026-07-16
+
+Installed-plugin acceptance: 2026-07-22
 
 ## Method
 
@@ -51,11 +55,45 @@ The event windows exclude some work before the first event, so 3.24 and 2.85 min
 - First-session setup required many independent writes. `quick_start.py` now creates the campaign, hero, equipment, state, checkpoint, minimum spine, opening, journal, session, analytics event, continuity rows, and visual prompt atomically from one spec. The local transaction completes in about 0.4 seconds.
 - Preflight now detects both sessions with no visuals and prompt-only visual queues.
 
-### Still Requires Product-Surface Verification
+### Product-Surface Verification Completed
 
-- The delegated playtest runtime did not expose a usable native image-generation call. Even when the image-generation skill was attached, it saved a prompt without producing an asset. The plugin now requires an explicit generated asset or a visible `visual_unavailable` outcome before returning a selected visual beat. Final review still needs one installed-plugin run on a surface where native image generation is available.
+- A clean task installed the final `questforge-skills-1.1.0.zip` through an isolated local marketplace and started with the public quick-start prompt. The first actionable scene invoked built-in native image generation, displayed the generated static image in the conversation, saved a 1536 x 1024 PNG inside the isolated campaign, registered the opening row as `canon`, and refreshed a one-item chronological gallery. No opening visual remained pending.
+- The strict release preflight passed with `0` errors and `0` warnings: `1` registered visual, `0` pending, `0` unavailable, and `0` missing. The acceptance campaign was an original synthetic playtest kept outside the public repository; none of its files are part of the submission archive.
 - The quick-start regression reduced the observed opening from roughly six-to-eight minutes to about four-and-a-half minutes, but model planning and visual work still dominate latency. The local persistence portion is no longer the bottleneck.
 
 ## Release Gate
 
-The rules, state, multilingual analytics, and campaign continuity paths are ready for packaging. Before submitting to the public directory, run one installed-plugin opening on the final OpenAI product surface and confirm that the first generated image appears in chat and is registered in the campaign gallery. Treat a silent `prompt-saved` row as a failed test.
+The rules, state, multilingual analytics, campaign continuity, creative conception, deterministic packaging, and installed-plugin opening paths are ready. The 2026-07-22 acceptance confirmed that the first generated image appeared in chat, was registered in the campaign gallery, and passed strict preflight. A silent `prompt-saved` opening remains a regression and must fail future release tests.
+
+For future release acceptance runs, execute:
+
+```powershell
+python scripts\preflight.py `
+  --campaign-root campaigns\<campaign-slug> `
+  --require-player-journal `
+  --require-generated-visuals `
+  --require-opening-visual `
+  --refresh-gallery
+```
+
+The strict command checks the generated asset and local gallery inputs. A human reviewer must still confirm that the same static image appeared once in the conversation, because a local filesystem audit cannot observe the rendered chat surface.
+
+## Publication Audit
+
+The 2026-07-16 publication pass removed the rushed branching demo and replaced it with a product page that explains the real play surface: the conversation carries narration, rolls, state, and static generated scenes; a writable local Codex workspace adds campaign artifacts, the chronological gallery, interactive 360 viewers, and optional soundtrack playback. The public page uses one coherent original scenario rather than presenting invented choices as a playable campaign.
+
+The README, Platform listing copy, manifest descriptions, hero image, tactical-map example, and 360 example now use the same release positioning. The public materials contain no contest or challenge framing.
+
+Verification completed:
+
+- `127` Python tests passed on Python 3.14.6 on macOS without forcing a language environment variable.
+- All six skills passed the current `skill-creator` validator.
+- The plugin passed the current `plugin-creator` validator.
+- Desktop and 390 px mobile browser checks found no horizontal overflow or console warnings.
+- The WebGL photosphere rendered nonblank pixels; a pointer drag changed 98.2 percent of the captured canvas and revealed another coherent direction of the same scene.
+- The soundtrack remained off for a new viewer, played after a voluntary click, and preserved the preference for later viewers. When browser autoplay policy blocks restoration, the control offers an explicit resume action without discarding that preference.
+- The submission archive was rebuilt at `29,713,593` bytes with SHA-256 `67a8f77fd39094c171953002808a1c0ed0a48d9fa3836925cb2c769fbfabd656`.
+
+One external check remains intentionally open:
+
+1. Confirm that the Platform upload form accepts the `29.7 MB` archive and submit it for review. No archive had been uploaded when this report was committed.

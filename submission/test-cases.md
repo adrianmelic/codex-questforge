@@ -10,7 +10,7 @@ The OpenAI Platform requires exactly five positive and three negative cases. Run
 
 **Expected workflow behavior**
 
-Questforge activates the main, setup, and campaign skills. It uses the bundled offline English core rules without downloading a PDF or installing a package. It creates a level-1 hero and initial checkpoint with the atomic quick-start flow when local writes are available; otherwise it creates an honest in-conversation ledger. It does not stop on a character-creation menu.
+Questforge activates the main, setup, and campaign skills. It uses the bundled offline English core rules without downloading a PDF or installing a package. Before the atomic quick-start, it completes an original conception and compares its environmental combination with recent local campaigns. It creates a level-1 hero and initial checkpoint when local writes are available; otherwise it creates an honest in-conversation ledger. It does not stop on a character-creation menu or reuse a documentation demo as the premise.
 
 **Expected result shape**
 
@@ -60,7 +60,7 @@ The prompt supplies the required character modifier and situation.
 
 **User prompt**
 
-> Create a minimal Questforge state for Mara, a level-1 fighter with 12 HP, AC 16, and 12 gp. A merchant sells a stormproof cloak for 5 gp. Buy it, equip it in the cloak slot, show the resulting inventory and money, and create a checkpoint named “After the cloak purchase”.
+> Create a minimal Questforge state for Mara, a level-1 fighter with 12 HP, AC 16, and 12 gp. A merchant sells reinforced gloves for 5 gp. Buy them, equip them in the gloves slot, show the resulting inventory and money, and create a checkpoint named “After the gloves purchase”.
 
 **Expected workflow behavior**
 
@@ -68,7 +68,7 @@ Questforge uses the campaign and mechanical state helpers. It creates or updates
 
 **Expected result shape**
 
-Mara at 12/12 HP and AC 16, the stormproof cloak equipped, 7 gp remaining, and confirmation of the `After the cloak purchase` checkpoint. In chat-only mode the same facts appear in a compact ledger with an explicit note that no local file was written.
+Mara at 12/12 HP and AC 16, the reinforced gloves equipped, 7 gp remaining, and confirmation of the `After the gloves purchase` checkpoint. In chat-only mode the same facts appear in a compact ledger with an explicit note that no local file was written.
 
 **Fixture data**
 
@@ -78,7 +78,7 @@ The prompt contains all required state.
 
 **User prompt**
 
-> Start a short encounter in a flooded warehouse. My fighter is by the south door; two smugglers are behind crates near the north exit. Include a hanging cargo net, an oil lamp, shallow water, and a side window. Show the tactical situation in text, then generate a top-down map without revealing anything the hero cannot see.
+> Start a short encounter in a glassworks yard at noon. My fighter is by the south gate; two saboteurs are behind clay bins near the north kiln. Include a hanging sand hopper, a coal brazier, stacked molds, and a side workshop door. Show the tactical situation in text, then generate a top-down map without revealing anything the hero cannot see.
 
 **Expected workflow behavior**
 

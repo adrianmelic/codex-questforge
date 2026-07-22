@@ -68,7 +68,7 @@ def test_alpha_playtests_write_reviewable_artifacts(tmp_path):
 
     visual_index_text = visual_index.read_text(encoding="utf-8")
     assert "prompt-saved" in visual_index_text
-    assert "Gorge Bridge Fog Map" in visual_index_text
+    assert "Gorge Bridge Exploration Map" in visual_index_text
 
     rootbound = next(
         scenario

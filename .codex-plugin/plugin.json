@@ -1,7 +1,7 @@
 {
   "name": "questforge",
-  "version": "1.0.1",
-  "description": "Play persistent 5E-compatible fantasy campaigns with an AI Game Master, open dice, local state, and optional generated visuals.",
+  "version": "1.1.0",
+  "description": "Play an open-ended 5E-compatible fantasy RPG inside Codex with visible dice, persistent campaigns, and generated scenes.",
   "author": {
     "name": "Adrian Melic",
     "email": "info@adrianmelic.com",
@@ -21,10 +21,10 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Questforge",
-    "shortDescription": "Play persistent 5E-compatible fantasy campaigns.",
-    "longDescription": "Questforge turns a conversation into an open-ended fantasy campaign. It creates or imports a hero, runs original adventures with transparent 5E-compatible rulings and dice, preserves campaign and mechanical state, and can add generated scenes, tactical maps, 360 views, and optional ambience when the current surface supports them.",
+    "shortDescription": "Open-ended fantasy RPG",
+    "longDescription": "Say anything and let the world keep up. Questforge turns a conversation into an original 5E-compatible fantasy campaign with transparent dice, durable character and world state, combat, inventory, advancement, checkpoints, and failure-forward play. Static generated scenes can appear in the conversation; writable local Codex workspaces can also add a chronological gallery, interactive 360 POV viewers, and optional ambience.",
     "developerName": "Adrian Melic",
-    "category": "Games",
+    "category": "Entertainment",
     "capabilities": [
       "Interactive",
       "Write",
@@ -38,17 +38,12 @@
     "privacyPolicyURL": "https://adrianmelic.github.io/codex-questforge/privacy.html",
     "termsOfServiceURL": "https://adrianmelic.github.io/codex-questforge/terms.html",
     "defaultPrompt": [
-      "Start a new Questforge campaign with a quick hero.",
+      "I want to play. Create a quick hero and begin.",
       "Guide me through creating a hero, then begin.",
       "Continue my latest Questforge campaign."
     ],
-    "brandColor": "#7C3AED",
+    "brandColor": "#DFA64A",
     "composerIcon": "./assets/icon.svg",
-    "logo": "./assets/logo.svg",
-    "screenshots": [
-      "./assets/screenshots/questforge-session.png",
-      "./assets/screenshots/questforge-tactical-map.png",
-      "./assets/screenshots/questforge-360-pov.png"
-    ]
+    "logo": "./assets/icon.svg"
   }
 }

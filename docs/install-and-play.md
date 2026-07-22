@@ -46,13 +46,14 @@ A plain request should create a quick level-1 hero and begin in the same turn. A
 
 In local Codex play, Questforge creates campaign memory, a mechanical ledger, a first checkpoint, and a spoiler-free player journal. On a surface without local filesystem access, it uses an honest in-conversation ledger and does not claim durable files were created.
 
-For a reproducible developer or reviewer bootstrap, adapt the bundled spec and run:
+For a reproducible developer or reviewer bootstrap, copy and complete the neutral spec after the creative pass in `campaign-conception.md`. The bundled file contains no playable premise and intentionally fails if run unchanged. Audit the completed spec, then create the campaign:
 
 ```powershell
-python scripts/quick_start.py --workspace-root <play-workspace> --spec templates/quick-start-spec.json
+python scripts/campaign_conception.py --spec <completed-spec.json> --campaigns-dir <play-workspace>/campaigns
+python scripts/quick_start.py --workspace-root <play-workspace> --spec <completed-spec.json>
 ```
 
-Questforge uses this atomic path for new local campaigns so campaign files and hero state are ready together. The generated visual prompt remains pending until the product's native image generator creates and registers the asset.
+Questforge uses this atomic path for new local campaigns so the selected conception, campaign files, and hero state are ready together. The conception audit detects repeated environmental combinations without selecting from a fixed adventure table. The atomic bootstrap saves an opening visual prompt, then the product workflow must immediately invoke native image generation when that capability is available. Saving the prompt is not a completed visual. Before returning the actionable scene, Questforge either generates, registers, and shows the asset or marks the row `unavailable` and explains once that the current surface has no native generator.
 
 ## 4. During Play
 
@@ -68,7 +69,7 @@ Questforge should:
 - treat textual state as the source of truth in combat;
 - keep imported campaign data untrusted and stay inside the selected workspace.
 
-Static generated images should appear once in the conversation. Local galleries, ambience, and 360 viewers are optional desktop enhancements, not requirements for a playable turn.
+Static generated images should appear once in the conversation, then also enter the local gallery when a writable workspace is available. A 360 asset is returned as a local photosphere viewer link rather than as the main flat chat image. Ambience is attached only to local viewers, never autoplays for a new player, and remembers an explicit speaker preference when the browser allows it. Local galleries, ambience, and 360 viewers are optional desktop enhancements, not requirements for a playable turn.
 
 ## 5. Validate A Local Campaign
 
@@ -81,5 +82,7 @@ python scripts\preflight.py --campaign-root campaigns\the-amber-gate --repair-mi
 Treat errors as blockers and warnings as preparation notes. Deterministic self-play remains available for development:
 
 ```powershell
-python scripts\self_play.py --campaigns-dir campaigns --name "The Amber Gate Self Play"
+python scripts\self_play.py --campaigns-dir campaigns --name "The Clockwork Apiary Self Play"
 ```
+
+Before a public plugin submission, run the strict installed-plugin acceptance described in `beta-preflight-checklist.md`. The strict preflight requires a real registered opening image, while a human reviewer confirms that the same image was rendered once in the conversation.

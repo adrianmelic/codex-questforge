@@ -21,7 +21,7 @@ resolution.
 
 ## Prep Flow
 
-1. Write or adapt a visual prep spec.
+1. Complete a campaign-specific copy of the neutral visual prep spec from `campaign-conception.json`, `game-state.json`, and the current visual ledger. Do not use a prior campaign or documentation example as the subject source.
 2. Run `visual_prep.py` to save reference prompts.
 3. Generate native images from those prompts.
 4. Register selected PNGs with `register-visual-asset`.
@@ -30,23 +30,23 @@ resolution.
    `visual_reuse.py`.
 7. Mark useful alternatives as `variant` and broken images as `rejected`.
 
-Example:
+Example command shape:
 
 ```powershell
 python plugins\questforge\scripts\visual_prep.py `
-  --campaign-root campaigns\rootbound-vault `
-  --spec plugins\questforge\templates\visual-prep-spec.json
+  --campaign-root <campaign-root> `
+  --spec <completed-visual-spec.json>
 ```
 
 After image generation:
 
 ```powershell
 python plugins\questforge\scripts\campaign_memory.py register-visual-asset `
-  --campaign-root campaigns\rootbound-vault `
+  --campaign-root <campaign-root> `
   --asset-source <generated-image.png> `
-  --asset-filename bramble-sentinel-reference.png `
-  --kind creature `
-  --label "Bramble Sentinel Reference Sheet" `
+  --asset-filename <reference-name.png> `
+  --kind <kind> `
+  --label "<canon label>" `
   --session 0 `
   --scene 2 `
   --status canon
@@ -56,9 +56,9 @@ If the asset was already registered and later reviewed:
 
 ```powershell
 python plugins\questforge\scripts\campaign_memory.py set-visual-status `
-  --campaign-root campaigns\rootbound-vault `
-  --kind creature `
-  --label "Bramble Sentinel Reference Sheet" `
+  --campaign-root <campaign-root> `
+  --kind <kind> `
+  --label "<canon label>" `
   --session 0 `
   --scene 2 `
   --status canon
@@ -68,7 +68,7 @@ Before a live visual beat, list the reusable library:
 
 ```powershell
 python plugins\questforge\scripts\campaign_memory.py list-visual-assets `
-  --campaign-root campaigns\rootbound-vault `
+  --campaign-root <campaign-root> `
   --status canon `
   --format markdown
 ```
@@ -77,15 +77,15 @@ Then build a scene-frame prompt from specific anchors:
 
 ```powershell
 python plugins\questforge\scripts\visual_reuse.py `
-  --campaign-root campaigns\rootbound-vault `
+  --campaign-root <campaign-root> `
   --session 1 `
   --scene 4 `
-  --label "Tamsin Marks The Safe Moss Path" `
-  --action "Tamsin marks the safe moss path with chalk while the Bramble Sentinel pushes through the root door." `
+  --label "<resolved scene label>" `
+  --action "<resolved player action and visible consequence>" `
   --roll "Dexterity check DC 15: 17" `
   --outcome "success with a noisy complication" `
-  --anchor-label "Tamsin Reed Reference Sheet" `
-  --anchor-label "Bramble Sentinel Reference Sheet" `
+  --anchor-label "<hero canon label>" `
+  --anchor-label "<recurring subject canon label>" `
   --require-asset
 ```
 
@@ -97,7 +97,7 @@ python plugins\questforge\scripts\visual_reuse.py `
 | `creature-reference-sheet` | Full silhouette, face/mask, attack or movement pose, scale cue. |
 | `location-plate` | Establishing view, approach route, lighting, and one key detail. |
 | `prop-sheet` | Persistent item, reward, key, clue, letter, weapon, or symbol. |
-| `map-fog-of-war` | Known layout only, with secrets hidden until discovered. |
+| `player-known-map` | Known layout only, with secrets hidden until discovered. |
 | `scene-frame` | A live-play moment generated from canon anchors. |
 
 ## Scene Frame Prompt Pattern
@@ -105,12 +105,10 @@ python plugins\questforge\scripts\visual_reuse.py `
 When generating a live action frame, include the relevant canon anchors:
 
 ```text
-Preserve the established Bramble Sentinel canon: humanoid braided thorn body,
-green ember eyes, cracked pale stone mask, wet root armor silhouette.
-Preserve Tamsin Reed canon: small halfling delver, practical dark travel gear,
-chalk pouch, careful posture, clearly shorter than a human.
-Scene: Tamsin marks a safe moss path while the sentinel pushes through roots.
-Keep the safe route visible and do not reveal unexplored rooms.
+Preserve <recurring subject> canon: <must-preserve details from the visual ledger>.
+Preserve <hero> canon: <body, clothing, gear, and active visible state>.
+Scene: <one resolved moment from the current turn>.
+Keep <player-known spatial fact> visible and do not reveal unexplored areas.
 ```
 
 Prefer generating this pattern with `visual_reuse.py` once the anchors are in
@@ -127,6 +125,7 @@ Use these statuses in `images/visual-index.md`:
 - `canon`: accepted as a reference for future prompts.
 - `variant`: useful alternate, not the main reference.
 - `rejected`: do not use; breaks continuity or quality bar.
+- `unavailable`: native image generation was not exposed on the current product surface; no asset exists. Do not use this for a deferred or failed generation attempt.
 
 Do not treat a generated image as canon until it has been reviewed for
 continuity, usefulness, and spoiler safety.

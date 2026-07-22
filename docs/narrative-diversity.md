@@ -22,6 +22,15 @@ Before adding another metaphysical rule, try one ordinary pressure:
 
 These pressures make fantasy stranger, not smaller, because they give NPCs reasons to act that are legible before the supernatural explanation arrives.
 
+Weather is one grounding domain, not a preferred keyword. A sun-warmed workshop, chalk dust in a schoolyard, orchard ladders, hot forge iron, animal noise, rough limestone, crowded tenements, frozen rope, or a medicine shortage can ground a scene as effectively as rain. Use at least two material domains when a premise is highly metaphysical.
+
+## Environmental Repetition
+
+- Decide biome, climate, season, time of day, surface, social scale, and water relevance during campaign conception. These are free-form design dimensions, not a table of allowed settings.
+- Do not inherit atmosphere from an example. Ports, rain, water, fog, darkness, sunlight, dust, forests, caves, snow, and ruins are all available, but none is the neutral state of fantasy.
+- When reviewing several openings, lint them in one command with repeated `--file` arguments. The linter warns when the same environmental motif appears in at least three and at least 75 percent of the drafts.
+- If a motif repeats, change the physical or social foundation. Renaming the town, artifact, or NPC is not enough.
+
 ## Reveal Discipline
 
 - Keep secrets owned by characters, institutions, families, cults, guilds, or factions by default. Escalate to cosmic rules only when the campaign spine needs it.

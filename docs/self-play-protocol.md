@@ -32,11 +32,12 @@ For a deterministic smoke test, run:
 ```powershell
 python plugins\questforge\scripts\self_play.py `
   --campaigns-dir campaigns `
-  --name "The Amber Gate Self Play"
+  --name "The Clockwork Apiary Self Play"
 ```
 
 The deterministic smoke test writes `self-play-transcript.md` with 12 turns so
 the beta can be reviewed for actual table feel, not only filesystem output.
+It is a fixed regression fixture and is excluded from the runtime package. Do not use it as creative input for a live campaign.
 
 For broader alpha testing, run:
 

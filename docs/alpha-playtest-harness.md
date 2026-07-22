@@ -10,6 +10,8 @@ alpha harness runs broader table-feel probes across several play modes:
 - social commerce;
 - dungeon pressure.
 
+These scenarios are fixed regression fixtures, not campaign templates. They are excluded from the runtime plugin and must not be read as creative input when starting play. New campaigns use `campaign-conception.md` and compare their free-form environmental signature with recent local campaigns.
+
 ## Run
 
 ```powershell

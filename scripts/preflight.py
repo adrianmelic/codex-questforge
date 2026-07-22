@@ -48,6 +48,7 @@ class PreflightResult:
     warning_count: int
     visual_asset_count: int
     pending_visual_count: int
+    unavailable_visual_count: int
     missing_visual_asset_count: int
     latest_gallery_url: str
     issues: list[PreflightIssue]
@@ -56,6 +57,8 @@ class PreflightResult:
 def run_preflight(
     campaign_root: Path,
     require_player_journal: bool = False,
+    require_generated_visuals: bool = False,
+    require_opening_visual: bool = False,
     refresh_gallery: bool = False,
     repair_missing_templates: bool = False,
     title: str = "",
@@ -68,6 +71,7 @@ def run_preflight(
     issues: list[PreflightIssue] = []
     visual_asset_count = 0
     pending_visual_count = 0
+    unavailable_visual_count = 0
     missing_visual_asset_count = 0
     latest_gallery_url = ""
 
@@ -85,6 +89,7 @@ def run_preflight(
             issues,
             visual_asset_count,
             pending_visual_count,
+            unavailable_visual_count,
             missing_visual_asset_count,
             latest_gallery_url,
         )
@@ -140,12 +145,13 @@ def run_preflight(
         (
             visual_asset_count,
             pending_visual_count,
+            unavailable_visual_count,
             missing_visual_asset_count,
         ) = audit_visual_assets(paths.root, paths.visual_index, issues)
     if pending_visual_count:
         issues.append(
             PreflightIssue(
-                level="warning",
+                level="error" if require_generated_visuals else "warning",
                 code="pending_visual_generation",
                 message=(
                     f"{pending_visual_count} visual prompt(s) have no "
@@ -157,12 +163,14 @@ def run_preflight(
     elif existing_session_numbers(paths.sessions) and not visual_asset_count:
         issues.append(
             PreflightIssue(
-                level="warning",
+                level="error" if require_generated_visuals else "warning",
                 code="no_generated_visuals",
                 message="Session logs exist, but no visual asset is registered.",
                 path=str(paths.visual_index),
             )
         )
+    if require_opening_visual and paths.visual_index.exists():
+        audit_opening_visual(paths.root, paths.visual_index, issues)
     if paths.visual_ledger.exists() and not has_table_data_rows(
         paths.visual_ledger
     ):
@@ -216,6 +224,7 @@ def run_preflight(
         issues,
         visual_asset_count,
         pending_visual_count,
+        unavailable_visual_count,
         missing_visual_asset_count,
         latest_gallery_url,
     )
@@ -296,12 +305,16 @@ def audit_visual_assets(
     campaign_root: Path,
     visual_index_path: Path,
     issues: list[PreflightIssue],
-) -> tuple[int, int, int]:
+) -> tuple[int, int, int, int]:
     visual_asset_count = 0
     pending_visual_count = 0
+    unavailable_visual_count = 0
     missing_visual_asset_count = 0
     for entry in read_visual_index(visual_index_path):
         if not entry.asset_path:
+            if entry.status == "unavailable":
+                unavailable_visual_count += 1
+                continue
             pending_visual_count += 1
             continue
         visual_asset_count += 1
@@ -319,7 +332,51 @@ def audit_visual_assets(
                     path=str(asset_path),
                 )
             )
-    return visual_asset_count, pending_visual_count, missing_visual_asset_count
+    return (
+        visual_asset_count,
+        pending_visual_count,
+        unavailable_visual_count,
+        missing_visual_asset_count,
+    )
+
+
+def audit_opening_visual(
+    campaign_root: Path,
+    visual_index_path: Path,
+    issues: list[PreflightIssue],
+) -> None:
+    """Require a real generated asset for session 1, scene 1."""
+
+    opening_entries = [
+        entry
+        for entry in read_visual_index(visual_index_path)
+        if entry.session_number == 1 and entry.scene_number == 1
+    ]
+    opening_assets = [
+        entry
+        for entry in opening_entries
+        if entry.asset_path
+        and resolve_index_path(campaign_root, entry.asset_path).is_file()
+    ]
+    if opening_assets:
+        return
+
+    status = (
+        ", ".join(sorted({entry.status for entry in opening_entries}))
+        if opening_entries
+        else "missing"
+    )
+    issues.append(
+        PreflightIssue(
+            level="error",
+            code="missing_opening_visual",
+            message=(
+                "Session 1 scene 1 has no registered generated asset; "
+                f"observed status: {status}."
+            ),
+            path=str(visual_index_path),
+        )
+    )
 
 
 def resolve_index_path(campaign_root: Path, index_path: str) -> Path:
@@ -354,6 +411,7 @@ def build_result(
     issues: list[PreflightIssue],
     visual_asset_count: int,
     pending_visual_count: int,
+    unavailable_visual_count: int,
     missing_visual_asset_count: int,
     latest_gallery_url: str,
 ) -> PreflightResult:
@@ -367,6 +425,7 @@ def build_result(
         warning_count=warning_count,
         visual_asset_count=visual_asset_count,
         pending_visual_count=pending_visual_count,
+        unavailable_visual_count=unavailable_visual_count,
         missing_visual_asset_count=missing_visual_asset_count,
         latest_gallery_url=latest_gallery_url,
         issues=issues,
@@ -384,6 +443,7 @@ def format_preflight_markdown(result: PreflightResult) -> str:
         f"{result.warning_count} warnings",
         f"- Visual assets: {result.visual_asset_count} registered, "
         f"{result.pending_visual_count} pending, "
+        f"{result.unavailable_visual_count} unavailable, "
         f"{result.missing_visual_asset_count} missing",
     ]
     if result.latest_gallery_url:
@@ -407,6 +467,16 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--campaign-root", required=True, type=Path)
     parser.add_argument("--require-player-journal", action="store_true")
+    parser.add_argument(
+        "--require-generated-visuals",
+        action="store_true",
+        help="Treat pending or absent generated visuals as release errors.",
+    )
+    parser.add_argument(
+        "--require-opening-visual",
+        action="store_true",
+        help="Require a registered asset for session 1, scene 1.",
+    )
     parser.add_argument("--refresh-gallery", action="store_true")
     parser.add_argument(
         "--repair-missing-templates",
@@ -439,6 +509,8 @@ def main(arguments: Iterable[str] | None = None) -> int:
     result = run_preflight(
         campaign_root=parsed_arguments.campaign_root,
         require_player_journal=parsed_arguments.require_player_journal,
+        require_generated_visuals=parsed_arguments.require_generated_visuals,
+        require_opening_visual=parsed_arguments.require_opening_visual,
         refresh_gallery=parsed_arguments.refresh_gallery,
         repair_missing_templates=parsed_arguments.repair_missing_templates,
         title=parsed_arguments.title,

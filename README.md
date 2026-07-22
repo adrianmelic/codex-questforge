@@ -1,56 +1,81 @@
 # Questforge
 
-![Questforge guided session](assets/screenshots/questforge-session.png)
+![A Questforge adventure begins in a sunlit cliffside city](assets/screenshots/questforge-scene-v2.png)
 
-**What if we did not just use Codex to build a game, but used Codex to play it?**
+## Say anything. The world keeps up.
 
-Questforge is an open-ended fantasy RPG built for Codex. Codex becomes the Game Master, rules assistant, local state engine, and visual table. A normal conversation becomes a persistent 5E-compatible campaign with quick character creation, transparent dice, mechanical state, campaign memory, generated scenes, tactical maps, optional 360 views, and an original ambience pack.
+**Questforge is an open-ended, 5E-compatible fantasy RPG played inside Codex.** Codex becomes the Game Master, rules referee, campaign memory, and visual table. You speak naturally; Questforge prepares an original campaign, resolves meaningful uncertainty in the open, and remembers what your choices changed.
 
-**Guided sample session:** <https://adrianmelic.github.io/codex-questforge/>
+This is not a browser game that happens to use Codex. **The conversation is the game.**
 
-The web page is a guided sample, not the full game. The actual game runs in an OpenAI task after installing the plugin, where the player can attempt anything and Questforge continues the world around that choice.
+[See the Questforge experience](https://adrianmelic.github.io/codex-questforge/) | [Read the installation guide](docs/install-and-play.md)
 
-## Why It Is Different
+## Start Playing
 
-Questforge is not a conventional browser game. Its play surface is the conversation itself: natural language replaces fixed dialogue menus, while local files make the campaign recoverable across turns and tasks.
-
-Core features:
-
-- instant or assisted level-1 character creation;
-- atomic local quick-start from one structured spec, avoiding a chain of manual state writes before the first scene;
-- original fantasy campaigns grounded in 5E-compatible SRD rules;
-- offline English and Spanish core-rules indexes, with optional full SRD 5.2.1 indexing;
-- persistent `game-state.json` for HP, AC, XP, inventory, equipment, shops, rests, spell slots, combat, conditions, death saves, and checkpoints;
-- campaign memory for clues, NPCs, factions, locations, session logs, a player journal, and a DM-only adventure spine;
-- transparent dice, varied difficulty classes, and failure-forward adjudication;
-- native image generation for scenes, maps, items, comic panels, inventory views, and 360 POV panoramas;
-- local visual history and panorama viewers on supported desktop surfaces;
-- optional licensed ambience with a speaker toggle;
-- chat-only fallback when local files or viewers are unavailable.
-
-## How To Play
-
-Install or enable Questforge, start a new task, and choose a natural-language opening:
+Install or enable Questforge, start a new task so the skills are loaded, and say:
 
 ```text
-Start a new Questforge campaign with a quick hero.
+I want to play @questforge. Create a quick hero and begin.
 ```
+
+Or ask for an assisted hero:
 
 ```text
 I am new to tabletop RPGs. Guide me through creating a hero, then begin.
 ```
 
-```text
-Quiero jugar a Questforge. Créame un personaje rápido y empezamos.
-```
+Questforge follows the language of the conversation. English and Spanish have bundled rules primers; other languages use the English rules index when a localized SRD term is unavailable.
 
-You can describe any action, ask what your character can do, inspect inventory, request a rules explanation, rewind to a checkpoint, or take the story in an unexpected direction. Questforge has been tested in English and Spanish and should follow the language of the conversation. Other languages use the English rules index when a localized SRD term is unavailable.
+## What Play Feels Like
 
-## Install
+1. **You act freely.** Investigate, bargain, cast, fight, flee, improvise, ask out of character, or attempt something the Game Master did not anticipate.
+2. **The table resolves uncertainty.** Meaningful checks show the ability or attack, modifier, DC or opposing result, advantage state, natural roll, total, and outcome.
+3. **The world changes.** HP, XP, inventory, equipment, spell slots, clues, NPC attitudes, faction pressure, clocks, rewards, and consequences become durable state.
+4. **The next beat becomes visible.** When native image generation is available, useful scene images appear once in the same conversation and are also registered in the local campaign gallery.
 
-After public approval, install **Questforge** from the Plugins Directory in ChatGPT Work or Codex, then start a new task so its skills are loaded.
+Failures move the fiction forward with costs or harder choices. Repeated bad rolls do not trap the player at the same obstacle. Combat, shops, rests, level-ups, death saves, checkpoints, and table-style rewinds are supported without turning the campaign into a fixed dialogue tree.
 
-For source installation during development or review, add this repository as a marketplace:
+## Where You See And Hear The Game
+
+Questforge has a portable conversation layer and an enhanced local desktop layer.
+
+| Surface | Player experience |
+| --- | --- |
+| **Conversation** | Narration, dialogue, visible dice, rulings, compact state, inventory and spell status, choices, and freeform actions. Static generated scenes are shown here when native image generation is available, including on mobile-capable conversation surfaces. |
+| **Local Codex workspace** | Persistent campaign files, journals, clues, NPCs, factions, mechanical state, checkpoints, analytics, and a chronological visual gallery. |
+| **Local 360 viewer** | Important spatial moments can open as standalone `file:///` photospheres. Drag to look around and scroll to zoom; no local server is required. |
+| **Optional soundtrack** | A scene-appropriate track can be attached to a local viewer. Audio never starts for a new player by default; the speaker toggle is voluntary and its preference is remembered by later viewers when the browser permits it. |
+
+If a surface has no writable filesystem or local browser, Questforge keeps a compact campaign ledger in the conversation and skips galleries, 360 viewers, and local checkpoints without pretending they were created. Play continues.
+
+## Why Campaigns Do Not Start From The Same Template
+
+Every new campaign begins with a private creative conception pass. Questforge considers several materially different possibilities, then establishes:
+
+- environment, biome, climate, season, time, surface, and physical scale;
+- community, social scale, livelihoods, and relationships between important NPCs;
+- a material conflict, an active threat, faction pressure, and a concrete reason to act;
+- tone, aesthetics, sensory palette, and the campaign's long-term promise;
+- a minimum coherent Game Master spine with exactly three different clue routes and multiple plausible outcomes.
+
+The bundled quick-start spec is deliberately neutral. It does not default to a port, rain, water, fog, darkness, or any other recurring environmental device, and it does not ban those elements when a specific campaign earns them. A local repetition audit compares recent campaign conceptions so a rename is not mistaken for an original premise.
+
+## Core Capabilities
+
+- quick, assisted, or imported/custom level-1 heroes;
+- original 5E-compatible fantasy campaigns with transparent dice and rulings;
+- offline English and Spanish rules indexes, with optional full SRD 5.2.1 indexing;
+- persistent `game-state.json` for HP, AC, XP, inventory, equipment, shops, rests, spell slots, combat, conditions, death saves, and checkpoints;
+- campaign memory for clues, NPCs, factions, locations, session logs, a player journal, and a Game Master-only adventure spine;
+- failure-forward adjudication, varied difficulty classes, rewards beyond combat, and anti-stall pacing;
+- generated scenes, tactical maps, items, reference plates, comic beats, inventories, merchants, outfits, recaps, and 360 POV panoramas;
+- visual continuity for recurring characters, injuries, equipment, objects, locations, and maps;
+- an optional original ambience pack licensed for redistribution by its creator;
+- local analytics that distinguish generated visuals from pending prompts and surface repetitive DC or pacing patterns.
+
+## Install From Source
+
+Add this repository as a marketplace:
 
 ```text
 codex plugin marketplace add adrianmelic/codex-questforge
@@ -58,7 +83,7 @@ codex plugin marketplace add adrianmelic/codex-questforge
 
 Then open **Plugins** in the ChatGPT desktop app, or `/plugins` in a current Codex CLI, install Questforge, and start a new task. The repository includes `.agents/plugins/marketplace.json`, `.codex-plugin/plugin.json`, and the complete skills bundle.
 
-You can also ask Codex directly:
+You can also ask Codex:
 
 ```text
 Install the Questforge plugin from https://github.com/adrianmelic/codex-questforge, then start a new task so I can play it.
@@ -66,9 +91,9 @@ Install the Questforge plugin from https://github.com/adrianmelic/codex-questfor
 
 Official references: [Build plugins](https://learn.chatgpt.com/docs/build-plugins) and [Submit plugins](https://learn.chatgpt.com/docs/submit-plugins).
 
-## First Run
+## First Run And Rules
 
-The default setup is offline and installs no packages. During normal play, Questforge handles setup and the atomic campaign bootstrap. For manual review, from the project where campaign files should live:
+The default setup is offline and installs no packages. During normal play, Questforge handles setup and campaign bootstrap. For manual review, run this from the project where campaign files should live:
 
 ```powershell
 python scripts\questforge_setup.py --data-dir .questforge
@@ -76,59 +101,24 @@ python scripts\questforge_setup.py --data-dir .questforge
 
 It detects English or Spanish and builds local Markdown, JSONL, and SQLite indexes from the bundled core-rules primer. The game can begin immediately.
 
-Detailed rules lookup can optionally download and index the official SRD 5.2.1 PDF:
+With the player's explicit consent, detailed rules lookup can optionally download and index the official SRD 5.2.1 PDF:
 
 ```powershell
 python scripts\questforge_setup.py --data-dir .questforge --full-srd
 ```
 
-If `pypdf` is unavailable, Questforge keeps using the offline core index. Questforge never installs packages; complete extraction can be retried after the user prepares an environment that already contains `pypdf`.
-
-The `.questforge/` directory is local runtime data and should not be committed.
-
-Developers and reviewers can reproduce the complete local campaign scaffold in one command:
-
-```powershell
-python scripts/quick_start.py --workspace-root <play-workspace> --spec templates/quick-start-spec.json
-```
-
-The command creates campaign memory, hero state, equipment, checkpoint, minimum DM spine, opening brief, player journal, first session, analytics event, visual continuity, and the opening visual prompt. Native image generation remains a product-surface action and is not performed through an API key.
-
-## What Codex Helped Build
-
-Codex helped design, implement, test, and iterate on the full loop:
-
-- plugin and skill architecture;
-- SRD setup and local rules search;
-- campaign memory and mechanical state;
-- dice, difficulty, combat, inventory, level-up, and rollback helpers;
-- visual planning, continuity, galleries, and 360 viewers;
-- audio selection and optional ambience playback;
-- narrative guardrails against repetitive AI-fiction motifs;
-- deterministic self-play and human beta review workflows;
-- long-form conversational playtests in English and Spanish, with structured event and state audits;
-- installed-plugin smoke tests in English and Spanish.
-
-The system was shaped through long-form playtests where Codex ran the campaign and the resulting conversation, timing, images, choices, and state files were audited afterward.
-
-## Known Limitations
-
-- The richest persistent experience requires a writable local workspace; ChatGPT Work can fall back to a conversation ledger when local files are unavailable.
-- Native image generation is requested through the OpenAI product surface, not through an API key bundled with Questforge.
-- Local galleries and 360 viewers are desktop aids. Static generated images remain the portable visual surface.
-- Rules coverage defaults to the compact offline primer; complete SRD indexing is optional.
-- Questforge is an unofficial fan tool, not an OpenAI or Dungeons & Dragons product.
+Questforge never installs packages. If `pypdf` is unavailable, it continues with the offline core index and explains how complete extraction can be retried in an environment where the user has prepared that dependency. The `.questforge/` directory is local runtime data and should not be committed.
 
 ## Development
 
-Run the tests:
+Run the full test suite without leaving Python cache artifacts in the repository:
 
 ```powershell
 $env:PYTHONDONTWRITEBYTECODE = "1"
 python -m pytest tests -p no:cacheprovider
 ```
 
-Validate the plugin and skills with the current `plugin-creator` and `skill-creator` validators before a release. Build the deterministic OpenAI Platform archive with:
+Validate the plugin and all six skills with the current `plugin-creator` and `skill-creator` validators. Build the deterministic OpenAI Platform archive with:
 
 ```powershell
 python scripts\package_plugin.py
@@ -136,17 +126,36 @@ python scripts\package_plugin.py
 
 The archive is written to `dist/`, which is intentionally ignored by Git.
 
+Developers and reviewers can reproduce a complete local campaign scaffold from a completed creative brief. Copy `templates/quick-start-spec.json`, invent every empty value, then audit and run it:
+
+```powershell
+python scripts/campaign_conception.py --spec <completed-spec.json> --campaigns-dir <play-workspace>/campaigns
+python scripts/quick_start.py --workspace-root <play-workspace> --spec <completed-spec.json>
+```
+
+These scripts create the conception record, campaign memory, hero state, equipment, checkpoint, minimum Game Master spine, opening brief, player journal, first session, analytics event, visual continuity, and opening visual prompt. Native image generation remains a product-surface action and is never performed through a bundled API key.
+
 ## Repository Map
 
 - `.codex-plugin/plugin.json` - plugin manifest and public install-surface metadata.
-- `.agents/plugins/marketplace.json` - source marketplace for repo installation.
+- `.agents/plugins/marketplace.json` - source marketplace for repository installation.
 - `skills/` - runtime orchestration, setup, rules, campaign, puzzles, and visuals.
 - `scripts/` - setup, rules search, dice, state, memory, visuals, audio, analytics, preflight, and packaging.
 - `resources/core-rules/` - offline English and Spanish rules primers derived from SRD 5.2.1.
-- `templates/` - campaign, journal, state, visual, audio, and puzzle templates.
+- `templates/` - neutral campaign, journal, state, visual, audio, and puzzle structures.
 - `assets/audio/starter-pack/` - curated Suno-generated ambience tracks.
-- `submission/` - OpenAI Platform listing copy, prompts, test cases, and release notes.
-- `docs/` - public site, playtest evidence, design notes, and visual guidance.
+- `submission/` - OpenAI Platform listing copy, prompts, test cases, release notes, and the current release gate.
+- `docs/` - public product page, installation guide, design notes, and playtest evidence.
+
+## Current Release Gate
+
+The deterministic rules, state, campaign continuity, creative conception, multilingual analytics, packaging, gallery, panorama, and audio paths are tested locally. The final packaged plugin also passed a clean installed-plugin acceptance run on the target OpenAI surface on 2026-07-22: the first actionable scene generated a real native image, showed it in the conversation, registered it as `canon` in the campaign gallery, and left no pending opening visual. The strict campaign preflight completed with zero errors and zero warnings. Platform upload and review remain the next external gates.
+
+See [the release playtest report](submission/release-playtest-report.md) for the evidence and remaining Platform verification.
+
+## Roadmap
+
+- Evaluate a larger curated original ambience pack in a later release. The first public version keeps the soundtrack intentionally small so additional music does not delay publication.
 
 ## Privacy, Terms, And Support
 
@@ -161,6 +170,6 @@ Questforge does not operate a publisher-controlled server or transmit campaign d
 
 Original code and plugin materials are MIT licensed. See `LICENSE`.
 
-Questforge is unofficial and is not affiliated with, endorsed, sponsored, or approved by OpenAI or Wizards of the Coast LLC. Rules references are grounded in SRD material released under Creative Commons Attribution 4.0 International. See `NOTICE.md` and `docs/srd-sources.md`.
+Questforge is unofficial and is not affiliated with, endorsed, sponsored, or approved by OpenAI or Wizards of the Coast LLC. Rules references are grounded in SRD material released under Creative Commons Attribution 4.0 International. See `NOTICE.md` and [SRD sources](docs/srd-sources.md).
 
-The starter audio pack contains curated tracks generated by Adrian Melic with Suno v5.5 while using a paid plan intended to grant commercial rights for newly generated outputs. See `assets/audio/README.md`.
+The starter audio pack contains curated tracks generated by Adrian Melic with Suno v5.5 while using a paid plan intended to grant commercial rights for newly generated outputs. See [audio licensing and provenance](assets/audio/README.md).

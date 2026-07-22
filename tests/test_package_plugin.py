@@ -20,6 +20,8 @@ def test_release_file_set_contains_runtime_and_excludes_private_artifacts():
     assert ".codex-plugin/plugin.json" in paths
     assert "skills/questforge/SKILL.md" in paths
     assert "scripts/game_state.py" in paths
+    assert "scripts/campaign_conception.py" in paths
+    assert "docs/campaign-conception.md" in paths
     assert "resources/core-rules/en.md" in paths
     assert "templates/game-state.json" in paths
     assert "PRIVACY.md" in paths

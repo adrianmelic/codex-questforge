@@ -1,8 +1,13 @@
 import json
 from datetime import date
+from pathlib import Path
+
+import pytest
 
 from scripts.campaign_memory import create_campaign, set_visual_status
 from scripts.visual_prep import prepare_visuals
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_prepare_visuals_creates_reference_prompts_and_plan(tmp_path):
@@ -114,3 +119,17 @@ def test_visual_prep_prompts_can_be_canonized(tmp_path):
         visual_index
     )
     assert "canon |" in visual_index
+
+
+def test_neutral_visual_prep_template_cannot_run_unchanged(tmp_path):
+    paths = create_campaign(
+        tmp_path,
+        "Neutral Visual Prep",
+        session_date=date(2026, 7, 15),
+    )
+
+    with pytest.raises(ValueError):
+        prepare_visuals(
+            paths.root,
+            REPO_ROOT / "templates" / "visual-prep-spec.json",
+        )

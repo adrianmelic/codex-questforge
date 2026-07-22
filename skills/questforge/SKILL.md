@@ -40,22 +40,21 @@ product identity.
 1. Ensure setup is ready through `questforge-setup`. Default setup is offline and uses the bundled core rules, so starting play must not require a download or package installation.
 2. If the user simply asks to play, create a quick level-1 hero and begin in the same turn instead of presenting a setup menu. State the hero, open-roll preference, tone, and rollback option in a compact prelude; make it clear that details can be revised later.
 3. Offer quick, assisted, and imported/custom hero paths only when the user asks to create or choose a character, asks how setup works, or rejects the quick hero. Recommend quick creation for first-time play.
-4. Use `questforge-campaign` to create or load campaign memory. For a new local campaign, prefer one structured bootstrap: adapt `../../templates/quick-start-spec.json` to the player and run `python ../../scripts/quick_start.py --workspace-root <workspace> --spec <spec.json>`. It atomically creates the campaign, hero, inventory/equipment, state, checkpoint, minimum spine, opening notes, journal, first session, analytics start event, and optional opening visual prompt. Do not repeat those writes with separate commands.
-5. Create or import a hero. If the player wants speed, define a coherent level-1 hero directly in the quick-start spec; make it clear the player can revise details later.
-6. Offer a small campaign premise with three concrete hooks.
-7. Draft the campaign promise and first scene using
-   `../../templates/opening-brief.md`.
-8. Draft only the minimum DM spine needed to keep the opening coherent: core truth, active hooks, three clue routes, faction intent, and two plausible outcomes. Expand it at the first scene boundary instead of delaying the opening response.
-9. Check the premise, opening brief, and major reveals against `../../docs/narrative-diversity.md` or `../../scripts/narrative_lint.py` so the campaign does not default to stacked AI-fiction motifs.
-10. Create a first checkpoint with `../../scripts/game_state.py checkpoint --label "Before session start"` once the hero and starting situation are recorded.
+4. Use `questforge-campaign` to create or load campaign memory. For a new campaign, read `../../docs/campaign-conception.md` and inspect only `campaigns/*/campaign-conception.json` in the selected workspace for recently used combinations.
+5. Run a private creative pass before writing campaign files. Sketch at least three possibilities that differ materially in environment, community, conflict, threat, NPC relationships, tone, aesthetics, sensations, and campaign promise. Select the strongest actionable design; do not show a premise menu unless the player asked for assisted selection. Never default to a port, rain, water, fog, darkness, or any other environmental device, and never ban one when the chosen premise earns it.
+6. Complete a copy of the neutral `../../templates/quick-start-spec.json`. Do not treat empty fields, documentation examples, public demos, or self-play scenarios as creative source material. Run `python ../../scripts/campaign_conception.py --spec <spec.json> --campaigns-dir <workspace>/campaigns`; if it detects a repeated combination, reconceive the physical or social foundation instead of only renaming it.
+7. Create or import a hero. If the player wants speed, define a coherent level-1 hero directly in the completed spec and make it clear that details can be revised later.
+8. Draft the minimum coherent campaign spine: concrete hooks, core truth, exactly three clue routes, faction intent, NPC relationship pressure, and at least two plausible outcomes. The routes must reveal different kinds of evidence or leverage, not three phrasings of the same investigation.
+9. Create the local campaign atomically with `python ../../scripts/quick_start.py --workspace-root <workspace> --spec <spec.json>`. It writes the conception record, campaign, hero, inventory/equipment, state, checkpoint, minimum spine, opening notes, journal, first session, analytics event, visual continuity, and opening visual prompt. Do not repeat those writes with separate commands.
+10. Check the conception, opening brief, and major reveals against `../../docs/narrative-diversity.md` or `../../scripts/narrative_lint.py`. Lint several recent openings together when available so repeated environmental motifs are visible.
 11. Create or refresh spoiler-free `player-journal.md`: current objective, known clues/NPCs, inventory, XP/rewards, damage/conditions, and open threads visible to the player.
-12. Open with a specific scene that demands action.
+12. Open with a specific scene that demands action. Offer a few legible approaches without limiting the player to them.
 13. For the first player-facing scene of a new or continued session, treat an opening visual as the default. When native image generation is available, actually generate, register, and show a fresh establishing image; saving a prompt alone does not satisfy this step. Point to an already-current gallery image only when it still depicts the current scene. Skip only when the turn is setup-only, the user asks for speed, or native generation is unavailable.
-14. Before sending the opening reply, inspect its visual-index row. If it is still `prompt-saved`, either invoke native generation and register the asset or state once that native visual generation is unavailable on this surface and log `visual_unavailable`. Never leave a pending prompt silent while presenting the actionable scene as complete.
+14. Before sending the opening reply, inspect its visual-index row. If it is still `prompt-saved`, either invoke native generation and register the asset or state once that native visual generation is unavailable on this surface, set the row to `unavailable`, and log `visual_unavailable`. Never leave a pending prompt silent while presenting the actionable scene as complete.
 
 ### Fast Start Boundary
 
-The first actionable scene is the product. Before showing it, do only the work required for truthful play: offline setup if missing, campaign skeleton, hero state, minimum DM spine, first checkpoint, opening situation, and its selected visual. Do not run full SRD download, exhaustive lore preparation, beta preflight, gallery repair, or broad campaign analysis before the first scene. Run preflight before an explicitly requested beta/readiness pass or when continuing a campaign with suspected missing files.
+The first actionable scene is the product. Spend enough private preparation time to produce an original conception and coherent minimum spine, but do not turn that pass into exhaustive lore. Before showing the scene, complete only offline setup if missing, creative conception and comparison, campaign skeleton, hero state, minimum DM spine, first checkpoint, opening situation, and its selected visual. Do not run full SRD download, beta preflight, gallery repair, or broad campaign analysis before the first scene. Run preflight before an explicitly requested beta/readiness pass or when continuing a campaign with suspected missing files.
 
 ## Session Loop
 
@@ -129,8 +128,7 @@ When a player asks "what can I do?", combine current fiction with `game_state.py
 - Avoid stacking memory trade, sentient-object bargains, unsayable taboos,
   hidden cosmic rules, dream symbolism, and hyperstition by default. These are
   allowed, but only one should usually dominate a scene or reveal.
-- Ground strange premises in concrete pressures: money, food, weather, work,
-  law, class, family, scarcity, reputation, logistics, or faction incentives.
+- Ground strange premises in concrete pressures across more than one domain: livelihood, resources, work, law, class, family, scarcity, reputation, logistics, terrain, bodily needs, built space, or faction incentives. Weather is one possible anchor, not the default anchor.
 - Do not make every clue point to the same symbolic answer. Some clues should
   reveal practical constraints, contradictions, false beliefs, or competing
   goals.

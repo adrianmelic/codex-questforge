@@ -86,9 +86,9 @@ Use the selector against the campaign-local approved library when it exists:
 
 ```powershell
 python plugins\questforge\scripts\audio_library.py select `
-  --library campaigns\the-amber-gate\audio\library.json `
-  --tag tavern `
-  --tag rain `
+  --library <campaign-root>\audio\library.json `
+  --tag archive `
+  --tag mystery `
   --intensity 2 `
   --format args
 ```
@@ -108,10 +108,10 @@ The `args` output can be appended to `panorama_viewer.py`:
 
 ```powershell
 python plugins\questforge\scripts\panorama_viewer.py `
-  --image campaigns\the-amber-gate\images\assets\tavern-360.png `
-  --output campaigns\the-amber-gate\images\viewers\tavern-360.html `
-  --title "Rainy Tavern" `
-  --narration "You step inside as rain taps the shutters." `
+  --image <campaign-root>\images\assets\archive-360.png `
+  --output <campaign-root>\images\viewers\archive-360.html `
+  --title "The Working Archive" `
+  --narration "Scribes stop mid-line as the sealed cabinet opens." `
   --initial-zoom-level 14 `
   <audio args from audio_library.py>
 ```

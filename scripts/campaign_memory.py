@@ -22,6 +22,7 @@ VISUAL_STATUSES = {
     "canon",
     "variant",
     "rejected",
+    "unavailable",
 }
 
 

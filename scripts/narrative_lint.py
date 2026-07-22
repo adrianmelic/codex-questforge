@@ -176,46 +176,180 @@ MOTIFS = (
 )
 
 WEIRD_CATEGORIES = {motif.category for motif in MOTIFS if motif.weird}
-CONCRETE_ANCHOR_PATTERNS = (
-    r"\bdinero\b",
-    r"\bmoned\w+\b",
-    r"\bcomida\b",
-    r"\blluvia\b",
-    r"\bfr(?:i|\xED)o\b",
-    r"\boficio\b",
-    r"\bfamilia\b",
-    r"\btierra\b",
-    r"\btrabajo\b",
-    r"\bhambre\b",
-    r"\balquiler\b",
-    r"\bimpuestos\b",
-    r"\bguardia\b",
-    r"\bcamino\b",
-    r"\benfermedad\b",
-    r"\bweather\b",
-    r"\bmoney\b",
-    r"\bcoin\b",
-    r"\bfood\b",
-    r"\brain\b",
-    r"\bcold\b",
-    r"\btrade\b",
-    r"\bfamily\b",
-    r"\bland\b",
-    r"\bwork\b",
-    r"\bhunger\b",
-    r"\brent\b",
-    r"\btax(?:es)?\b",
-    r"\bguild\b",
-    r"\bguard\b",
-    r"\broad\b",
-    r"\billness\b",
-    r"\blaw\b",
-)
+MATERIAL_ANCHOR_GROUPS = {
+    "livelihood": (
+        r"\bdiner\w*\b",
+        r"\bmoned\w*\b",
+        r"\bsalari\w*\b",
+        r"\btrabaj\w*\b",
+        r"\balquiler\b",
+        r"\bimpuest\w*\b",
+        r"\bcosech\w*\b",
+        r"\bmoney\b",
+        r"\bcoin\w*\b",
+        r"\bwage\w*\b",
+        r"\bwork\w*\b",
+        r"\brent\b",
+        r"\btax(?:es)?\b",
+        r"\bharvest\w*\b",
+        r"\btrade\b",
+    ),
+    "resources": (
+        r"\bcomid\w*\b",
+        r"\bharin\w*\b",
+        r"\bmedicin\w*\b",
+        r"\ble.a\b",
+        r"\bhambre\b",
+        r"\bfood\b",
+        r"\bflour\b",
+        r"\bmedicine\b",
+        r"\bfirewood\b",
+        r"\bhunger\b",
+        r"\bsuppl(?:y|ies)\b",
+    ),
+    "institutions": (
+        r"\bley\b",
+        r"\bgremi\w*\b",
+        r"\bguardia\b",
+        r"\bconsejo\b",
+        r"\btemplo\b",
+        r"\blaw\b",
+        r"\bguild\b",
+        r"\bguard\b",
+        r"\bcouncil\b",
+        r"\btemple\b",
+    ),
+    "relationships": (
+        r"\bfamili\w*\b",
+        r"\bvecin\w*\b",
+        r"\brival\w*\b",
+        r"\bherman\w*\b",
+        r"\bfamily\b",
+        r"\bneighbou?r\w*\b",
+        r"\brival\w*\b",
+        r"\bsibling\w*\b",
+        r"\bsister\w*\b",
+        r"\bbrother\w*\b",
+    ),
+    "logistics": (
+        r"\bcamino\b",
+        r"\bcarro\b",
+        r"\bherramient\w*\b",
+        r"\bpuente\b",
+        r"\bruta\b",
+        r"\broad\b",
+        r"\bcart\b",
+        r"\btool\w*\b",
+        r"\bbridge\b",
+        r"\broute\b",
+        r"\btransport\w*\b",
+    ),
+    "built_environment": (
+        r"\bmercado\b",
+        r"\bforja\b",
+        r"\btejado\b",
+        r"\bmuro\b",
+        r"\bcasa\b",
+        r"\bmarket\b",
+        r"\bforge\b",
+        r"\broof\b",
+        r"\bwall\b",
+        r"\bhouse\b",
+        r"\bworkshop\b",
+    ),
+    "terrain_and_materials": (
+        r"\btierra\b",
+        r"\bpiedra\b",
+        r"\barena\b",
+        r"\bhierro\b",
+        r"\bmadera\b",
+        r"\bbarro\b",
+        r"\bsoil\b",
+        r"\bstone\b",
+        r"\bsand\b",
+        r"\biron\b",
+        r"\bwood\b",
+        r"\bmud\b",
+        r"\bgrass\b",
+    ),
+    "body_and_senses": (
+        r"\bfr(?:i|\xED)o\b",
+        r"\bcalor\b",
+        r"\bfatiga\b",
+        r"\bolor\b",
+        r"\bsudor\b",
+        r"\bcold\b",
+        r"\bheat\b",
+        r"\bfatigue\b",
+        r"\bsmell\b",
+        r"\bsweat\b",
+        r"\bache\w*\b",
+    ),
+    "weather_and_light": (
+        r"\blluvia\b",
+        r"\bsol\b",
+        r"\bviento\b",
+        r"\btormenta\b",
+        r"\bhelada\b",
+        r"\bsequ(?:i|\xED)a\b",
+        r"\brain\b",
+        r"\bsun(?:light)?\b",
+        r"\bwind\b",
+        r"\bstorm\b",
+        r"\bfrost\b",
+        r"\bdrought\b",
+    ),
+}
+ENVIRONMENTAL_MOTIFS = {
+    "precipitation": (
+        r"\blluvia\b",
+        r"\btormenta\b",
+        r"\brain\b",
+        r"\bstorm\b",
+    ),
+    "fog": (r"\bniebla\b", r"\bbruma\b", r"\bfog\b", r"\bmist\b"),
+    "darkness": (
+        r"\boscur\w*\b",
+        r"\bmedianoche\b",
+        r"\bdark(?:ness)?\b",
+        r"\bmidnight\b",
+    ),
+    "cold": (r"\bfr(?:i|\xED)o\b", r"\bhielo\b", r"\bcold\b", r"\bice\b"),
+    "heat": (r"\bcalor\b", r"\bsol\b", r"\bheat\b", r"\bsun(?:light)?\b"),
+    "wind": (r"\bviento\b", r"\bwind\b", r"\bgale\b"),
+    "snow": (r"\bnieve\b", r"\bnevada\b", r"\bsnow\b", r"\bblizzard\b"),
+    "water": (
+        r"\bagua\b",
+        r"\br(?:i|\xED)o\b",
+        r"\bpuerto\b",
+        r"\bwater\b",
+        r"\briver\b",
+        r"\bharbou?r\b",
+    ),
+    "dust": (
+        r"\bpolvo\b",
+        r"\bsequ(?:i|\xED)a\b",
+        r"\bdust\b",
+        r"\bdrought\b",
+    ),
+    "vegetation": (
+        r"\bbosque\b",
+        r"\bra(?:i|\xED)ces\b",
+        r"\bforest\b",
+        r"\broot\w*\b",
+    ),
+    "underground": (
+        r"\bcueva\b",
+        r"\bsubterr(?:a|\xE1)ne\w*\b",
+        r"\bcave\b",
+        r"\bunderground\b",
+    ),
+}
 
 REVISION_NUDGES = (
     "Keep at most one metaphysical motif dominant in a scene or reveal.",
-    "Add mundane pressure: money, safety, status, family, law, scarcity, "
-    "logistics, pride, hunger, weather, or work.",
+    "Add material pressure: livelihood, safety, status, relationships, law, "
+    "scarcity, logistics, terrain, bodily needs, or work.",
     "Let secrets belong to people, institutions, factions, or logistics before "
     "making them cosmic rules.",
     "Preserve ambiguity and consequence; avoid making every clue point at the "
@@ -237,6 +371,72 @@ def lint_text(text: str) -> NarrativeLintResult:
         info_count=info_count,
         motif_count=motif_count,
         category_count=category_count,
+        hits=hits,
+        issues=issues,
+    )
+
+
+def lint_documents(documents: list[str]) -> NarrativeLintResult:
+    """Lint a corpus while preserving cross-opening repetition evidence."""
+
+    if not documents:
+        raise ValueError("At least one document is required.")
+    individual_results = [lint_text(document) for document in documents]
+    if len(individual_results) == 1:
+        return individual_results[0]
+
+    hits_by_category: dict[str, MotifHit] = {}
+    issues_by_key: dict[
+        tuple[str, str, tuple[str, ...]], NarrativeLintIssue
+    ] = {}
+    for result in individual_results:
+        for hit in result.hits:
+            existing = hits_by_category.get(hit.category)
+            if existing is None:
+                hits_by_category[hit.category] = hit
+            else:
+                hits_by_category[hit.category] = MotifHit(
+                    category=hit.category,
+                    label=hit.label,
+                    count=existing.count + hit.count,
+                    examples=(existing.examples + hit.examples)[:3],
+                )
+        for issue in result.issues:
+            key = (issue.level, issue.code, tuple(issue.categories))
+            issues_by_key.setdefault(key, issue)
+
+    if len(documents) >= 3:
+        for category, patterns in ENVIRONMENTAL_MOTIFS.items():
+            document_hits = sum(
+                1
+                for document in documents
+                if count_pattern_matches(document, patterns) > 0
+            )
+            if document_hits >= 3 and document_hits / len(documents) >= 0.75:
+                issue = NarrativeLintIssue(
+                    level="warning",
+                    code="environmental_motif_repeated_across_openings",
+                    message=(
+                        f"The environmental motif '{category}' appears in "
+                        f"{document_hits} of {len(documents)} drafts. Vary the "
+                        "physical situation, not only names and lore."
+                    ),
+                    categories=[category],
+                )
+                key = (issue.level, issue.code, tuple(issue.categories))
+                issues_by_key[key] = issue
+
+    hits = sorted(hits_by_category.values(), key=lambda value: value.category)
+    issues = list(issues_by_key.values())
+    warning_count = sum(1 for issue in issues if issue.level == "warning")
+    info_count = sum(1 for issue in issues if issue.level == "info")
+    return NarrativeLintResult(
+        ok=warning_count == 0,
+        issue_count=len(issues),
+        warning_count=warning_count,
+        info_count=info_count,
+        motif_count=sum(hit.count for hit in hits),
+        category_count=len(hits),
         hits=hits,
         issues=issues,
     )
@@ -321,23 +521,47 @@ def build_issues(text: str, hits: list[MotifHit]) -> list[NarrativeLintIssue]:
                 categories=["theme_overexplicit"],
             )
         )
-    if (
-        weird_categories
-        and count_pattern_matches(text, CONCRETE_ANCHOR_PATTERNS) < 3
-    ):
+    material_categories = material_anchor_categories(text)
+    if weird_categories and len(material_categories) < 2:
         issues.append(
             NarrativeLintIssue(
                 level="info",
                 code="mundane_anchor_missing",
                 message=(
                     "The weird premise lacks enough material anchors. Add "
-                    "ordinary pressures such as rent, food, weather, family, "
-                    "work, guards, trade, illness, or law."
+                    "pressures from at least two concrete domains such as "
+                    "livelihood, resources, institutions, relationships, "
+                    "logistics, terrain, bodily needs, or built space."
                 ),
                 categories=weird_categories,
             )
         )
+    for category, patterns in ENVIRONMENTAL_MOTIFS.items():
+        if count_pattern_matches(text, patterns) >= 5:
+            issues.append(
+                NarrativeLintIssue(
+                    level="warning",
+                    code="environmental_crutch",
+                    message=(
+                        f"The environmental motif '{category}' is doing "
+                        "repeated atmospheric work in one draft. Keep it when "
+                        "it changes choices; otherwise diversify the material "
+                        "and sensory anchors."
+                    ),
+                    categories=[category],
+                )
+            )
     return issues
+
+
+def material_anchor_categories(text: str) -> set[str]:
+    """Return distinct grounding domains instead of rewarding one keyword."""
+
+    return {
+        category
+        for category, patterns in MATERIAL_ANCHOR_GROUPS.items()
+        if count_pattern_matches(text, patterns) > 0
+    }
 
 
 def count_pattern_matches(text: str, patterns: Iterable[str]) -> int:
@@ -420,20 +644,20 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def read_input(parsed_arguments: argparse.Namespace) -> str:
+def read_inputs(parsed_arguments: argparse.Namespace) -> list[str]:
     parts = list(parsed_arguments.text)
     for file_path in parsed_arguments.file:
         parts.append(file_path.read_text(encoding="utf-8"))
     if not parts:
         raise SystemExit("Provide --text or --file.")
-    return "\n\n".join(parts)
+    return parts
 
 
 def main(arguments: Iterable[str] | None = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     parsed_arguments = build_parser().parse_args(arguments)
-    result = lint_text(read_input(parsed_arguments))
+    result = lint_documents(read_inputs(parsed_arguments))
     if parsed_arguments.format == "json":
         print(json.dumps(asdict(result), indent=2, ensure_ascii=False))
     else:

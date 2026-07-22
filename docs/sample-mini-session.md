@@ -1,8 +1,8 @@
 # Sample Mini-Session
 
-This is a compact target experience for Questforge. It is not official
-D&D content and does not use an official setting, official characters, official
-art, or commercial rulebook text.
+This is a frozen historical regression fixture from early Questforge development. It demonstrates turn structure, state changes, and visual registration only. It is excluded from the runtime package and must never be used as premise or atmosphere input for a new campaign. New starts use the neutral conception process in `campaign-conception.md`.
+
+It is not official D&D content and does not use an official setting, official characters, official art, or commercial rulebook text.
 
 ## Setup
 

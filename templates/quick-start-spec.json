@@ -1,122 +1,120 @@
 {
+  "spec_version": 2,
+  "_instructions": "Complete every empty value after the creative conception pass. This file defines structure only; it is intentionally not a playable adventure and must not be run unchanged.",
+  "conception": {
+    "environment": {
+      "biome": "",
+      "climate": "",
+      "season": "",
+      "time_of_day": "",
+      "surface": "",
+      "social_scale": "",
+      "water_relevance": ""
+    },
+    "community": "",
+    "material_conflict": "",
+    "threat": "",
+    "npc_relationships": [
+      {
+        "npc": "",
+        "role": "",
+        "wants": "",
+        "relationship": ""
+      },
+      {
+        "npc": "",
+        "role": "",
+        "wants": "",
+        "relationship": ""
+      }
+    ],
+    "tone": "",
+    "aesthetic": "",
+    "campaign_promise": "",
+    "sensory_palette": {
+      "sight": "",
+      "sound": "",
+      "smell_or_taste": "",
+      "touch_or_temperature": ""
+    },
+    "distinctive_elements": [
+      "",
+      ""
+    ]
+  },
   "campaign": {
-    "name": "The Copper Ferry",
-    "language": "en",
-    "tone": "grounded harbor mystery",
-    "boundaries": "non-graphic violence",
-    "promise": "Choices change the harbor and its people.",
+    "name": "",
+    "language": "",
+    "boundaries": "",
     "hooks": [
-      "A ferry cable was cut.",
-      "The pay ledger is missing.",
-      "A storm is approaching."
+      "",
+      "",
+      ""
     ],
     "core_truths": [
-      "The sabotage was practical, not supernatural."
+      ""
     ],
     "clue_routes": [
-      "Inspect the cable.",
-      "Question the ferryman.",
-      "Follow the stolen ledger."
+      "",
+      "",
+      ""
     ],
     "faction_intents": [
-      "The guild wants the ferry closed before the audit."
+      ""
     ],
     "outcomes": [
-      "Expose the guild or bargain for immediate repairs."
+      "",
+      ""
     ]
   },
   "hero": {
-    "name": "Mara Vey",
-    "class_name": "Bard",
-    "ancestry": "Human",
-    "background": "Dock courier",
+    "name": "",
+    "class_name": "",
+    "ancestry": "",
+    "background": "",
     "level": 1,
     "xp": 0,
-    "max_hp": 10,
-    "armor_class": 13,
-    "hit_die": "d8",
-    "initiative_modifier": 2,
-    "abilities": {
-      "strength": 10,
-      "dexterity": 14,
-      "constitution": 14,
-      "intelligence": 10,
-      "wisdom": 12,
-      "charisma": 16
-    },
-    "skill_modifiers": {
-      "perception": 3,
-      "persuasion": 5
-    },
-    "currency": {
-      "gp": 10
-    },
-    "resources": {
-      "spell_slots": {
-        "1": {
-          "max": 2,
-          "used": 0
-        }
-      }
-    },
+    "max_hp": null,
+    "armor_class": null,
+    "hit_die": "",
+    "initiative_modifier": 0,
+    "abilities": {},
+    "skill_modifiers": {},
+    "currency": {},
+    "resources": {},
     "spells": {
-      "cantrips": [
-        "Message"
-      ],
-      "known": [
-        "Healing Word"
-      ],
-      "prepared": [
-        "Healing Word"
-      ]
+      "cantrips": [],
+      "known": [],
+      "prepared": []
     },
-    "features": [
-      "Bardic Inspiration d6"
-    ],
-    "notes": [
-      "Open rolls by default."
-    ],
-    "visual_description": "Adult human woman with wind-burned olive skin, dark braided hair, alert brown eyes, and a compact athletic build.",
-    "visual_must_preserve": [
-      "dark braid",
-      "weathered green courier coat",
-      "brass ferry token at the collar"
-    ],
-    "visual_clothing": "Weathered green courier coat over practical leather armor",
-    "visual_gear": "Dockside lute, rope, sealed payroll satchel",
-    "visual_colors": "Moss green, dark leather, aged brass",
-    "items": [
-      {
-        "name": "Dockside lute",
-        "slot": "instrument",
-        "value": "35gp"
-      },
-      {
-        "name": "Rope",
-        "location": "backpack"
-      }
-    ]
+    "features": [],
+    "notes": [],
+    "visual_description": "",
+    "visual_must_preserve": [],
+    "visual_clothing": "",
+    "visual_gear": "",
+    "visual_colors": "",
+    "items": []
   },
   "opening": {
-    "title": "The Cut Cable",
-    "location": "Copper Ferry",
-    "pressure": "A worker hangs above the river while a thief reaches for the payroll.",
-    "npc_intent": "The ferryman wants both the worker and payroll saved.",
-    "sensory_detail": "Fresh tar cuts through the rain.",
+    "title": "",
+    "location": "",
+    "pressure": "",
+    "npc_intent": "",
+    "sensory_detail": "",
     "visible_risks": [
-      "The worker may fall.",
-      "The thief may escape."
+      ""
     ],
     "options": [
-      "Reach the worker.",
-      "Stop the thief."
+      "",
+      ""
     ],
-    "question": "What does Mara do?"
+    "question": ""
   },
   "visual": {
     "kind": "scene",
-    "label": "Copper Ferry rescue",
-    "prompt": "Grounded fantasy realism, a rain-soaked ferry rescue, one clear moment, no text."
+    "label": "",
+    "prompt": ""
   },
   "checkpoint_label": "Before session start"
 }

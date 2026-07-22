@@ -9,6 +9,11 @@ from pathlib import Path
 from typing import Iterable
 
 try:
+    from .campaign_conception import (
+        conception_record,
+        ensure_complete_text,
+        require_original_conception,
+    )
     from .campaign_memory import create_campaign, save_visual_prompt, slugify
     from .game_state import (
         add_character,
@@ -20,6 +25,11 @@ try:
     )
     from .session_analytics import append_event
 except ImportError:  # pragma: no cover - direct script execution path
+    from campaign_conception import (
+        conception_record,
+        ensure_complete_text,
+        require_original_conception,
+    )
     from campaign_memory import create_campaign, save_visual_prompt, slugify
     from game_state import (
         add_character,
@@ -107,14 +117,39 @@ PLAYER_LABELS = {
 def create_quick_start(workspace_root: Path, spec: dict) -> Path:
     """Create and populate one campaign without repeated setup commands."""
 
-    campaign_spec = required_mapping(spec, "campaign")
+    if spec.get("spec_version") != 2:
+        raise ValueError(
+            "quick-start spec_version must be 2 and include a completed "
+            "creative conception."
+        )
+    conception_spec = required_mapping(spec, "conception")
+    campaign_spec = dict(required_mapping(spec, "campaign"))
     hero_spec = required_mapping(spec, "hero")
     opening_spec = required_mapping(spec, "opening")
+    visual_spec = required_mapping(spec, "visual")
+    validate_start_contract(
+        campaign_spec,
+        hero_spec,
+        opening_spec,
+        visual_spec,
+    )
+    campaign_spec["tone"] = required_text(conception_spec, "tone")
+    campaign_spec["promise"] = required_text(
+        conception_spec,
+        "campaign_promise",
+    )
     campaign_name = required_text(campaign_spec, "name")
     hero_name = required_text(hero_spec, "name")
 
     campaigns_dir = workspace_root.expanduser().resolve() / "campaigns"
     campaigns_dir.mkdir(parents=True, exist_ok=True)
+    expected_root = campaigns_dir / slugify(campaign_name)
+    if expected_root.exists():
+        raise FileExistsError(f"Campaign already exists: {expected_root}")
+    conception_audit = require_original_conception(
+        conception_spec,
+        campaigns_dir,
+    )
     paths = create_campaign(
         campaigns_dir=campaigns_dir,
         name=campaign_name,
@@ -160,6 +195,16 @@ def create_quick_start(workspace_root: Path, spec: dict) -> Path:
         state,
         label=str(spec.get("checkpoint_label", "Before session start")),
     )
+    (paths.root / "campaign-conception.json").write_text(
+        json.dumps(
+            conception_record(conception_spec, conception_audit),
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
 
     language = str(campaign_spec.get("language", "en"))
     paths.opening_brief.write_text(
@@ -168,7 +213,7 @@ def create_quick_start(workspace_root: Path, spec: dict) -> Path:
         newline="\n",
     )
     paths.adventure_spine.write_text(
-        render_spine(campaign_spec),
+        render_spine(campaign_spec, conception_spec),
         encoding="utf-8",
         newline="\n",
     )
@@ -197,22 +242,24 @@ def create_quick_start(workspace_root: Path, spec: dict) -> Path:
 
     manifest = json.loads(paths.manifest.read_text(encoding="utf-8"))
     manifest["language"] = language
+    manifest["creative_conception"] = {
+        "path": "campaign-conception.json",
+        "environment_signature": conception_audit.environment_signature,
+    }
     paths.manifest.write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
         newline="\n",
     )
 
-    visual_spec = spec.get("visual")
-    if isinstance(visual_spec, dict) and visual_spec.get("prompt"):
-        save_visual_prompt(
-            campaign_root=paths.root,
-            session_number=1,
-            scene_number=1,
-            kind=str(visual_spec.get("kind", "scene")),
-            label=required_text(visual_spec, "label"),
-            prompt=required_text(visual_spec, "prompt"),
-        )
+    save_visual_prompt(
+        campaign_root=paths.root,
+        session_number=1,
+        scene_number=1,
+        kind=str(visual_spec.get("kind", "scene")),
+        label=required_text(visual_spec, "label"),
+        prompt=required_text(visual_spec, "prompt"),
+    )
 
     append_event(
         paths.root,
@@ -221,10 +268,71 @@ def create_quick_start(workspace_root: Path, spec: dict) -> Path:
             "session": 1,
             "scene": 1,
             "summary": f"{hero_name} enters {opening_spec.get('location', '')}.",
-            "tags": ["quick-start", language],
+            "tags": ["quick-start", "creative-conception-v2", language],
         },
     )
     return paths.root
+
+
+def validate_start_contract(
+    campaign: dict,
+    hero: dict,
+    opening: dict,
+    visual: dict,
+) -> None:
+    """Validate the playable shell around the free-form conception."""
+
+    for field in ("name", "language", "boundaries"):
+        required_text(campaign, field)
+    for field in ("hooks", "core_truths", "faction_intents", "outcomes"):
+        required_string_list(campaign, field, minimum=1)
+    required_string_list(campaign, "clue_routes", exact=3)
+
+    for field in (
+        "name",
+        "class_name",
+        "ancestry",
+        "background",
+        "hit_die",
+        "visual_description",
+    ):
+        required_text(hero, field)
+    required_string_list(hero, "visual_must_preserve", minimum=1)
+
+    for field in (
+        "title",
+        "location",
+        "pressure",
+        "npc_intent",
+        "sensory_detail",
+        "question",
+    ):
+        required_text(opening, field)
+    required_string_list(opening, "visible_risks", minimum=1)
+    required_string_list(opening, "options", minimum=2)
+
+    required_text(visual, "kind")
+    required_text(visual, "label")
+    required_text(visual, "prompt")
+
+
+def required_string_list(
+    payload: dict,
+    key: str,
+    minimum: int | None = None,
+    exact: int | None = None,
+) -> list[str]:
+    value = payload.get(key)
+    if not isinstance(value, list):
+        raise ValueError(f"{key} must be a list.")
+    if exact is not None and len(value) != exact:
+        raise ValueError(f"{key} must contain exactly {exact} entries.")
+    if minimum is not None and len(value) < minimum:
+        raise ValueError(f"{key} must contain at least {minimum} entries.")
+    return [
+        ensure_complete_text(item, f"{key}[{index}]")
+        for index, item in enumerate(value, start=1)
+    ]
 
 
 def apply_character_details(character: dict, hero_spec: dict) -> None:
@@ -291,9 +399,39 @@ def render_opening(campaign: dict, opening: dict, language: str) -> str:
     )
 
 
-def render_spine(campaign: dict) -> str:
+def render_spine(campaign: dict, conception: dict) -> str:
+    environment = conception["environment"]
+    environment_lines = "\n".join(
+        f"- {field.replace('_', ' ').title()}: {environment[field]}"
+        for field in (
+            "biome",
+            "climate",
+            "season",
+            "time_of_day",
+            "surface",
+            "social_scale",
+            "water_relevance",
+        )
+    )
+    relationship_lines = "\n".join(
+        "- {npc} ({role}) wants {wants}; relationship: {relationship}".format(
+            **relationship
+        )
+        for relationship in conception["npc_relationships"]
+    )
     return (
         "# Adventure Spine\n\n"
+        "## Creative Foundation\n\n"
+        f"- Community: {conception['community']}\n"
+        f"- Material conflict: {conception['material_conflict']}\n"
+        f"- Threat: {conception['threat']}\n"
+        f"- Tone: {conception['tone']}\n"
+        f"- Aesthetic: {conception['aesthetic']}\n"
+        f"- Campaign promise: {conception['campaign_promise']}\n\n"
+        "### Environment\n\n"
+        f"{environment_lines}\n\n"
+        "### NPC Relationship Web\n\n"
+        f"{relationship_lines}\n\n"
         "## Core Truths\n\n"
         f"{markdown_bullets(campaign.get('core_truths', []))}\n\n"
         "## Active Hooks\n\n"
@@ -471,10 +609,7 @@ def labels_for(language: str) -> dict[str, str]:
 
 
 def required_text(payload: dict, key: str) -> str:
-    value = payload.get(key)
-    if not isinstance(value, str) or not value.strip():
-        raise ValueError(f"{key} must be a non-empty string.")
-    return value.strip()
+    return ensure_complete_text(payload.get(key), key)
 
 
 def positive_int(value: object, label: str) -> int:
