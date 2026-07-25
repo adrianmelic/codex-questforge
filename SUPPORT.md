@@ -2,7 +2,8 @@
 
 Questforge is maintained by Adrián Melic.
 
-- Setup and play guide: https://github.com/adrianmelic/codex-questforge#how-to-play
+- Product page: https://adrianmelic.com/questforge
+- Setup and play guide: https://github.com/adrianmelic/codex-questforge#start-playing
 - Bug reports and feature requests: https://github.com/adrianmelic/codex-questforge/issues
 - Email: info@adrianmelic.com
 

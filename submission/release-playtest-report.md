@@ -6,6 +6,8 @@ Release audit: 2026-07-16
 
 Installed-plugin acceptance: 2026-07-22
 
+Platform 1.2.0 publication verified: 2026-07-25
+
 ## Method
 
 Two independent conversational campaigns were run against the repository skills. The test driver acted only as the player, read every Game Master response, and chose the next message naturally. The Game Master agents were not given a scripted turn sequence and did not simulate player decisions.
@@ -94,6 +96,10 @@ Verification completed:
 - The soundtrack remained off for a new viewer, played after a voluntary click, and preserved the preference for later viewers. When browser autoplay policy blocks restoration, the control offers an explicit resume action without discarding that preference.
 - The submission archive was rebuilt at `29,713,642` bytes with SHA-256 `3c9f5ad9051ca0e5b5ef9a3ab1fc46440b1a28117391826d34c22fbdd167afac`.
 
-One external check remains intentionally open:
+## Platform Publication
 
-1. Confirm that the Platform upload form accepts the `29.7 MB` archive and submit it for review. No archive had been uploaded when this report was committed.
+On 2026-07-25, the public ChatGPT Plugins directory rendered Questforge version 1.2.0 with Adrián Melic as developer, all six public skills, the book-and-anvil icon, and the expected public description and capabilities. The local 1.2.0 archive used to synchronize the functional public source was `29,942,163` bytes with SHA-256 `08f1bcccee519c8c3774a933f295f47b6ef78b8c9f49b30927a23af80a1951a5`.
+
+After synchronizing GitHub and correcting the canonical website, policy links, and public documentation, `scripts/package_plugin.py` deterministically builds a source-equivalent 1.2.0 archive of `29,942,289` bytes with SHA-256 `b273b486dc948b33474ba72cb49e3181a3997bac5356421d0906070a16496acd`. The hash differs from the Platform artifact only because of those public metadata and documentation corrections.
+
+The 1.1.0 installed-plugin acceptance above remains the detailed conversational evidence for the opening-image contract. Future releases must repeat that acceptance rather than inferring product-surface behavior from local tests alone.

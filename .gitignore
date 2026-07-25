@@ -31,3 +31,26 @@ generated_images/
 dist/
 build/
 *.egg-info/
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+.secrets/
+credentials*.json
+service-account*.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+.codex/
+
+# Local audit reports
+gitleaks-report.*

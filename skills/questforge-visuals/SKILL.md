@@ -1,6 +1,6 @@
 ---
 name: questforge-visuals
-description: Use native image generation as a Questforge table aid for scenes, objects, maps, inventory, merchants, outfits, symbols, and recaps with visual continuity.
+description: Use native image generation as a Questforge table aid for scenes, objects, maps, inventory, merchants, outfits, symbols, recaps, persistent local galleries, interactive 360 POV viewers, and optional scene ambience with visual continuity.
 ---
 
 # Questforge Visuals
@@ -77,16 +77,9 @@ history. After each saved and registered native image, refresh it:
 python ../../scripts/visual_gallery.py --campaign-root <campaign-root> --title "<campaign title>"
 ```
 
-The script writes `<campaign-root>/images/visual-gallery.html`, prints a
-`file:///` URL ending in `#latest`, and renders a chronological scroll log:
-older images at the top, newer images lower down, with every image in a stable
-same-size frame and one compact line such as `#35 · scene · Nela explica su
-olvido`. Panorama/360 entries are embedded as interactive viewer iframes in
-the gallery, not static images. If a panorama-like asset has no viewer yet, the
-gallery creates a default local viewer under `images/viewers/`. Return that URL
-as a Markdown link when useful. If `@Browser` is
-available, open or refresh that same URL in the in-app browser so the player
-can keep the gallery beside the story.
+The script writes `<campaign-root>/images/visual-gallery.html`, prints a `file:///` URL ending in `#latest`, and renders a chronological scroll log: older images at the top, newer images lower down, with every image in a stable same-size frame and one compact line such as `#35 · scene · Nela explica su olvido`. Panorama/360 entries are embedded as interactive viewer iframes in the gallery, not static images. If a panorama-like asset has no viewer yet, the gallery creates a default local viewer under `images/viewers/`.
+
+After the first registered visual in each local play session, proactively return the stable `gallery_url` once as a compact Markdown link such as `[Open the live Questforge visual table](<file:///.../visual-gallery.html#latest>)`. Do not wait for the player to ask for a gallery or viewer. The link is opt-in: do not navigate the player's browser automatically unless the player asks to open or keep it beside the story. When left on `#latest`, the gallery refreshes itself and follows later static images and 360 viewers, so do not repeat the link after every beat.
 When the page is on `#latest`, it follows the latest image while visible. If
 the player jumps to `#visual-<n>`, it stops following so historical review is
 stable.
@@ -113,11 +106,7 @@ standard Markdown with an absolute filesystem path:
 ![Nela explains her lost memory](C:/path/to/campaign/images/assets/nela-memory.png)
 ```
 
-Keep the nearby text short: narrate the scene normally, then show the image, or
-show the image after the consequence paragraph. Do not also return a separate
-`Image` button, prompt link, local file path, or gallery-only instruction for
-that same static image unless the user asks for debugging details. Continue to
-refresh the local gallery in the background for history and desktop play.
+Keep the nearby text short: narrate the scene normally, then show the image, or show the image after the consequence paragraph. Do not also return a separate `Image` button, prompt link, or raw local file path for that same static image unless the user asks for debugging details. The one stable live visual-table link offered after the first registered visual of the session is the deliberate exception. Continue to refresh the local gallery in the background for history and desktop play.
 
 For `pov-360`, return the local viewer link and optionally open it with
 `@Browser`; do not treat the raw panorama as the main chat image unless the
@@ -171,21 +160,15 @@ why no existing canon anchor applies.
 
 ## POV 360
 
-When the user asks to look around, inspect a scene from the character's point of
-view, enter an important location, or would benefit from spatial immersion,
-request a native equirectangular 360 panorama. After generation, create a local
-viewer:
+When the player asks to look around or inspect a scene from the character's point of view, when the character enters an important location, or when spatial immersion would help, request a native equirectangular 360 panorama. Generate, register, and build its viewer in the same turn instead of waiting for a second request. The viewer uses drag-to-look controls, inertial movement, smooth zoom, keyboard controls, and an initially muted audio toggle when ambience is available.
 
 ```powershell
 python ../../scripts/panorama_viewer.py --image <generated-360.png> --output <campaign-root>/images/viewers/<label>-360.html --title "<scene title>" --narration "<short in-scene narration>" --initial-zoom-level 14
 ```
 
-Return the `viewer_url` as a Markdown link. If `@Browser` is available, open
-that `file:///` URL there. The viewer is standalone and does not require a local
-server. Use narration text from the current scene instead of technical labels or
-file paths.
+Always return the `viewer_url` as a compact Markdown link. Do not automatically navigate the in-app browser; clicking the link is the player's opt-in action. If the player explicitly asks to open the viewer, use `@Browser` when available. The viewer is standalone and does not require a local server. Use narration text from the current scene instead of technical labels or file paths.
 
-For sustained ambience, add one licensed or user-provided loop. Prefer a campaign-local approved library at `<campaign-root>/audio/library.json`; if it does not exist, use the bundled starter pack at `../../assets/audio/library.json`. Select by scene tags before creating the viewer:
+For a scene that benefits from sustained ambience, select one licensed or user-provided loop before creating the viewer. Do not ask the player whether a soundtrack exists or whether it should be attached. Prefer a campaign-local approved library at `<campaign-root>/audio/library.json`; if it does not exist, use the bundled starter pack at `../../assets/audio/library.json`. Select by the scene's concrete tags and intensity:
 
 ```powershell
 python ../../scripts/audio_library.py select --library <campaign-root>/audio/library.json --tag archive --tag mystery --intensity 2 --format args
@@ -203,7 +186,7 @@ Append the returned arguments to the panorama viewer command:
 python ../../scripts/panorama_viewer.py --image <generated-360.png> --output <campaign-root>/images/viewers/<label>-360.html --title "<scene title>" --narration "<short in-scene narration>" --initial-zoom-level 14 --audio <loop.mp3> --audio-title "<track title>" --audio-volume 0.24
 ```
 
-Choose audio only for scenes where ambience helps: tavern, wilderness, dungeon, ritual, chase, combat, dream, travel, or aftermath. Prefer campaign-specific loops when present, otherwise use the bundled starter pack. The viewer embeds the selected loop and exposes a small speaker toggle. Do not start music for a new user by default. If the user enabled audio in a prior viewer, the next viewer should remember that preference and resume when the browser allows playback.
+Choose audio when ambience helps: tavern, wilderness, dungeon, ritual, chase, combat, dream, travel, aftermath, or another sustained location or pressure beat with a strong library match. Prefer campaign-specific loops when present, otherwise use the bundled starter pack. If no approved track matches well, create the viewer without audio and continue without interrupting play. The viewer embeds the selected loop and exposes a small speaker toggle. Do not start music for a new player by default. If the player enabled audio in a prior viewer, the next viewer should remember that preference and resume when the browser allows playback.
 
 ## Visual Kinds
 

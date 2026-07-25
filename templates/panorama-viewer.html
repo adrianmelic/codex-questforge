@@ -105,11 +105,12 @@
       gap: 8px;
       padding: 8px;
       border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
       background: var(--surface);
       backdrop-filter: blur(16px);
       pointer-events: auto;
-      opacity: 0.56;
-      transition: opacity 140ms ease;
+      opacity: 0.72;
+      transition: opacity 160ms ease;
     }
 
     .controls[data-audio="off"] {
@@ -125,7 +126,7 @@
       width: 40px;
       height: 40px;
       border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 0;
+      border-radius: 9px;
       background: rgba(255, 255, 255, 0.08);
       color: var(--text);
       font: inherit;
@@ -188,6 +189,27 @@
       opacity: 1;
     }
 
+    .interaction-hint {
+      position: fixed;
+      left: 50%;
+      bottom: clamp(18px, 3vw, 32px);
+      margin: 0;
+      padding: 8px 11px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      background: var(--surface-strong);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1;
+      pointer-events: none;
+      transform: translateX(-50%);
+      transition: opacity 220ms ease;
+    }
+
+    .interaction-hint[data-hidden="true"] {
+      opacity: 0;
+    }
+
     #fallback {
       position: fixed;
       inset: 0;
@@ -221,6 +243,13 @@
         height: 36px;
       }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .controls,
+      .interaction-hint {
+        transition: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -252,6 +281,9 @@
       <button id="zoom-in" type="button" title="Zoom in">+</button>
     </nav>
   </div>
+  <p class="interaction-hint" id="interaction-hint">
+    Drag to look · Scroll to zoom
+  </p>
   <p class="status" id="status">Loading panorama.</p>
   <audio id="ambient-audio" loop preload="auto"></audio>
 
@@ -270,6 +302,7 @@
     const fallback = document.getElementById("fallback");
     const controls = document.getElementById("controls");
     const narration = document.getElementById("narration");
+    const interactionHint = document.getElementById("interaction-hint");
     const status = document.getElementById("status");
     const ambientAudio = document.getElementById("ambient-audio");
     const audioToggle = document.getElementById("audio-toggle");
@@ -288,14 +321,23 @@
     const MAX_ZOOM_LEVEL = 22;
     const INITIAL_FOV = zoomLevelToFov(INITIAL_ZOOM_LEVEL);
     const INITIAL_FLAT_ZOOM = zoomLevelToFlatZoom(INITIAL_ZOOM_LEVEL);
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    );
 
     const state = {
       yaw: 0,
       pitch: 0,
       fov: INITIAL_FOV,
+      targetFov: INITIAL_FOV,
       dragging: false,
       lastX: 0,
       lastY: 0,
+      lastPointerTime: 0,
+      velocityYaw: 0,
+      velocityPitch: 0,
+      animationFrame: 0,
+      lastAnimationTime: 0,
       ready: false,
     };
 
@@ -399,9 +441,12 @@
       }
 
       function onPointerDown(event) {
+        stopMotion();
+        hideInteractionHint();
         state.dragging = true;
         state.lastX = event.clientX;
         state.lastY = event.clientY;
+        state.lastPointerTime = event.timeStamp;
         canvas.setPointerCapture(event.pointerId);
       }
 
@@ -411,27 +456,51 @@
         }
         const deltaX = event.clientX - state.lastX;
         const deltaY = event.clientY - state.lastY;
+        const elapsed = clamp(
+          event.timeStamp - state.lastPointerTime,
+          8,
+          40,
+        );
+        const radiansPerPixel = (
+          state.fov / Math.max(canvas.clientHeight, 320)
+        ) * 1.15;
+        const yawDelta = deltaX * radiansPerPixel;
+        const pitchDelta = deltaY * radiansPerPixel;
         state.lastX = event.clientX;
         state.lastY = event.clientY;
-        state.yaw += deltaX * 0.004;
-        state.pitch = clamp(state.pitch - deltaY * 0.004, -1.48, 1.48);
+        state.lastPointerTime = event.timeStamp;
+        state.yaw += yawDelta;
+        state.pitch = clamp(
+          state.pitch + pitchDelta,
+          -1.48,
+          1.48,
+        );
+        state.velocityYaw = yawDelta / elapsed;
+        state.velocityPitch = pitchDelta / elapsed;
         render();
       }
 
       function onPointerUp(event) {
+        if (event.timeStamp - state.lastPointerTime > 100) {
+          state.velocityYaw = 0;
+          state.velocityPitch = 0;
+        }
         state.dragging = false;
         if (canvas.hasPointerCapture(event.pointerId)) {
           canvas.releasePointerCapture(event.pointerId);
         }
+        startMotion();
       }
 
       function onWheel(event) {
         event.preventDefault();
+        hideInteractionHint();
         changeFov(event.deltaY > 0 ? 0.08 : -0.08);
       }
 
       function onKeyDown(event) {
         const step = 0.08;
+        hideInteractionHint();
         if (event.key === "ArrowLeft") state.yaw -= step;
         if (event.key === "ArrowRight") state.yaw += step;
         if (event.key === "ArrowUp") state.pitch = clamp(state.pitch + step, -1.48, 1.48);
@@ -443,15 +512,87 @@
       }
 
       function changeFov(delta) {
-        state.fov = clamp(state.fov + delta, MIN_FOV, MAX_FOV);
-        render();
+        state.targetFov = clamp(
+          state.targetFov + delta,
+          MIN_FOV,
+          MAX_FOV,
+        );
+        startMotion();
       }
 
       function resetView() {
+        stopMotion();
         state.yaw = 0;
         state.pitch = 0;
         state.fov = INITIAL_FOV;
+        state.targetFov = INITIAL_FOV;
         render();
+      }
+
+      function startMotion() {
+        if (!state.ready || state.animationFrame) {
+          return;
+        }
+        state.animationFrame = window.requestAnimationFrame(animateMotion);
+      }
+
+      function stopMotion() {
+        if (state.animationFrame) {
+          window.cancelAnimationFrame(state.animationFrame);
+        }
+        state.animationFrame = 0;
+        state.lastAnimationTime = 0;
+        state.velocityYaw = 0;
+        state.velocityPitch = 0;
+        state.targetFov = state.fov;
+      }
+
+      function animateMotion(timestamp) {
+        state.animationFrame = 0;
+        if (state.dragging) {
+          return;
+        }
+        const elapsed = state.lastAnimationTime
+          ? clamp(timestamp - state.lastAnimationTime, 1, 32)
+          : 16.67;
+        state.lastAnimationTime = timestamp;
+
+        if (reducedMotion.matches) {
+          state.velocityYaw = 0;
+          state.velocityPitch = 0;
+          state.fov = state.targetFov;
+        } else {
+          state.yaw += state.velocityYaw * elapsed;
+          const nextPitch = clamp(
+            state.pitch + state.velocityPitch * elapsed,
+            -1.48,
+            1.48,
+          );
+          if (nextPitch === -1.48 || nextPitch === 1.48) {
+            state.velocityPitch = 0;
+          }
+          state.pitch = nextPitch;
+          const damping = Math.pow(0.9, elapsed / 16.67);
+          state.velocityYaw *= damping;
+          state.velocityPitch *= damping;
+          const zoomProgress = 1 - Math.exp(-elapsed * 0.022);
+          state.fov += (state.targetFov - state.fov) * zoomProgress;
+        }
+
+        render();
+        const moving = (
+          Math.abs(state.velocityYaw) > 0.00001
+          || Math.abs(state.velocityPitch) > 0.00001
+          || Math.abs(state.targetFov - state.fov) > 0.0001
+        );
+        if (moving) {
+          state.animationFrame = window.requestAnimationFrame(animateMotion);
+        } else {
+          state.velocityYaw = 0;
+          state.velocityPitch = 0;
+          state.fov = state.targetFov;
+          state.lastAnimationTime = 0;
+        }
       }
     }
 
@@ -475,6 +616,7 @@
         flatState.dragging = true;
         flatState.lastX = event.clientX;
         flatState.lastY = event.clientY;
+        hideInteractionHint();
         flatViewer.setPointerCapture(event.pointerId);
       });
       flatViewer.addEventListener("pointermove", (event) => {
@@ -486,7 +628,7 @@
         flatState.lastX = event.clientX;
         flatState.lastY = event.clientY;
         flatState.x = ((flatState.x + deltaX * 0.08) % 100 + 100) % 100;
-        flatState.y = clamp(flatState.y - deltaY * 0.08, 12, 88);
+        flatState.y = clamp(flatState.y + deltaY * 0.08, 12, 88);
         renderFlatViewer();
       });
       flatViewer.addEventListener("pointerup", (event) => {
@@ -500,6 +642,7 @@
       });
       flatViewer.addEventListener("wheel", (event) => {
         event.preventDefault();
+        hideInteractionHint();
         flatState.zoom = clamp(
           flatState.zoom + (event.deltaY > 0 ? -0.08 : 0.08),
           0.7,
@@ -526,6 +669,10 @@
     function renderFlatViewer() {
       flatViewer.style.backgroundPosition = `${flatState.x}% ${flatState.y}%`;
       flatViewer.style.backgroundSize = `auto ${100 * flatState.zoom}%`;
+    }
+
+    function hideInteractionHint() {
+      interactionHint.dataset.hidden = "true";
     }
 
     function configureAmbientAudio() {

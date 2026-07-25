@@ -1,7 +1,6 @@
 # Revisión beta humana: La Campana Negra de Bruma
 
 Fecha de análisis: 2026-05-19.
-Sesión Codex: `019e36f2-8264-7e23-9791-ebc45fedcb31`.
 
 ## Métricas
 

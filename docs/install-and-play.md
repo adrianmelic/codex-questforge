@@ -4,7 +4,7 @@ This is the external-user happy path for Questforge.
 
 ## 1. Install The Plugin
 
-After public approval, open **Plugins** in ChatGPT Work or Codex, install **Questforge** from the Plugins Directory, and start a new task so the bundled skills are loaded.
+Open [Questforge in the ChatGPT Plugins directory](https://chatgpt.com/plugins/plugins_6a611d2ff7b88191b75a5290bceb0e87), install it, and start a new task so the bundled skills are loaded.
 
 For source installation during development or review, add the public repository as a marketplace:
 
@@ -85,4 +85,4 @@ Treat errors as blockers and warnings as preparation notes. Deterministic self-p
 python scripts\self_play.py --campaigns-dir campaigns --name "The Clockwork Apiary Self Play"
 ```
 
-Before a public plugin submission, run the strict installed-plugin acceptance described in `beta-preflight-checklist.md`. The strict preflight requires a real registered opening image, while a human reviewer confirms that the same image was rendered once in the conversation.
+Before a future public plugin submission, run the strict installed-plugin acceptance described in `beta-preflight-checklist.md`. The strict preflight requires a real registered opening image, while a human reviewer confirms that the same image was rendered once in the conversation.
