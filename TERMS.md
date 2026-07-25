@@ -32,4 +32,4 @@ Questforge is provided “as is,” without warranties of any kind. To the maxim
 
 ## Contact
 
-Questions and support requests can be sent to `info@adrianmelic.com` or filed through the [Questforge support page](https://adrianmelic.github.io/codex-questforge/support.html).
+Questions and support requests can be sent to `info@adrianmelic.com`, filed through the [Questforge support page](https://adrianmelic.github.io/codex-questforge/support.html), or reviewed against the current [publisher terms of use](https://adrianmelic.com/terms-of-service).

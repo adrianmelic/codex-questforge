@@ -24,7 +24,7 @@ The optional local analytics log records game events such as checks, choices, re
 
 - OpenAI processes conversations, files, and generated media according to the terms and privacy settings of the OpenAI product you use.
 - If you explicitly request the complete SRD setup, Questforge downloads the official SRD PDF from `media.dndbeyond.com`. The default offline setup does not make this request.
-- GitHub hosts the public Questforge website and source repository and may process ordinary website access data under GitHub's privacy policy.
+- GitHub hosts the public Questforge source repository and compatibility policy pages. The canonical product page is [adrianmelic.com/questforge](https://adrianmelic.com/questforge).
 - The bundled ambience tracks were generated with Suno, but playing them is local and does not contact Suno.
 
 Questforge does not sell personal data, serve advertising, track users across services, or share campaign data with the publisher.
@@ -35,4 +35,4 @@ You can ask Questforge to show its current player-facing state, create a checkpo
 
 ## Contact
 
-For privacy questions, email `info@adrianmelic.com` or use the [Questforge support page](https://adrianmelic.github.io/codex-questforge/support.html).
+For privacy questions, email `info@adrianmelic.com`, use the [Questforge support page](https://adrianmelic.github.io/codex-questforge/support.html), or consult the current [publisher privacy policy](https://adrianmelic.com/privacy-policy).

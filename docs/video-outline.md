@@ -4,7 +4,7 @@ Use this when recording a short real Codex session for X, LinkedIn, GitHub, or a
 
 ## 45-Second Cut
 
-1. Open on the cover image or the GitHub Pages preview for 2-3 seconds.
+1. Open on the cover image or `https://adrianmelic.com/questforge` for 2-3 seconds.
 2. Cut to Codex and paste: `I want to play @questforge in English. Create a quick character and start.`
 3. Show Questforge creating the character and first scene.
 4. Show one player action in natural language.

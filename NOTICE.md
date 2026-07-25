@@ -17,6 +17,4 @@ logos, or other protected product identity in this plugin.
 
 The bundled English and Spanish core-rules primers are practical summaries derived from SRD 5.2.1 and carry the same CC-BY-4.0 attribution. They are not complete reproductions of the SRD.
 
-The GitHub Pages demo includes one optional ambience track copied from the
-Questforge starter audio pack. The starter audio pack credits and licensing
-notes are documented in `assets/audio/README.md` and `assets/audio/library.json`.
+The optional starter audio pack credits and licensing notes are documented in `assets/audio/README.md` and `assets/audio/library.json`.

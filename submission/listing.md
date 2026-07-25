@@ -10,12 +10,12 @@ Skills only.
 - Developer identity: `Adrián Melic`
 - Category: `Entertainment`
 - Short description: `Open-ended fantasy RPG`
-- Website: `https://adrianmelic.github.io/codex-questforge/`
-- Support: `https://adrianmelic.github.io/codex-questforge/support.html`
-- Privacy policy: `https://adrianmelic.github.io/codex-questforge/privacy.html`
-- Terms of service: `https://adrianmelic.github.io/codex-questforge/terms.html`
+- Website: `https://adrianmelic.com/questforge`
+- Support: `https://adrianmelic.com/en/#contact`
+- Privacy policy: `https://adrianmelic.com/privacy-policy`
+- Terms of service: `https://adrianmelic.com/terms-of-service`
 - Repository: `https://github.com/adrianmelic/codex-questforge`
-- Logo: `assets/icon.svg` or the 512 px PNG exported from it for the portal.
+- Logo: `assets/icon.png` (512 px).
 - Public product visuals: `assets/screenshots/questforge-scene-v2.png`, `assets/screenshots/questforge-tactical-map-v2.png`, and `assets/screenshots/questforge-360-pov-v2.png`. These are coherent generated examples from one original scene, not a simulated Codex conversation. They are for the public product page; the skills-only Platform submission does not configure screenshots.
 
 ## Long Description
@@ -34,7 +34,7 @@ Select all countries and regions where skills-only plugins are supported. Questf
 
 ## Release Notes
 
-Questforge 1.1.0 adds a neutral creative-conception pass and local repetition audit before the atomic quick-start bootstrap. New campaigns deliberately establish environment, community, material conflict, threat, NPC relationships, tone, aesthetics, sensations, and campaign promise without selecting from a fixed adventure table. The release also includes six scoped skills, offline English/Spanish rules primers, optional full SRD 5.2.1 indexing, persistent local campaign and mechanical state, transparent dice and failure-forward adjudication, multilingual session analytics, inventory/combat/advancement/checkpoint workflows, native visual planning, 360 viewers, optional original ambience, chat-only fallbacks, and deterministic validation. No authentication or publisher-controlled server is required.
+Questforge 1.2.0 adds a redesigned book-and-anvil icon, a local visual-table flow that can remain open beside the conversation and follow new assets, and a substantially improved panorama viewer with natural drag direction, inertial movement, smooth zoom, and keyboard controls. Scene-appropriate approved ambience can be attached when a viewer is first created, remains muted for a new player, and is enabled only through a voluntary speaker control. The release retains six scoped skills, offline English/Spanish rules primers, optional full SRD 5.2.1 indexing, persistent campaign and mechanical state, transparent dice and failure-forward adjudication, native visual planning, chat-only fallbacks, and deterministic validation. No authentication or publisher-controlled server is required.
 
 ## Reviewer Notes
 
@@ -42,5 +42,5 @@ Questforge 1.1.0 adds a neutral creative-conception pass and local repetition au
 - The default first run is offline and installs no packages. Complete SRD download requires explicit user consent; Questforge never installs `pypdf` or any other dependency.
 - Local analytics are campaign files, not publisher telemetry.
 - Static generated images appear once in the conversation when native image generation is available. Local galleries, audio, and 360 viewers are optional desktop enhancements.
-- Before submission, run the final installed-plugin acceptance gate described in `submission/release-playtest-report.md`; a silent `prompt-saved` opening is a failed release test.
+- Before any future submission, run the final installed-plugin acceptance gate described in `submission/release-playtest-report.md`; a silent `prompt-saved` opening is a failed release test.
 - The plugin never needs credentials or sensitive personal data.

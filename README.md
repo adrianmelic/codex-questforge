@@ -8,7 +8,7 @@
 
 This is not a browser game that happens to use Codex. **The conversation is the game.**
 
-[See the Questforge experience](https://adrianmelic.github.io/codex-questforge/) | [Read the installation guide](docs/install-and-play.md)
+[Explore Questforge](https://adrianmelic.com/questforge) | [Install it in ChatGPT](https://chatgpt.com/plugins/plugins_6a611d2ff7b88191b75a5290bceb0e87) | [Read the installation guide](docs/install-and-play.md)
 
 ## Start Playing
 
@@ -42,9 +42,9 @@ Questforge has a portable conversation layer and an enhanced local desktop layer
 | Surface | Player experience |
 | --- | --- |
 | **Conversation** | Narration, dialogue, visible dice, rulings, compact state, inventory and spell status, choices, and freeform actions. Static generated scenes are shown here when native image generation is available, including on mobile-capable conversation surfaces. |
-| **Local Codex workspace** | Persistent campaign files, journals, clues, NPCs, factions, mechanical state, checkpoints, analytics, and a chronological visual gallery. |
-| **Local 360 viewer** | Important spatial moments can open as standalone `file:///` photospheres. Drag to look around and scroll to zoom; no local server is required. |
-| **Optional soundtrack** | A scene-appropriate track can be attached to a local viewer. Audio never starts for a new player by default; the speaker toggle is voluntary and its preference is remembered by later viewers when the browser permits it. |
+| **Local Codex workspace** | Persistent campaign files, journals, clues, NPCs, factions, mechanical state, checkpoints, analytics, and a live visual table that can stay open beside the story and follow new assets. |
+| **Local 360 viewer** | Important spatial moments can open as standalone `file:///` photospheres with natural drag direction, inertial movement, smooth zoom, and keyboard controls; no local server is required. |
+| **Optional soundtrack** | A scene-appropriate approved track can be attached when the viewer is first created. Audio never starts for a new player by default; the speaker toggle is voluntary and its preference is remembered by later viewers when the browser permits it. |
 
 If a surface has no writable filesystem or local browser, Questforge keeps a compact campaign ledger in the conversation and skips galleries, 360 viewers, and local checkpoints without pretending they were created. Play continues.
 
@@ -144,14 +144,16 @@ These scripts create the conception record, campaign memory, hero state, equipme
 - `resources/core-rules/` - offline English and Spanish rules primers derived from SRD 5.2.1.
 - `templates/` - neutral campaign, journal, state, visual, audio, and puzzle structures.
 - `assets/audio/starter-pack/` - curated Suno-generated ambience tracks.
-- `submission/` - OpenAI Platform listing copy, prompts, test cases, release notes, and the current release gate.
-- `docs/` - public product page, installation guide, design notes, and playtest evidence.
+- `submission/` - OpenAI Platform listing copy, prompts, test cases, release notes, and publication evidence.
+- `docs/` - GitHub Pages compatibility routes, installation guidance, design notes, and sanitized playtest evidence.
 
-## Current Release Gate
+## Current Public Release
 
-The deterministic rules, state, campaign continuity, creative conception, multilingual analytics, packaging, gallery, panorama, and audio paths are tested locally. The final packaged plugin also passed a clean installed-plugin acceptance run on the target OpenAI surface on 2026-07-22: the first actionable scene generated a real native image, showed it in the conversation, registered it as `canon` in the campaign gallery, and left no pending opening visual. The strict campaign preflight completed with zero errors and zero warnings. Platform upload and review remain the next external gates.
+Questforge 1.2.0 is published in the ChatGPT Plugins directory. This repository mirrors the public skills-only source, including the current book-and-anvil icon, live visual-table guidance, and the smoother panorama viewer with natural drag direction, inertial movement, scroll zoom, and keyboard controls.
 
-See [the release playtest report](submission/release-playtest-report.md) for the evidence and remaining Platform verification.
+The deterministic rules, state, campaign continuity, creative conception, multilingual analytics, packaging, gallery, panorama, and audio paths are tested locally. A clean installed-plugin acceptance run on 2026-07-22 confirmed that the first actionable scene generated a native image, showed it in the conversation, registered it as `canon` in the campaign gallery, and passed strict preflight with zero errors and zero warnings. The public Platform directory was verified at version 1.2.0 on 2026-07-25.
+
+[Install Questforge](https://chatgpt.com/plugins/plugins_6a611d2ff7b88191b75a5290bceb0e87) or see [the release playtest report](submission/release-playtest-report.md) for the underlying evidence.
 
 ## Roadmap
 
@@ -159,9 +161,9 @@ See [the release playtest report](submission/release-playtest-report.md) for the
 
 ## Privacy, Terms, And Support
 
-- [Privacy policy](https://adrianmelic.github.io/codex-questforge/privacy.html)
-- [Terms of use](https://adrianmelic.github.io/codex-questforge/terms.html)
-- [Support](https://adrianmelic.github.io/codex-questforge/support.html)
+- [Privacy policy](https://adrianmelic.com/privacy-policy)
+- [Terms of use](https://adrianmelic.com/terms-of-service)
+- [Support](https://adrianmelic.com/en/#contact)
 - [Security policy](SECURITY.md)
 
 Questforge does not operate a publisher-controlled server or transmit campaign data to the publisher. Local campaigns can contain information the player entered; review them before sharing or committing them.

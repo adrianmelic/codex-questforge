@@ -1,13 +1,13 @@
 {
   "name": "questforge",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Play an open-ended 5E-compatible fantasy RPG inside Codex with visible dice, persistent campaigns, and generated scenes.",
   "author": {
     "name": "Adrián Melic",
     "email": "info@adrianmelic.com",
     "url": "https://github.com/adrianmelic"
   },
-  "homepage": "https://adrianmelic.github.io/codex-questforge/",
+  "homepage": "https://adrianmelic.com/questforge",
   "repository": "https://github.com/adrianmelic/codex-questforge",
   "license": "MIT",
   "keywords": [
@@ -34,16 +34,16 @@
       "Rollback Checkpoints",
       "Image Generation"
     ],
-    "websiteURL": "https://adrianmelic.github.io/codex-questforge/",
-    "privacyPolicyURL": "https://adrianmelic.github.io/codex-questforge/privacy.html",
-    "termsOfServiceURL": "https://adrianmelic.github.io/codex-questforge/terms.html",
+    "websiteURL": "https://adrianmelic.com/questforge",
+    "privacyPolicyURL": "https://adrianmelic.com/privacy-policy",
+    "termsOfServiceURL": "https://adrianmelic.com/terms-of-service",
     "defaultPrompt": [
       "I want to play. Create a quick hero and begin.",
       "Guide me through creating a hero, then begin.",
       "Continue my latest Questforge campaign."
     ],
     "brandColor": "#DFA64A",
-    "composerIcon": "./assets/icon.svg",
-    "logo": "./assets/icon.svg"
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/icon.png"
   }
 }
