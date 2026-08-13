@@ -181,11 +181,11 @@ Acceptance on 2026-08-12 used disposable synthetic campaigns only. A clean task 
 
 ## Prepared Next Release
 
-Questforge 1.3.1 is a focused integrity hotfix prepared in response to the automated review of the merged 1.3.0 pull request. Data and final-manifest receipts must now identify the exact provider and folder they verify, a data receipt cannot omit its prior remote-manifest state, and malformed or structurally unusable `game-state.json` files block inspection and migration instead of becoming canonical snapshots.
+Questforge 1.3.1 is a focused integrity hotfix prepared in response to automated review of the merged 1.3.0 pull request and its follow-up hotfix. Data and final-manifest receipts must now identify the exact provider and folder they verify, a data receipt cannot omit its prior remote-manifest state, and malformed or structurally unusable `game-state.json` files—including incomplete nested character or combat records—block loading, persistence, inspection, and migration instead of becoming canonical snapshots.
 
-The local suite passes 145 tests, including regressions for all three review findings, and the updated save skill passes structural validation. GitHub publication and a final clean Platform acceptance for 1.3.1 remain separate pending gates.
+The local suite passes 147 tests, including regressions for all four review findings, and the updated save skill passes structural validation. GitHub release publication and a final clean Platform acceptance for 1.3.1 remain separate pending gates.
 
-Version 1.3.1 is not yet published on GitHub or OpenAI Platform.
+Version 1.3.1 is not yet released on GitHub or published on OpenAI Platform.
 
 ## Roadmap
 

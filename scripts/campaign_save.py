@@ -18,10 +18,10 @@ from typing import Iterable
 
 try:
     from .campaign_memory import existing_session_numbers
-    from .game_state import STATE_VERSION
+    from .game_state import validate_state
 except ImportError:  # pragma: no cover - direct script execution path
     from campaign_memory import existing_session_numbers
-    from game_state import STATE_VERSION
+    from game_state import validate_state
 
 
 SCHEMA_VERSION = 2
@@ -237,25 +237,10 @@ def read_manifest(campaign_root: Path) -> dict:
 
 
 def validate_game_state(path: Path) -> None:
-    """Require a parseable mechanical ledger with the supported core shape."""
+    """Require a parseable and mechanically usable canonical ledger."""
 
     payload = read_json(path)
-    version = payload.get("version")
-    if isinstance(version, bool) or version != STATE_VERSION:
-        raise ValueError(
-            f"game-state.json version must be {STATE_VERSION}, got {version!r}."
-        )
-    required_types = {
-        "party": list,
-        "characters": dict,
-        "combat": dict,
-    }
-    for field, expected_type in required_types.items():
-        if not isinstance(payload.get(field), expected_type):
-            raise ValueError(
-                f"game-state.json field {field!r} must be a "
-                f"{expected_type.__name__}."
-            )
+    validate_state(payload)
 
 
 def integer_value(value: object, default: int = 0) -> int:

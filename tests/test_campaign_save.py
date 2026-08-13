@@ -441,6 +441,34 @@ def test_migration_stops_on_invalid_game_state_json(tmp_path):
     assert "campaignId" not in read_manifest(campaign_root)
 
 
+def test_migration_stops_on_incomplete_nested_character_state(tmp_path):
+    campaign_root = create_synthetic_campaign(tmp_path)
+    manifest = read_manifest(campaign_root)
+    manifest.pop("schemaVersion")
+    manifest.pop("campaignId")
+    manifest.pop("storage")
+    manifest.pop("canonicalFiles")
+    write_json(campaign_root / "questforge.json", manifest)
+    game_state = campaign_root / "game-state.json"
+    state = json.loads(game_state.read_text(encoding="utf-8"))
+    state["active_character"] = "Mara"
+    state["party"] = ["Mara"]
+    state["characters"] = {"Mara": {}}
+    write_json(game_state, state)
+
+    inspection = inspect_campaign(campaign_root)
+    dry_run = migrate_campaign(campaign_root)
+    attempted_apply = migrate_campaign(campaign_root, apply=True)
+
+    assert inspection.ok is False
+    assert "invalid_game_state" in {issue.code for issue in inspection.issues}
+    assert {item["code"] for item in dry_run["blockers"]} == {
+        "invalid_game_state"
+    }
+    assert attempted_apply["applied"] is False
+    assert "campaignId" not in read_manifest(campaign_root)
+
+
 def test_next_session_updates_manifest_resume_point(tmp_path):
     campaign_root = create_synthetic_campaign(tmp_path)
 

@@ -1,3 +1,4 @@
+import json
 from datetime import date
 
 import pytest
@@ -218,3 +219,31 @@ def test_game_state_rejects_spending_missing_spell_slot(tmp_path):
 
     with pytest.raises(ValueError, match="No level 2 spell slots"):
         spend_spell_slot(state, "Mara Vey", slot_level=2)
+
+
+def test_load_state_rejects_incomplete_nested_combat_state(tmp_path):
+    paths, state = create_stateful_campaign(tmp_path)
+    state["combat"] = {
+        "active": True,
+        "name": "Broken ambush",
+        "round": 1,
+        "current_turn_index": 0,
+        "turn_order": ["Mara Vey"],
+        "combatants": {"Mara Vey": {}},
+        "tactical_scene": {
+            "summary": "",
+            "range_bands": [],
+            "terrain": [],
+            "hazards": [],
+            "interactables": [],
+            "visual_prompt_hint": "",
+        },
+        "log": [],
+    }
+    (paths.root / "game-state.json").write_text(
+        json.dumps(state),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="combatants.Mara Vey.name"):
+        load_state(paths.root)
