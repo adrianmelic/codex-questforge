@@ -1031,7 +1031,7 @@ def buy_item(
             f"Not enough money for {item['name']} ({item['price']})."
         )
     price_amount, price_coin = parse_price(item["price"])
-    if price_amount.is_integer() and character["currency"].get(
+    if price_amount.denominator == 1 and character["currency"].get(
         price_coin, 0
     ) >= int(price_amount):
         character["currency"][price_coin] -= int(price_amount)

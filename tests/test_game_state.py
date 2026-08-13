@@ -14,6 +14,7 @@ from scripts.game_state import (
     award_xp,
     buy_item,
     create_checkpoint,
+    currency_to_cp,
     default_character,
     equip_item,
     format_status,
@@ -138,6 +139,25 @@ def test_game_state_handles_shopping_and_currency(tmp_path):
     )
     assert state["shops"]["low-door"]["items"]["iron-lantern"]["stock"] == 0
     save_state(paths.root, state)
+
+
+def test_fractional_shop_price_purchase_uses_exact_copper(tmp_path):
+    _paths, state = create_stateful_campaign(tmp_path)
+    state["characters"]["Mara Vey"]["currency"]["gp"] = 1
+    item = add_shop_item(
+        state,
+        shop_id="low-door",
+        shop_name="Low Door Outfitters",
+        merchant="Sella",
+        item_name="Waxed map case",
+        price="0.29gp",
+    )
+
+    assert item["price_cp"] == 29
+    buy_item(state, "Mara Vey", "low-door", "Waxed map case")
+
+    character = state["characters"]["Mara Vey"]
+    assert currency_to_cp(character["currency"]) == 71
 
 
 @pytest.mark.parametrize(

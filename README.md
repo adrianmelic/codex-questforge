@@ -183,7 +183,7 @@ Acceptance on 2026-08-12 used disposable synthetic campaigns only. A clean task 
 
 Questforge 1.3.1 is a focused integrity hotfix prepared in response to automated review of the merged 1.3.0 pull request and its follow-up hotfix. Data and final-manifest receipts must now identify the exact provider and folder they verify, a data receipt cannot omit its prior remote-manifest state, and malformed or structurally unusable `game-state.json` files—including incomplete nested character, combat, resource, shop, item, or checkpoint records—block loading, persistence, inspection, and migration instead of becoming canonical snapshots. Stored character names are normalized consistently, shop prices are parsed exactly and must match their canonical copper value, and checkpoint IDs must be portable across macOS, Windows, and common synchronized filesystems. Combat setup validates the complete replacement before changing campaign state, while normalized case-insensitive checkpoint identity prevents rollback files from colliding after a save moves between filesystems.
 
-The local suite passes 164 tests, including regressions for all twelve review findings, and the updated save skill passes structural validation. GitHub release publication and a final clean Platform acceptance for 1.3.1 remain separate pending gates.
+The local suite passes 165 tests, including regressions for all thirteen review findings, and the updated save skill passes structural validation. GitHub release publication and a final clean Platform acceptance for 1.3.1 remain separate pending gates.
 
 Version 1.3.1 is not yet released on GitHub or published on OpenAI Platform.
 
