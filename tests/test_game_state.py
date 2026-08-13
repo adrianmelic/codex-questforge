@@ -140,6 +140,40 @@ def test_game_state_handles_shopping_and_currency(tmp_path):
     save_state(paths.root, state)
 
 
+@pytest.mark.parametrize(
+    ("price", "price_cp", "message"),
+    [
+        ("free", 0, "price is invalid"),
+        ("5gp", 1, "price_cp must match the canonical price"),
+    ],
+)
+def test_load_state_rejects_invalid_or_inconsistent_shop_prices(
+    tmp_path,
+    price,
+    price_cp,
+    message,
+):
+    paths, state = create_stateful_campaign(tmp_path)
+    add_shop_item(
+        state,
+        shop_id="low-door",
+        shop_name="Low Door Outfitters",
+        merchant="Sella",
+        item_name="Iron lantern",
+        price="5gp",
+    )
+    item = state["shops"]["low-door"]["items"]["iron-lantern"]
+    item["price"] = price
+    item["price_cp"] = price_cp
+    (paths.root / "game-state.json").write_text(
+        json.dumps(state),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match=message):
+        load_state(paths.root)
+
+
 def test_game_state_tracks_xp_level_up_spell_slots_and_rest(tmp_path):
     paths, state = create_stateful_campaign(tmp_path)
 
@@ -335,7 +369,21 @@ def test_load_state_rejects_malformed_resource_records(
         load_state(paths.root)
 
 
-def test_checkpoint_ids_cannot_escape_the_checkpoint_directory(tmp_path):
+@pytest.mark.parametrize(
+    "checkpoint_id",
+    [
+        "../../outside",
+        "bad:name",
+        "CON",
+        "checkpoint.",
+        "checkpoint ",
+        "control\x01character",
+    ],
+)
+def test_checkpoint_ids_must_be_portable_filename_components(
+    tmp_path,
+    checkpoint_id,
+):
     paths, state = create_stateful_campaign(tmp_path)
 
     with pytest.raises(ValueError, match="safe filename component"):
@@ -343,7 +391,8 @@ def test_checkpoint_ids_cannot_escape_the_checkpoint_directory(tmp_path):
             paths.root,
             state,
             label="Unsafe checkpoint",
-            checkpoint_id="../../outside",
+            checkpoint_id=checkpoint_id,
         )
 
-    assert not (tmp_path / "outside.json").exists()
+    assert state["checkpoints"] == []
+    assert list((paths.root / "checkpoints").glob("*.json")) == []

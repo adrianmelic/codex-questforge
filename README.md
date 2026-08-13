@@ -181,9 +181,9 @@ Acceptance on 2026-08-12 used disposable synthetic campaigns only. A clean task 
 
 ## Prepared Next Release
 
-Questforge 1.3.1 is a focused integrity hotfix prepared in response to automated review of the merged 1.3.0 pull request and its follow-up hotfix. Data and final-manifest receipts must now identify the exact provider and folder they verify, a data receipt cannot omit its prior remote-manifest state, and malformed or structurally unusable `game-state.json` files—including incomplete nested character, combat, resource, shop, item, or checkpoint records—block loading, persistence, inspection, and migration instead of becoming canonical snapshots. Stored character names are normalized consistently before they become keys.
+Questforge 1.3.1 is a focused integrity hotfix prepared in response to automated review of the merged 1.3.0 pull request and its follow-up hotfix. Data and final-manifest receipts must now identify the exact provider and folder they verify, a data receipt cannot omit its prior remote-manifest state, and malformed or structurally unusable `game-state.json` files—including incomplete nested character, combat, resource, shop, item, or checkpoint records—block loading, persistence, inspection, and migration instead of becoming canonical snapshots. Stored character names are normalized consistently, shop prices must match their canonical copper value, and checkpoint IDs must be portable across macOS, Windows, and common synchronized filesystems.
 
-The local suite passes 153 tests, including regressions for all seven review findings, and the updated save skill passes structural validation. GitHub release publication and a final clean Platform acceptance for 1.3.1 remain separate pending gates.
+The local suite passes 160 tests, including regressions for all nine review findings, and the updated save skill passes structural validation. GitHub release publication and a final clean Platform acceptance for 1.3.1 remain separate pending gates.
 
 Version 1.3.1 is not yet released on GitHub or published on OpenAI Platform.
 

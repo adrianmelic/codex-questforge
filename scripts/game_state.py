@@ -78,6 +78,24 @@ EQUIPMENT_SLOTS = [
     "instrument",
     "focus",
 ]
+WINDOWS_INVALID_FILENAME_CHARS = frozenset('<>:"/\\|?*')
+WINDOWS_RESERVED_FILENAMES = {
+    "con",
+    "prn",
+    "aux",
+    "nul",
+    "clock$",
+    "conin$",
+    "conout$",
+    *(f"com{index}" for index in range(1, 10)),
+    *(f"lpt{index}" for index in range(1, 10)),
+    "com¹",
+    "com²",
+    "com³",
+    "lpt¹",
+    "lpt²",
+    "lpt³",
+}
 
 
 @dataclass(frozen=True)
@@ -472,12 +490,22 @@ def _validate_shop(shop: object, key: str) -> None:
             raise ValueError(f"{item_path} must be an object.")
         item_id = _require_field(item, "id", str, item_path)
         _require_field(item, "name", str, item_path)
-        _require_field(item, "price", str, item_path)
+        price = _require_field(item, "price", str, item_path)
         price_cp = _require_field(item, "price_cp", int, item_path)
         stock = _require_field(item, "stock", int, item_path)
         _require_field(item, "mechanical_effect", str, item_path)
         if item_id != item_key:
             raise ValueError(f"{item_path}.id must match its items key.")
+        try:
+            canonical_price_cp = parse_price_to_cp(price)
+        except ValueError as error:
+            raise ValueError(
+                f"{item_path}.price is invalid: {error}"
+            ) from error
+        if canonical_price_cp != price_cp:
+            raise ValueError(
+                f"{item_path}.price_cp must match the canonical price."
+            )
         if price_cp < 0 or stock < 0:
             raise ValueError(
                 f"{item_path} price and stock cannot be negative."
@@ -485,13 +513,21 @@ def _validate_shop(shop: object, key: str) -> None:
 
 
 def _valid_checkpoint_id(checkpoint_id: object) -> bool:
-    return (
-        isinstance(checkpoint_id, str)
-        and checkpoint_id not in {"", ".", ".."}
-        and "/" not in checkpoint_id
-        and "\\" not in checkpoint_id
-        and "\x00" not in checkpoint_id
-    )
+    if not isinstance(checkpoint_id, str):
+        return False
+    if checkpoint_id in {"", ".", ".."} or checkpoint_id[-1] in {" ", "."}:
+        return False
+    if any(
+        ord(character) < 32 or character in WINDOWS_INVALID_FILENAME_CHARS
+        for character in checkpoint_id
+    ):
+        return False
+    reserved_stem = checkpoint_id.split(".", 1)[0].rstrip(" ").casefold()
+    if reserved_stem in WINDOWS_RESERVED_FILENAMES:
+        return False
+    filename = f"{checkpoint_id}.json"
+    utf_16_units = len(filename.encode("utf-16-le")) // 2
+    return len(filename.encode("utf-8")) <= 255 and utf_16_units <= 255
 
 
 def _validate_checkpoint(checkpoint: object, index: int) -> str:
