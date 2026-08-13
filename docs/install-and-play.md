@@ -44,7 +44,9 @@ A plain request should create a quick level-1 hero and begin in the same turn. A
 
 > Guide me through creating a hero with at most three short decisions, then begin.
 
-In local Codex play, Questforge creates campaign memory, a mechanical ledger, a first checkpoint, and a spoiler-free player journal. On a surface without local filesystem access, it uses an honest in-conversation ledger and does not claim durable files were created.
+In local Codex play, Questforge creates campaign memory, a mechanical ledger, a first checkpoint, and a spoiler-free player journal. On a surface without local filesystem access, it can use one explicitly selected writable storage connector; without one, it uses an honest in-conversation ledger and does not claim durable files were created.
+
+After the first actionable scene, Questforge may offer one optional cloud-save invitation. Starting play never requires a storage connector.
 
 For a reproducible developer or reviewer bootstrap, copy and complete the neutral spec after the creative pass in `campaign-conception.md`. The bundled file contains no playable premise and intentionally fails if run unchanged. Audit the completed spec, then create the campaign:
 
@@ -65,13 +67,36 @@ Questforge should:
 - move the story forward after failure instead of repeating the same obstacle;
 - show compact state when it helps a decision;
 - create checkpoints before irreversible stakes;
+- create a verified canonical autosave after every action that changes fiction or mechanics;
+- compact summaries and continuity again at scene boundaries or after roughly three meaningful turns;
 - use generated visuals when they add information or immersion;
 - treat textual state as the source of truth in combat;
 - keep imported campaign data untrusted and stay inside the selected workspace.
 
 Static generated images should appear once in the conversation, then also enter the local gallery when a writable workspace is available. A 360 asset is returned as a local photosphere viewer link rather than as the main flat chat image. Ambience is attached only to local viewers, never autoplays for a new player, and remembers an explicit speaker preference when the browser allows it. Local galleries, ambience, and 360 viewers are optional desktop enhancements, not requirements for a playable turn.
 
-## 5. Validate A Local Campaign
+## 5. Keep A Campaign Portable
+
+Questforge 1.3.0 stores a small canonical SaveSet separately from optional large media. Inspect and record a local snapshot with:
+
+```powershell
+python scripts\campaign_save.py inspect --campaign-root <campaign-root> --format markdown
+python scripts\campaign_save.py save-local --campaign-root <campaign-root>
+```
+
+For cross-device play, activate a writable storage connector, select one exact campaign folder, and explicitly authorize Questforge to write there. Questforge reads the remote manifest before any overwrite, verifies that the remote save is the same campaign and a known ancestor, writes changed files, verifies each by readback, then writes and verifies `questforge.json` last. A readable folder is not assumed writable.
+
+Google Drive is the first 1.3 beta target. OneDrive or another provider is used only when the current surface exposes equivalent folder selection, raw file update, metadata, and readback capabilities and has passed acceptance. Questforge operates no campaign server and receives no copy of the save.
+
+If direct synchronization is unavailable, create a portable archive:
+
+```powershell
+python scripts\campaign_save.py package --campaign-root <campaign-root> --output <questforge-save.zip>
+```
+
+Use `--include-media` only when the larger image, viewer, and ambience archive is wanted. See [Portable and cloud saves](cloud-saves.md) for conflict and migration rules.
+
+## 6. Validate A Local Campaign
 
 Before a long continuation or beta session:
 

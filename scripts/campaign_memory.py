@@ -7,6 +7,7 @@ import json
 import re
 import shutil
 import unicodedata
+import uuid
 from dataclasses import asdict, dataclass
 from datetime import date
 from pathlib import Path
@@ -197,16 +198,50 @@ def create_campaign(
 
 def create_manifest(name: str, session_date: date) -> str:
     payload = {
+        "schemaVersion": 2,
+        "campaignId": str(uuid.uuid4()),
         "campaign": name,
         "system": "5E-compatible, SRD-grounded",
         "created": session_date.isoformat(),
         "currentSession": 1,
+        "currentScene": {
+            "id": "session-001:scene-001",
+            "label": "opening",
+        },
         "imageGeneration": "native Codex/ChatGPT only; no API calls",
         "dmFiles": {
             "adventureSpine": "dm/adventure-spine.md",
             "puzzleLedger": "dm/puzzle-ledger.md",
         },
         "gameState": "game-state.json",
+        "canonicalFiles": {
+            "campaignState": "campaign-state.md",
+            "gameState": "game-state.json",
+            "playerJournal": "player-journal.md",
+            "openingBrief": "opening-brief.md",
+            "adventureSpine": "dm/adventure-spine.md",
+            "puzzleLedger": "dm/puzzle-ledger.md",
+            "visualBible": "visual-bible.md",
+            "visualIndex": "images/visual-index.md",
+            "visualLedger": "images/visual-ledger.md",
+            "characters": "characters/",
+            "sessions": "sessions/",
+            "checkpoints": "checkpoints/",
+            "visualPrompts": "images/prompts/",
+            "manifest": "questforge.json",
+        },
+        "storage": {
+            "autosave": {
+                "enabled": True,
+                "trigger": "meaningful-turn",
+                "compaction": "scene-boundary-or-three-turns",
+                "media": "separate",
+            },
+            "snapshot": None,
+            "history": [],
+            "local": None,
+            "cloud": None,
+        },
     }
     return json.dumps(payload, indent=2, ensure_ascii=False) + "\n"
 
@@ -330,6 +365,10 @@ def update_manifest_current_session(
         return
     payload = json.loads(paths.manifest.read_text(encoding="utf-8"))
     payload["currentSession"] = session_number
+    payload["currentScene"] = {
+        "id": f"session-{session_number:03d}:scene-001",
+        "label": "session opening",
+    }
     paths.manifest.write_text(
         json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",

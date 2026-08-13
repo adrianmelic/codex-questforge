@@ -20,7 +20,7 @@ Skills only.
 
 ## Long Description
 
-Say anything and let the world keep up. Questforge turns a conversation into an original 5E-compatible fantasy campaign played inside Codex. Create or import a hero, attempt actions in natural language, and let the Game Master continue a world that remembers what changed. Questforge uses transparent rulings and dice, tracks character and campaign state, and supports combat, inventory, shops, advancement, checkpoints, and failure-forward play. Static generated scenes can appear in the conversation. On writable local Codex workspaces, a chronological visual gallery, interactive 360 POV viewers, and optional original ambience extend the table without replacing the textual source of truth. Other supported surfaces use a compact conversation ledger and never claim local files were created.
+Say anything and let the world keep up. Questforge turns a conversation into an original 5E-compatible fantasy campaign played inside Codex. Create or import a hero, attempt actions in natural language, and let the Game Master continue a world that remembers what changed. Questforge uses transparent rulings and dice, tracks character and campaign state, and supports combat, inventory, shops, advancement, checkpoints, and failure-forward play. Version 1.3 adds meaningful-turn local autosaves, portable ZIP exports, and opt-in cross-device synchronization through a writable storage connector and exact folder selected by the player. Static generated scenes can appear in the conversation. On writable local Codex workspaces, a chronological visual gallery, interactive 360 POV viewers, and optional original ambience extend the table without replacing the textual source of truth. Surfaces without a writable filesystem can use an authorized storage connector or fall back honestly to an in-conversation ledger.
 
 ## Starter Prompts
 
@@ -34,7 +34,7 @@ Select all countries and regions where skills-only plugins are supported. Questf
 
 ## Release Notes
 
-Questforge 1.2.0 adds a redesigned book-and-anvil icon, a local visual-table flow that can remain open beside the conversation and follow new assets, and a substantially improved panorama viewer with natural drag direction, inertial movement, smooth zoom, and keyboard controls. Scene-appropriate approved ambience can be attached when a viewer is first created, remains muted for a new player, and is enabled only through a voluntary speaker control. The release retains six scoped skills, offline English/Spanish rules primers, optional full SRD 5.2.1 indexing, persistent campaign and mechanical state, transparent dice and failure-forward adjudication, native visual planning, chat-only fallbacks, and deterministic validation. No authentication or publisher-controlled server is required.
+Questforge 1.3.0 lets players continue a campaign beyond one conversation or computer without delaying the opening scene with storage setup. A new seventh skill creates verified local snapshots after meaningful turns, compacts continuity at scene boundaries, exports canonical or media-inclusive ZIP files, migrates older campaigns conservatively, and can synchronize directly to one user-selected writable cloud folder through an installed storage connector. Schema-2 manifests add stable campaign IDs, SHA-256 file records, revision lineage, and an explicit session/scene resume point. Cloud writes verify permission, compare remote ancestry, update canonical files first, and write/read back `questforge.json` last; partial saves and conflicts are never reported as complete. Google Drive is the first end-to-end tested beta target. Questforge still operates no publisher-controlled campaign server and receives no copy of player saves.
 
 ## Reviewer Notes
 
@@ -42,5 +42,7 @@ Questforge 1.2.0 adds a redesigned book-and-anvil icon, a local visual-table flo
 - The default first run is offline and installs no packages. Complete SRD download requires explicit user consent; Questforge never installs `pypdf` or any other dependency.
 - Local analytics are campaign files, not publisher telemetry.
 - Static generated images appear once in the conversation when native image generation is available. Local galleries, audio, and 360 viewers are optional desktop enhancements.
-- Before any future submission, run the final installed-plugin acceptance gate described in `submission/release-playtest-report.md`; a silent `prompt-saved` opening is a failed release test.
+- Cloud saves are optional and use a storage connector already installed by the player. Folder detection is only a hint; the player must select one exact target and authorize writes. Google Drive passed the 1.3.0 end-to-end acceptance on 2026-08-12 using disposable synthetic campaigns only.
+- The canonical SaveSet synchronizes separately from optional large media. Each critical file and the final manifest require readback before a save is called complete.
+- Repeat the final installed-plugin and claimed-provider acceptance gates described in `submission/release-playtest-report.md` before each future release; a silent `prompt-saved` opening is a failed release test.
 - The plugin never needs credentials or sensitive personal data.

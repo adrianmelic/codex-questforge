@@ -1,13 +1,13 @@
 ---
 name: questforge-campaign
-description: Manage Questforge campaign memory, sessions, clocks, NPCs, factions, inventory, clues, state patches, and continuity between sessions.
+description: Manage Questforge campaign memory, sessions, clocks, NPCs, factions, inventory, clues, state patches, canonical save files, and continuity between sessions.
 ---
 
 # Questforge Campaign
 
 Use this skill when starting, continuing, closing, or auditing a campaign.
 
-When local file access is unavailable, keep a compact spoiler-free state block in the conversation with hero status, inventory, objective, clues, open threads, and the last checkpoint label. Do not claim durable persistence beyond the current task.
+Use `questforge-save` for durable snapshots, cloud sync, ZIP export, conflict handling, and migration. When local file access is unavailable, use a player-selected writable storage connector if one is explicitly authorized. Otherwise keep a compact spoiler-free state block in the conversation with hero status, inventory, objective, clues, open threads, and the last checkpoint label; do not claim durable persistence beyond the current task.
 
 ## Campaign Workspace
 
@@ -64,6 +64,7 @@ For each scene:
 10. At a scene boundary or after roughly three meaningful turns, update `player-journal.md` with spoiler-free current objective, known clues/NPCs, inventory, XP/rewards, damage/conditions, and open threads.
 11. Append compact analytics events for meaningful checks, choices, consequences, rewards, visuals, puzzles, repeated obstacles, and pacing notes with `../../scripts/session_analytics.py log-event`.
 12. Update the session log, campaign state, and DM spine at scene boundaries or session end. Mechanical changes in `game-state.json` remain immediate.
+13. After every action that changes fiction or mechanics, use `questforge-save` for a canonical autosave. At scene boundaries or after roughly three meaningful turns, save again after compacting the journal and continuity files. Do not make optional media synchronization block the canonical save.
 
 ## State Patch
 
@@ -124,6 +125,8 @@ python ../../scripts/preflight.py --campaign-root <campaign-root> --repair-missi
 ```
 
 Run preflight for an explicitly requested beta/readiness pass, after a migration, or when continuing a campaign with suspected missing files. Do not run it in every live turn or delay a new player's first actionable scene with it. Fix preflight errors before the planned beta or continuation. Treat warnings as prep notes, especially empty visual-ledger continuity and missing player-facing recovery notes. For a manual readiness pass, use `../../docs/beta-preflight-checklist.md`.
+
+If preflight reports a legacy manifest, a session mismatch, or a non-canonical journal/index copy, use `questforge-save` and run its migration dry-run. Never repair missing mechanical truth by invention or choose between divergent files silently.
 
 Create the next session log with:
 

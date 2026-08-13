@@ -1,3 +1,4 @@
+import json
 from datetime import date
 
 import pytest
@@ -65,6 +66,11 @@ def test_create_campaign_writes_memory_structure(tmp_path):
         encoding="utf-8"
     )
     assert '"currentSession": 1' in paths.manifest.read_text(encoding="utf-8")
+    manifest = json.loads(paths.manifest.read_text(encoding="utf-8"))
+    assert manifest["schemaVersion"] == 2
+    assert manifest["campaignId"]
+    assert manifest["canonicalFiles"]["manifest"] == "questforge.json"
+    assert manifest["storage"]["autosave"]["trigger"] == "meaningful-turn"
     assert '"adventureSpine": "dm/adventure-spine.md"' in (
         paths.manifest.read_text(encoding="utf-8")
     )

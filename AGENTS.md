@@ -15,6 +15,10 @@ Purpose: public Questforge plugin source, tests, distributable assets, and publi
 - When a release is prepared in another workspace, port only the distributable source files required by the package. Compare the packaged archive with this repository instead of copying an entire workspace.
 - Preserve repository-only development files such as tests, packaging scripts, contribution metadata, and public documentation when syncing a skills-only archive.
 - Before publishing, run the tests, package validation, a full-history secret scan, and a focused search for private paths, task identifiers, workspace URLs, and credentials.
+- For save-system changes, use synthetic campaign fixtures only. Never copy or migrate a real campaign into this repository or its test artifacts.
+- Keep the portable SaveSet provider-neutral. A storage connector must use one exact user-selected folder, compare manifest lineage before overwrite, verify critical writes by readback, and write `questforge.json` last. Do not add provider credentials, account identifiers, or personal folder paths to source, fixtures, logs, or receipts.
+- Treat Google Drive as the first 1.3 beta target. Do not claim any provider is tested until its end-to-end write/readback, resume, permission, and conflict acceptance has passed.
+- Cloud-saving features must preserve a complete local or ZIP fallback and must distinguish canonical-state success from optional media synchronization.
 - Use `https://adrianmelic.com/questforge` as the canonical product page. Keep the GitHub Pages compatibility URLs working while any published Platform version still references them.
 
 ## Engineering

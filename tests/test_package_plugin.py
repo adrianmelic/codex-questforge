@@ -19,9 +19,14 @@ def test_release_file_set_contains_runtime_and_excludes_private_artifacts():
 
     assert ".codex-plugin/plugin.json" in paths
     assert "skills/questforge/SKILL.md" in paths
+    assert "skills/questforge-save/SKILL.md" in paths
+    assert "skills/questforge-save/agents/openai.yaml" in paths
+    assert "skills/questforge-save/references/save-contract.md" in paths
     assert "scripts/game_state.py" in paths
+    assert "scripts/campaign_save.py" in paths
     assert "scripts/campaign_conception.py" in paths
     assert "docs/campaign-conception.md" in paths
+    assert "docs/cloud-saves.md" in paths
     assert "resources/core-rules/en.md" in paths
     assert "templates/game-state.json" in paths
     assert "PRIVACY.md" in paths
@@ -46,6 +51,9 @@ def test_archive_is_portal_ready(tmp_path: Path):
     )
     assert manifest["name"] == "questforge"
     assert "skills/questforge/SKILL.md" in names
+    assert "skills/questforge-save/SKILL.md" in names
+    assert "scripts/campaign_save.py" in names
+    assert "docs/cloud-saves.md" in names
     assert "assets/audio/library.json" in names
     assert not any(name.startswith(".git/") for name in names)
 

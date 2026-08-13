@@ -1,7 +1,7 @@
 {
   "name": "questforge",
-  "version": "1.2.0",
-  "description": "Play an open-ended 5E-compatible fantasy RPG inside Codex with visible dice, persistent campaigns, and generated scenes.",
+  "version": "1.3.0",
+  "description": "Play an open-ended 5E-compatible fantasy RPG inside Codex with visible dice, portable campaigns, optional cloud saves, and generated scenes.",
   "author": {
     "name": "Adrián Melic",
     "email": "info@adrianmelic.com",
@@ -16,13 +16,14 @@
     "campaigns",
     "storytelling",
     "dice",
-    "image-generation"
+    "image-generation",
+    "cloud-saves"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Questforge",
     "shortDescription": "Open-ended fantasy RPG",
-    "longDescription": "Say anything and let the world keep up. Questforge turns a conversation into an original 5E-compatible fantasy campaign with transparent dice, durable character and world state, combat, inventory, advancement, checkpoints, and failure-forward play. Static generated scenes can appear in the conversation; writable local Codex workspaces can also add a chronological gallery, interactive 360 POV viewers, and optional ambience.",
+    "longDescription": "Say anything and let the world keep up. Questforge turns a conversation into an original 5E-compatible fantasy campaign with transparent dice, durable character and world state, combat, inventory, advancement, checkpoints, and failure-forward play. Campaigns can use verified local saves, portable ZIP exports, and opt-in synchronization through a user-selected writable storage connector. Static generated scenes can appear in the conversation; writable local Codex workspaces can also add a chronological gallery, interactive 360 POV viewers, and optional ambience.",
     "developerName": "Adrián Melic",
     "category": "Entertainment",
     "capabilities": [
@@ -30,6 +31,7 @@
       "Write",
       "Rules Lookup",
       "Campaign Memory",
+      "Portable Cloud Saves",
       "Turn-Based Combat",
       "Rollback Checkpoints",
       "Image Generation"

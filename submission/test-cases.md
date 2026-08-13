@@ -56,41 +56,41 @@ Check name, modifier, DC with a short reason, d20 result and total, clear succes
 
 The prompt supplies the required character modifier and situation.
 
-## Positive 4: Inventory, Equipment, Currency, And Checkpoint
+## Positive 4: Inventory, Checkpoint, And Portable Save
 
 **User prompt**
 
-> Create a minimal Questforge state for Mara, a level-1 fighter with 12 HP, AC 16, and 12 gp. A merchant sells reinforced gloves for 5 gp. Buy them, equip them in the gloves slot, show the resulting inventory and money, and create a checkpoint named “After the gloves purchase”.
+> Create a minimal Questforge state for Mara, a level-1 fighter with 12 HP, AC 16, and 12 gp. A merchant sells reinforced gloves for 5 gp. Buy them, equip them in the gloves slot, show the resulting inventory and money, create a checkpoint named “After the gloves purchase”, and save the resulting campaign state locally.
 
 **Expected workflow behavior**
 
-Questforge uses the campaign and mechanical state helpers. It creates or updates only a scoped campaign workspace, records the purchase once, equips the item, subtracts currency, and creates a named checkpoint. It does not invent additional purchases or loot.
+Questforge uses the campaign, mechanical state, and save skills. It creates or updates only a scoped campaign workspace, records the purchase once, equips the item, subtracts currency, creates a named checkpoint, and writes a verified canonical snapshot with `questforge.json` last. It does not invent additional purchases or loot or upload the campaign without an explicit cloud-folder authorization.
 
 **Expected result shape**
 
-Mara at 12/12 HP and AC 16, the reinforced gloves equipped, 7 gp remaining, and confirmation of the `After the gloves purchase` checkpoint. In chat-only mode the same facts appear in a compact ledger with an explicit note that no local file was written.
+Mara at 12/12 HP and AC 16, the reinforced gloves equipped, 7 gp remaining, confirmation of the `After the gloves purchase` checkpoint, and a compact local save receipt with save ID/revision. In chat-only mode without a writable storage connector, the same facts appear in a compact ledger with an explicit note that no durable file was written.
 
 **Fixture data**
 
 The prompt contains all required state.
 
-## Positive 5: Tactical Visual With Textual Source Of Truth
+## Positive 5: Authorized Google Drive Save And Resume
 
 **User prompt**
 
-> Start a short encounter in a glassworks yard at noon. My fighter is by the south gate; two saboteurs are behind clay bins near the north kiln. Include a hanging sand hopper, a coal brazier, stacked molds, and a side workshop door. Show the tactical situation in text, then generate a top-down map without revealing anything the hero cannot see.
+> I connected Google Drive and selected an empty folder named “Mara - Questforge”. Save the current synthetic campaign there so I can resume on another device. You may write only inside that selected folder. Verify the save before saying it is complete.
 
 **Expected workflow behavior**
 
-Questforge records the tactical scene first, then uses the visual planner and native image generation when available. The prompt preserves all named positions and interactables, applies fog of war to unknown areas, and does not treat generated pixels as mechanical truth.
+Questforge uses the save skill and the available Google Drive connector. It confirms the exact selected folder and write authorization, reads the remote manifest state before overwriting anything, creates a canonical snapshot, uploads or updates every critical non-manifest file, verifies each by readback, then writes and verifies `questforge.json` last. It does not scan other Drive folders or require Questforge-owned authentication.
 
 **Expected result shape**
 
-A readable textual encounter state with positions, visible enemies, terrain, hazards, and interactables, followed by one generated top-down map on supported surfaces. The image is shown once and registered in local visual history when local files are available.
+A compact report with complete/partial status, selected folder, campaign ID, save ID, revision, session and scene, verified critical-file count, media status, and the folder link. “Complete” appears only after the final manifest readback. A second task selecting the same folder can verify all canonical files and resume at that session/scene.
 
 **Fixture data**
 
-The prompt supplies all visible tactical facts.
+A disposable synthetic campaign and an empty test folder with writable Google Drive access. Never use a private campaign for this reviewer test.
 
 ## Negative 1: Commercial Rulebook Reproduction
 

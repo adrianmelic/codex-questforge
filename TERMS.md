@@ -1,6 +1,6 @@
 # Questforge Terms of Use
 
-Effective date: July 9, 2026
+Effective date: August 12, 2026
 
 Questforge is an open-source, skills-only fantasy role-playing plugin published by Adrián Melic. By installing or using Questforge, you agree to these terms.
 
@@ -9,6 +9,8 @@ Questforge is an open-source, skills-only fantasy role-playing plugin published 
 You may use, copy, modify, and distribute the original Questforge code and materials under the MIT License. Third-party materials remain subject to their own licenses and notices.
 
 Questforge is intended for fictional, general-audience entertainment. You are responsible for the content you provide, the choices you make about generated content, and compliance with the rules of the OpenAI product and any other service you use.
+
+Optional cloud saving uses a third-party storage connector and exact folder you select. You are responsible for that provider account, folder sharing, retention, and available storage. Questforge does not operate a campaign server, guarantee synchronization availability, or receive a publisher copy of your save. Review conflict and partial-save reports before continuing on another device.
 
 ## Rules And Intellectual Property
 
@@ -24,7 +26,7 @@ Stories, images, and other generated content can be inaccurate, inconsistent, or
 
 ## Availability And Changes
 
-Questforge is provided without a service-level commitment. Features can change, and some capabilities depend on the OpenAI surface, local permissions, image generation availability, browser support, or optional third-party resources.
+Questforge is provided without a service-level commitment. Features can change, and some capabilities depend on the OpenAI surface, local permissions, storage connector availability and authorization, provider limits, image generation availability, browser support, or optional third-party resources.
 
 ## Disclaimer And Liability
 

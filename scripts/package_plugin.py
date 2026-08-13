@@ -29,6 +29,7 @@ INCLUDED_TREES = (
 INCLUDED_RUNTIME_DOCS = {
     "docs/beta-preflight-checklist.md",
     "docs/campaign-conception.md",
+    "docs/cloud-saves.md",
     "docs/game-state.md",
     "docs/narrative-diversity.md",
     "docs/sound-atlas.md",

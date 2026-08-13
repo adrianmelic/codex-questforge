@@ -16,6 +16,7 @@ try:
         read_template,
         read_visual_index,
     )
+    from .campaign_save import manifest_continuity_issues
     from .visual_gallery import create_visual_gallery
 except ImportError:  # pragma: no cover - direct script execution path
     from campaign_memory import (
@@ -24,6 +25,7 @@ except ImportError:  # pragma: no cover - direct script execution path
         read_template,
         read_visual_index,
     )
+    from campaign_save import manifest_continuity_issues
     from visual_gallery import create_visual_gallery
 
 
@@ -96,6 +98,16 @@ def run_preflight(
 
     if repair_missing_templates:
         repair_safe_missing_templates(paths, issues)
+
+    for save_issue in manifest_continuity_issues(paths.root):
+        issues.append(
+            PreflightIssue(
+                level=save_issue.level,
+                code=save_issue.code,
+                message=save_issue.message,
+                path=save_issue.path,
+            )
+        )
 
     for required_file in required_files(paths):
         if not required_file.exists():
