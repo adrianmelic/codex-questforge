@@ -18,8 +18,10 @@ from typing import Iterable
 
 try:
     from .campaign_memory import existing_session_numbers
+    from .game_state import validate_state
 except ImportError:  # pragma: no cover - direct script execution path
     from campaign_memory import existing_session_numbers
+    from game_state import validate_state
 
 
 SCHEMA_VERSION = 2
@@ -232,6 +234,13 @@ def read_manifest(campaign_root: Path) -> dict:
     if not manifest_path.is_file():
         raise FileNotFoundError(f"Missing campaign manifest: {manifest_path}")
     return read_json(manifest_path)
+
+
+def validate_game_state(path: Path) -> None:
+    """Require a parseable and mechanically usable canonical ledger."""
+
+    payload = read_json(path)
+    validate_state(payload)
 
 
 def integer_value(value: object, default: int = 0) -> int:
@@ -499,6 +508,18 @@ def inspect_campaign(
                     path=str(path),
                 )
             )
+        elif relative_path == "game-state.json":
+            try:
+                validate_game_state(path)
+            except (OSError, ValueError) as error:
+                issues.append(
+                    SaveIssue(
+                        level="error",
+                        code="invalid_game_state",
+                        message=f"Mechanical state is not usable: {error}",
+                        path=str(path),
+                    )
+                )
     for relative_path in sorted(REQUIRED_DIRECTORIES):
         path = campaign_root / relative_path
         try:
@@ -965,15 +986,58 @@ def validate_remote_before(
         raise ValueError("Remote save is newer than the local snapshot.")
 
 
-def validate_cloud_receipt(manifest: dict, receipt: dict) -> None:
+def validate_receipt_target(
+    receipt: dict,
+    provider: str,
+    folder_ref: str,
+    receipt_name: str,
+) -> None:
+    """Bind one verification receipt to the exact selected cloud folder."""
+
+    if not isinstance(provider, str) or not re.fullmatch(
+        r"[a-z0-9][a-z0-9-]*", provider
+    ):
+        raise ValueError("Cloud target provider is missing or invalid.")
+    if not isinstance(folder_ref, str) or not folder_ref.strip():
+        raise ValueError("Cloud target folderRef is missing or invalid.")
+    if receipt.get("provider") != provider:
+        raise ValueError(
+            f"{receipt_name} provider does not match the selected provider."
+        )
+    if receipt.get("folderRef") != folder_ref:
+        raise ValueError(
+            f"{receipt_name} folderRef does not match the selected folder."
+        )
+
+
+def validate_cloud_receipt(
+    manifest: dict,
+    receipt: dict,
+    provider: str,
+    folder_ref: str,
+) -> None:
     """Validate write authorization, ancestry, and every file readback."""
 
     snapshot = manifest["storage"]["snapshot"]
+    validate_receipt_target(
+        receipt,
+        provider,
+        folder_ref,
+        "Data receipt",
+    )
     if receipt.get("saveId") != snapshot.get("saveId"):
         raise ValueError("Receipt saveId does not match the local snapshot.")
     if receipt.get("writeAuthorized") is not True:
         raise ValueError("Cloud write authority was not verified.")
-    validate_remote_before(manifest, receipt.get("remoteBefore"))
+    if "remoteBefore" not in receipt:
+        raise ValueError(
+            "Receipt must declare remoteBefore; use null only after verifying "
+            "that the selected folder has no campaign manifest."
+        )
+    remote_before = receipt["remoteBefore"]
+    if remote_before is not None and not isinstance(remote_before, dict):
+        raise ValueError("Receipt remoteBefore must be an object or null.")
+    validate_remote_before(manifest, remote_before)
     receipts = receipt.get("files")
     if not isinstance(receipts, dict):
         raise ValueError("Receipt must contain per-file verification records.")
@@ -999,9 +1063,11 @@ def stage_cloud_manifest(
 ) -> dict:
     """Create the manifest that must be uploaded after all other files."""
 
-    if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", provider):
+    if not isinstance(provider, str) or not re.fullmatch(
+        r"[a-z0-9][a-z0-9-]*", provider
+    ):
         raise ValueError("Provider must use lowercase kebab-case.")
-    if not folder_ref.strip():
+    if not isinstance(folder_ref, str) or not folder_ref.strip():
         raise ValueError("An exact provider folder reference is required.")
     campaign_root = campaign_root.expanduser().resolve()
     output_path = output_path.expanduser().resolve()
@@ -1017,7 +1083,7 @@ def stage_cloud_manifest(
     plan = cloud_plan(campaign_root)
     manifest = read_manifest(campaign_root)
     receipt = read_json(receipt_path)
-    validate_cloud_receipt(manifest, receipt)
+    validate_cloud_receipt(manifest, receipt, provider, folder_ref)
     verified_at = utc_now()
     manifest["storage"]["cloud"] = {
         "provider": provider,
@@ -1034,6 +1100,8 @@ def stage_cloud_manifest(
         "stagedManifest": str(output_path),
         "sha256": sha256_file(output_path),
         "saveId": plan["saveId"],
+        "provider": provider,
+        "folderRef": folder_ref,
         "uploadLastAs": MANIFEST_NAME,
     }
 
@@ -1063,6 +1131,15 @@ def commit_cloud_manifest(
         raise ValueError("Remote questforge.json hash does not match staging.")
     if receipt.get("saveId") != staged_snapshot.get("saveId"):
         raise ValueError("Remote manifest receipt has the wrong saveId.")
+    staged_cloud = staged.get("storage", {}).get("cloud")
+    if not isinstance(staged_cloud, dict):
+        raise ValueError("Staged manifest is missing its cloud target.")
+    validate_receipt_target(
+        receipt,
+        staged_cloud.get("provider"),
+        staged_cloud.get("folderRef"),
+        "Manifest receipt",
+    )
     atomic_write_json(campaign_root / MANIFEST_NAME, staged)
     return {
         "status": "cloud-save-complete",
@@ -1282,6 +1359,17 @@ def migration_plan(
                     "message": "Cannot reconstruct this file safely.",
                 }
             )
+        elif is_file and relative_path == "game-state.json":
+            try:
+                validate_game_state(path)
+            except (OSError, ValueError) as error:
+                blockers.append(
+                    {
+                        "code": "invalid_game_state",
+                        "path": str(path),
+                        "message": str(error),
+                    }
+                )
     for relative_path in sorted(REQUIRED_DIRECTORIES):
         path = campaign_root / relative_path
         try:

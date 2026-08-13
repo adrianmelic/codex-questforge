@@ -82,6 +82,8 @@ The temporary non-secret data-file receipt used by the local helper has this sha
 {
   "saveId": "<sha256>",
   "writeAuthorized": true,
+  "provider": "google-drive",
+  "folderRef": "<opaque-folder-id>",
   "remoteBefore": {
     "campaignId": "<uuid>",
     "saveId": "<sha256>",
@@ -97,7 +99,7 @@ The temporary non-secret data-file receipt used by the local helper has this sha
 }
 ```
 
-Use `remoteBefore: null` only when the selected folder has no campaign manifest and has been confirmed as a suitable new target. Every planned file needs a matching verified receipt.
+The `remoteBefore` field is mandatory. Use `remoteBefore: null` only when the selected folder has no campaign manifest and has been confirmed as a suitable new target. Missing lineage evidence must stop the transaction. The receipt's `provider` and `folderRef` must exactly match the selected target, and every planned file needs a matching verified receipt.
 
 After staging and uploading `questforge.json`, verify it separately:
 
@@ -106,9 +108,13 @@ After staging and uploading `questforge.json`, verify it separately:
   "saveId": "<sha256>",
   "sha256": "<sha256-of-staged-manifest>",
   "verified": true,
+  "provider": "google-drive",
+  "folderRef": "<opaque-folder-id>",
   "remoteId": "<opaque-provider-file-id>"
 }
 ```
+
+The final manifest receipt must repeat the same exact `provider` and `folderRef`. A receipt from another folder or provider never verifies this transaction.
 
 Receipts may live in a temporary local directory. Do not put campaign content, credentials, access tokens, or broad provider metadata in them.
 

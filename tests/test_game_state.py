@@ -1,3 +1,5 @@
+import json
+from copy import deepcopy
 from datetime import date
 
 import pytest
@@ -12,6 +14,7 @@ from scripts.game_state import (
     award_xp,
     buy_item,
     create_checkpoint,
+    currency_to_cp,
     default_character,
     equip_item,
     format_status,
@@ -72,6 +75,24 @@ def test_game_state_tracks_inventory_equipment_and_status(tmp_path):
     assert "Stormproof cloak" in format_status(loaded)
 
 
+def test_add_character_normalizes_the_stored_name(tmp_path):
+    paths = create_campaign(
+        tmp_path,
+        "The Amber Gate",
+        session_date=date(2026, 6, 9),
+    )
+    state = load_state(paths.root)
+    character = default_character("  Mara Vey  ")
+
+    add_character(state, character)
+    save_state(paths.root, state)
+    loaded = load_state(paths.root)
+
+    assert loaded["party"] == ["Mara Vey"]
+    assert loaded["active_character"] == "Mara Vey"
+    assert loaded["characters"]["Mara Vey"]["name"] == "Mara Vey"
+
+
 def test_add_item_with_slot_creates_consistent_equipped_state(tmp_path):
     _paths, state = create_stateful_campaign(tmp_path)
 
@@ -120,6 +141,64 @@ def test_game_state_handles_shopping_and_currency(tmp_path):
     save_state(paths.root, state)
 
 
+def test_fractional_shop_price_purchase_uses_exact_copper(tmp_path):
+    _paths, state = create_stateful_campaign(tmp_path)
+    state["characters"]["Mara Vey"]["currency"]["gp"] = 1
+    item = add_shop_item(
+        state,
+        shop_id="low-door",
+        shop_name="Low Door Outfitters",
+        merchant="Sella",
+        item_name="Waxed map case",
+        price="0.29gp",
+    )
+
+    assert item["price_cp"] == 29
+    buy_item(state, "Mara Vey", "low-door", "Waxed map case")
+
+    character = state["characters"]["Mara Vey"]
+    assert currency_to_cp(character["currency"]) == 71
+
+
+@pytest.mark.parametrize(
+    ("price", "price_cp", "message"),
+    [
+        ("free", 0, "price is invalid"),
+        ("5gp", 1, "price_cp must match the canonical price"),
+        (
+            f"{'9' * 400}gp",
+            0,
+            "price_cp must match the canonical price",
+        ),
+    ],
+)
+def test_load_state_rejects_invalid_or_inconsistent_shop_prices(
+    tmp_path,
+    price,
+    price_cp,
+    message,
+):
+    paths, state = create_stateful_campaign(tmp_path)
+    add_shop_item(
+        state,
+        shop_id="low-door",
+        shop_name="Low Door Outfitters",
+        merchant="Sella",
+        item_name="Iron lantern",
+        price="5gp",
+    )
+    item = state["shops"]["low-door"]["items"]["iron-lantern"]
+    item["price"] = price
+    item["price_cp"] = price_cp
+    (paths.root / "game-state.json").write_text(
+        json.dumps(state),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match=message):
+        load_state(paths.root)
+
+
 def test_game_state_tracks_xp_level_up_spell_slots_and_rest(tmp_path):
     paths, state = create_stateful_campaign(tmp_path)
 
@@ -143,12 +222,22 @@ def test_game_state_tracks_xp_level_up_spell_slots_and_rest(tmp_path):
         ]
         == 1
     )
+    state["characters"]["Mara Vey"]["resources"]["limited_uses"][
+        "arcane_recovery"
+    ] = {
+        "max": 1,
+        "used": 1,
+        "recovery": "long_rest",
+    }
 
     rest(state, "Mara Vey", "long")
     character = state["characters"]["Mara Vey"]
     assert character["level"] == 2
     assert character["current_hp"] == character["max_hp"]
     assert character["resources"]["spell_slots"]["1"]["used"] == 0
+    assert (
+        character["resources"]["limited_uses"]["arcane_recovery"]["used"] == 0
+    )
     save_state(paths.root, state)
 
 
@@ -192,6 +281,26 @@ def test_game_state_handles_combat_damage_death_saves_and_healing(tmp_path):
     save_state(paths.root, state)
 
 
+@pytest.mark.parametrize(
+    "combatants",
+    [
+        ["Goblin:10", "Goblin:8"],
+        [":10"],
+    ],
+)
+def test_start_combat_rejects_invalid_names_without_mutating_state(
+    tmp_path,
+    combatants,
+):
+    _paths, state = create_stateful_campaign(tmp_path)
+    original_state = deepcopy(state)
+
+    with pytest.raises(ValueError):
+        start_combat(state, "Unsafe ambush", combatants)
+
+    assert state == original_state
+
+
 def test_game_state_checkpoint_restore_rolls_back_state(tmp_path):
     paths, state = create_stateful_campaign(tmp_path)
 
@@ -218,3 +327,143 @@ def test_game_state_rejects_spending_missing_spell_slot(tmp_path):
 
     with pytest.raises(ValueError, match="No level 2 spell slots"):
         spend_spell_slot(state, "Mara Vey", slot_level=2)
+
+
+def test_load_state_rejects_incomplete_nested_combat_state(tmp_path):
+    paths, state = create_stateful_campaign(tmp_path)
+    state["combat"] = {
+        "active": True,
+        "name": "Broken ambush",
+        "round": 1,
+        "current_turn_index": 0,
+        "turn_order": ["Mara Vey"],
+        "combatants": {"Mara Vey": {}},
+        "tactical_scene": {
+            "summary": "",
+            "range_bands": [],
+            "terrain": [],
+            "hazards": [],
+            "interactables": [],
+            "visual_prompt_hint": "",
+        },
+        "log": [],
+    }
+    (paths.root / "game-state.json").write_text(
+        json.dumps(state),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="combatants.Mara Vey.name"):
+        load_state(paths.root)
+
+
+@pytest.mark.parametrize(
+    ("field", "malformed_value", "message"),
+    [
+        ("shops", {"broken": {}}, "shops.broken.id"),
+        ("checkpoints", [{}], r"checkpoints\[0\].id"),
+    ],
+)
+def test_load_state_rejects_incomplete_shop_and_checkpoint_records(
+    tmp_path,
+    field,
+    malformed_value,
+    message,
+):
+    paths, state = create_stateful_campaign(tmp_path)
+    broken_state = deepcopy(state)
+    broken_state[field] = malformed_value
+    (paths.root / "game-state.json").write_text(
+        json.dumps(broken_state),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match=message):
+        load_state(paths.root)
+
+
+@pytest.mark.parametrize(
+    ("resources", "message"),
+    [
+        (
+            {"spell_slots": {}, "limited_uses": {"rage": 1}},
+            "limited_uses.rage must be an object",
+        ),
+        (
+            {
+                "spell_slots": {"first": {"max": 1, "used": 0}},
+                "limited_uses": {},
+            },
+            "spell_slots.first must use a spell level",
+        ),
+    ],
+)
+def test_load_state_rejects_malformed_resource_records(
+    tmp_path,
+    resources,
+    message,
+):
+    paths, state = create_stateful_campaign(tmp_path)
+    state["characters"]["Mara Vey"]["resources"] = resources
+    (paths.root / "game-state.json").write_text(
+        json.dumps(state),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match=message):
+        load_state(paths.root)
+
+
+@pytest.mark.parametrize(
+    "checkpoint_id",
+    [
+        "../../outside",
+        "bad:name",
+        "CON",
+        "checkpoint.",
+        "checkpoint ",
+        "control\x01character",
+    ],
+)
+def test_checkpoint_ids_must_be_portable_filename_components(
+    tmp_path,
+    checkpoint_id,
+):
+    paths, state = create_stateful_campaign(tmp_path)
+
+    with pytest.raises(ValueError, match="safe filename component"):
+        create_checkpoint(
+            paths.root,
+            state,
+            label="Unsafe checkpoint",
+            checkpoint_id=checkpoint_id,
+        )
+
+    assert state["checkpoints"] == []
+    assert list((paths.root / "checkpoints").glob("*.json")) == []
+
+
+def test_checkpoint_ids_cannot_collide_under_portable_filename_rules(
+    tmp_path,
+):
+    paths, state = create_stateful_campaign(tmp_path)
+    create_checkpoint(
+        paths.root,
+        state,
+        label="First save",
+        checkpoint_id="Save",
+    )
+    original_state = deepcopy(state)
+
+    with pytest.raises(FileExistsError, match="portable filename rules"):
+        create_checkpoint(
+            paths.root,
+            state,
+            label="Colliding save",
+            checkpoint_id="save",
+        )
+
+    assert state == original_state
+    assert [
+        path.name for path in (paths.root / "checkpoints").glob("*.json")
+    ] == ["Save.json"]

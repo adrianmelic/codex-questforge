@@ -11,6 +11,7 @@ import unicodedata
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from fractions import Fraction
 from pathlib import Path
 from typing import Iterable
 
@@ -78,6 +79,24 @@ EQUIPMENT_SLOTS = [
     "instrument",
     "focus",
 ]
+WINDOWS_INVALID_FILENAME_CHARS = frozenset('<>:"/\\|?*')
+WINDOWS_RESERVED_FILENAMES = {
+    "con",
+    "prn",
+    "aux",
+    "nul",
+    "clock$",
+    "conin$",
+    "conout$",
+    *(f"com{index}" for index in range(1, 10)),
+    *(f"lpt{index}" for index in range(1, 10)),
+    "com¹",
+    "com²",
+    "com³",
+    "lpt¹",
+    "lpt²",
+    "lpt³",
+}
 
 
 @dataclass(frozen=True)
@@ -150,17 +169,477 @@ def empty_tactical_scene() -> dict:
     }
 
 
+def _require_field(
+    record: dict,
+    field: str,
+    expected_type: type,
+    path: str,
+) -> object:
+    """Return one required state field or raise a path-specific error."""
+
+    value = record.get(field)
+    if expected_type is int:
+        valid = isinstance(value, int) and not isinstance(value, bool)
+    else:
+        valid = isinstance(value, expected_type)
+    if not valid:
+        raise ValueError(f"{path}.{field} must be a {expected_type.__name__}.")
+    return value
+
+
+def _validate_condition(condition: object, path: str) -> None:
+    if not isinstance(condition, dict):
+        raise ValueError(f"{path} must be an object.")
+    _require_field(condition, "name", str, path)
+    for field in ("effect", "ends_on"):
+        if field in condition:
+            _require_field(condition, field, str, path)
+
+
+def _validate_character(character: object, key: str) -> None:
+    """Validate the nested shape used by character mechanics and rendering."""
+
+    path = f"game-state.characters.{key}"
+    if not isinstance(character, dict):
+        raise ValueError(f"{path} must be an object.")
+    required_types = {
+        "name": str,
+        "ancestry": str,
+        "class": str,
+        "background": str,
+        "level": int,
+        "xp": int,
+        "proficiency_bonus": int,
+        "abilities": dict,
+        "skill_modifiers": dict,
+        "armor_class": int,
+        "max_hp": int,
+        "current_hp": int,
+        "temporary_hp": int,
+        "speed": int,
+        "initiative_modifier": int,
+        "hit_dice": dict,
+        "death_saves": dict,
+        "currency": dict,
+        "inventory": list,
+        "equipment": dict,
+        "resources": dict,
+        "spells": dict,
+        "conditions": list,
+        "advancement": dict,
+        "features": list,
+        "notes": list,
+    }
+    values = {
+        field: _require_field(character, field, field_type, path)
+        for field, field_type in required_types.items()
+    }
+    if values["name"] != key:
+        raise ValueError(f"{path}.name must match its characters key.")
+    level = values["level"]
+    if not 1 <= level <= 20:
+        raise ValueError(f"{path}.level must be between 1 and 20.")
+    if values["xp"] < 0:
+        raise ValueError(f"{path}.xp cannot be negative.")
+    if values["max_hp"] <= 0:
+        raise ValueError(f"{path}.max_hp must be positive.")
+    for field in ("current_hp", "temporary_hp"):
+        if values[field] < 0:
+            raise ValueError(f"{path}.{field} cannot be negative.")
+
+    abilities = values["abilities"]
+    for ability in DEFAULT_ABILITIES:
+        _require_field(abilities, ability, int, f"{path}.abilities")
+
+    hit_dice = values["hit_dice"]
+    _require_field(hit_dice, "die", str, f"{path}.hit_dice")
+    total_hit_dice = _require_field(hit_dice, "total", int, f"{path}.hit_dice")
+    remaining_hit_dice = _require_field(
+        hit_dice, "remaining", int, f"{path}.hit_dice"
+    )
+    if total_hit_dice < 0 or not 0 <= remaining_hit_dice <= total_hit_dice:
+        raise ValueError(f"{path}.hit_dice has an invalid remaining total.")
+
+    death_saves = values["death_saves"]
+    for field in ("successes", "failures"):
+        if _require_field(death_saves, field, int, f"{path}.death_saves") < 0:
+            raise ValueError(f"{path}.death_saves.{field} cannot be negative.")
+    for field in ("stable", "dead"):
+        _require_field(death_saves, field, bool, f"{path}.death_saves")
+
+    currency = values["currency"]
+    for coin in COIN_VALUES_CP:
+        if _require_field(currency, coin, int, f"{path}.currency") < 0:
+            raise ValueError(f"{path}.currency.{coin} cannot be negative.")
+
+    inventory_ids: set[str] = set()
+    for index, item in enumerate(values["inventory"]):
+        item_path = f"{path}.inventory[{index}]"
+        if not isinstance(item, dict):
+            raise ValueError(f"{item_path} must be an object.")
+        item_id = _require_field(item, "id", str, item_path)
+        _require_field(item, "name", str, item_path)
+        quantity = _require_field(item, "quantity", int, item_path)
+        _require_field(item, "location", str, item_path)
+        equipped_slot = _require_field(item, "equipped_slot", str, item_path)
+        if not item_id or item_id in inventory_ids:
+            raise ValueError(f"{item_path}.id must be non-empty and unique.")
+        if quantity < 1:
+            raise ValueError(f"{item_path}.quantity must be positive.")
+        if equipped_slot and equipped_slot not in EQUIPMENT_SLOTS:
+            raise ValueError(f"{item_path}.equipped_slot is not supported.")
+        inventory_ids.add(item_id)
+
+    equipment = values["equipment"]
+    for slot in EQUIPMENT_SLOTS:
+        item_id = _require_field(equipment, slot, str, f"{path}.equipment")
+        if item_id and item_id not in inventory_ids:
+            raise ValueError(
+                f"{path}.equipment.{slot} references an unknown item."
+            )
+
+    resources = values["resources"]
+    spell_slots = _require_field(
+        resources, "spell_slots", dict, f"{path}.resources"
+    )
+    limited_uses = _require_field(
+        resources, "limited_uses", dict, f"{path}.resources"
+    )
+    for slot_level, slot in spell_slots.items():
+        slot_path = f"{path}.resources.spell_slots.{slot_level}"
+        if (
+            not isinstance(slot_level, str)
+            or not slot_level.isdigit()
+            or not 1 <= int(slot_level) <= 9
+        ):
+            raise ValueError(
+                f"{slot_path} must use a spell level from 1 through 9."
+            )
+        if not isinstance(slot, dict):
+            raise ValueError(f"{slot_path} must be an object.")
+        maximum = _require_field(slot, "max", int, slot_path)
+        used = _require_field(slot, "used", int, slot_path)
+        if maximum < 0 or not 0 <= used <= maximum:
+            raise ValueError(f"{slot_path} has an invalid usage total.")
+    for resource_name, resource in limited_uses.items():
+        resource_path = f"{path}.resources.limited_uses.{resource_name}"
+        if not isinstance(resource_name, str) or not resource_name:
+            raise ValueError(
+                f"{path}.resources.limited_uses keys must be "
+                "non-empty strings."
+            )
+        if not isinstance(resource, dict):
+            raise ValueError(f"{resource_path} must be an object.")
+        recovery = _require_field(resource, "recovery", str, resource_path)
+        if not recovery:
+            raise ValueError(f"{resource_path}.recovery cannot be empty.")
+        for field in ("max", "used"):
+            if field in resource:
+                value = _require_field(resource, field, int, resource_path)
+                if value < 0:
+                    raise ValueError(
+                        f"{resource_path}.{field} cannot be negative."
+                    )
+        if (
+            "max" in resource
+            and "used" in resource
+            and resource["used"] > resource["max"]
+        ):
+            raise ValueError(f"{resource_path} has an invalid usage total.")
+
+    spells = values["spells"]
+    for field in ("cantrips", "known", "prepared"):
+        entries = _require_field(spells, field, list, f"{path}.spells")
+        if not all(isinstance(entry, str) for entry in entries):
+            raise ValueError(f"{path}.spells.{field} must contain strings.")
+
+    for index, condition in enumerate(values["conditions"]):
+        _validate_condition(condition, f"{path}.conditions[{index}]")
+    for field in ("features", "notes"):
+        if not all(isinstance(entry, str) for entry in values[field]):
+            raise ValueError(f"{path}.{field} must contain strings.")
+
+    advancement = values["advancement"]
+    _require_field(advancement, "available_level", int, f"{path}.advancement")
+    _require_field(
+        advancement, "pending_level_up", bool, f"{path}.advancement"
+    )
+    next_level_xp = advancement.get("next_level_xp")
+    if next_level_xp is not None and (
+        not isinstance(next_level_xp, int) or isinstance(next_level_xp, bool)
+    ):
+        raise ValueError(
+            f"{path}.advancement.next_level_xp must be an int or null."
+        )
+
+
+def _validate_combat(combat: object) -> None:
+    """Validate the nested shape used by turn order and combat rendering."""
+
+    path = "game-state.combat"
+    if not isinstance(combat, dict):
+        raise ValueError(f"{path} must be an object.")
+    required_types = {
+        "active": bool,
+        "name": str,
+        "round": int,
+        "current_turn_index": int,
+        "turn_order": list,
+        "combatants": dict,
+        "tactical_scene": dict,
+        "log": list,
+    }
+    values = {
+        field: _require_field(combat, field, field_type, path)
+        for field, field_type in required_types.items()
+    }
+    order = values["turn_order"]
+    combatants = values["combatants"]
+    if not all(isinstance(name, str) and name for name in order):
+        raise ValueError(f"{path}.turn_order must contain non-empty strings.")
+    if len(order) != len(set(order)):
+        raise ValueError(f"{path}.turn_order cannot contain duplicates.")
+    if values["active"] and not order:
+        raise ValueError(f"{path}.turn_order cannot be empty during combat.")
+    turn_index = values["current_turn_index"]
+    if turn_index < 0 or (order and turn_index >= len(order)):
+        raise ValueError(f"{path}.current_turn_index is outside turn_order.")
+    if not order and turn_index != 0:
+        raise ValueError(f"{path}.current_turn_index must be 0 without turns.")
+    if values["round"] < (1 if values["active"] else 0):
+        raise ValueError(f"{path}.round is invalid for the combat state.")
+    if set(order) != set(combatants):
+        raise ValueError(f"{path}.combatants must match turn_order.")
+
+    for key, combatant in combatants.items():
+        combatant_path = f"{path}.combatants.{key}"
+        if not isinstance(combatant, dict):
+            raise ValueError(f"{combatant_path} must be an object.")
+        combatant_types = {
+            "name": str,
+            "initiative": int,
+            "max_hp": int,
+            "current_hp": int,
+            "armor_class": int,
+            "side": str,
+            "conditions": list,
+            "defeated": bool,
+        }
+        combatant_values = {
+            field: _require_field(
+                combatant,
+                field,
+                field_type,
+                combatant_path,
+            )
+            for field, field_type in combatant_types.items()
+        }
+        if combatant_values["name"] != key:
+            raise ValueError(f"{combatant_path}.name must match its key.")
+        if combatant_values["max_hp"] <= 0:
+            raise ValueError(f"{combatant_path}.max_hp must be positive.")
+        if combatant_values["current_hp"] < 0:
+            raise ValueError(
+                f"{combatant_path}.current_hp cannot be negative."
+            )
+        for index, condition in enumerate(combatant_values["conditions"]):
+            _validate_condition(
+                condition,
+                f"{combatant_path}.conditions[{index}]",
+            )
+
+    tactical_scene = values["tactical_scene"]
+    _require_field(tactical_scene, "summary", str, f"{path}.tactical_scene")
+    for field in ("range_bands", "terrain", "hazards", "interactables"):
+        entries = _require_field(
+            tactical_scene,
+            field,
+            list,
+            f"{path}.tactical_scene",
+        )
+        if not all(isinstance(entry, str) for entry in entries):
+            raise ValueError(
+                f"{path}.tactical_scene.{field} must contain strings."
+            )
+    _require_field(
+        tactical_scene,
+        "visual_prompt_hint",
+        str,
+        f"{path}.tactical_scene",
+    )
+    if not all(isinstance(entry, str) for entry in values["log"]):
+        raise ValueError(f"{path}.log must contain strings.")
+
+
+def _validate_shop(shop: object, key: str) -> None:
+    """Validate shop and stock records used by purchases and status output."""
+
+    path = f"game-state.shops.{key}"
+    if not isinstance(shop, dict):
+        raise ValueError(f"{path} must be an object.")
+    shop_id = _require_field(shop, "id", str, path)
+    _require_field(shop, "name", str, path)
+    _require_field(shop, "merchant", str, path)
+    items = _require_field(shop, "items", dict, path)
+    if shop_id != key:
+        raise ValueError(f"{path}.id must match its shops key.")
+    for item_key, item in items.items():
+        item_path = f"{path}.items.{item_key}"
+        if not isinstance(item_key, str) or not item_key:
+            raise ValueError(f"{path}.items keys must be non-empty strings.")
+        if not isinstance(item, dict):
+            raise ValueError(f"{item_path} must be an object.")
+        item_id = _require_field(item, "id", str, item_path)
+        _require_field(item, "name", str, item_path)
+        price = _require_field(item, "price", str, item_path)
+        price_cp = _require_field(item, "price_cp", int, item_path)
+        stock = _require_field(item, "stock", int, item_path)
+        _require_field(item, "mechanical_effect", str, item_path)
+        if item_id != item_key:
+            raise ValueError(f"{item_path}.id must match its items key.")
+        try:
+            canonical_price_cp = parse_price_to_cp(price)
+        except ValueError as error:
+            raise ValueError(
+                f"{item_path}.price is invalid: {error}"
+            ) from error
+        if canonical_price_cp != price_cp:
+            raise ValueError(
+                f"{item_path}.price_cp must match the canonical price."
+            )
+        if price_cp < 0 or stock < 0:
+            raise ValueError(
+                f"{item_path} price and stock cannot be negative."
+            )
+
+
+def _valid_checkpoint_id(checkpoint_id: object) -> bool:
+    if not isinstance(checkpoint_id, str):
+        return False
+    if checkpoint_id in {"", ".", ".."} or checkpoint_id[-1] in {" ", "."}:
+        return False
+    if any(
+        ord(character) < 32 or character in WINDOWS_INVALID_FILENAME_CHARS
+        for character in checkpoint_id
+    ):
+        return False
+    reserved_stem = checkpoint_id.split(".", 1)[0].rstrip(" ").casefold()
+    if reserved_stem in WINDOWS_RESERVED_FILENAMES:
+        return False
+    filename = f"{checkpoint_id}.json"
+    utf_16_units = len(filename.encode("utf-16-le")) // 2
+    return len(filename.encode("utf-8")) <= 255 and utf_16_units <= 255
+
+
+def _portable_checkpoint_key(checkpoint_id: str) -> str:
+    """Return the conservative cross-platform identity for a checkpoint."""
+
+    return unicodedata.normalize("NFKC", checkpoint_id).casefold()
+
+
+def _validate_checkpoint(checkpoint: object, index: int) -> str:
+    """Validate checkpoint metadata and return its safe unique identifier."""
+
+    path = f"game-state.checkpoints[{index}]"
+    if not isinstance(checkpoint, dict):
+        raise ValueError(f"{path} must be an object.")
+    checkpoint_id = _require_field(checkpoint, "id", str, path)
+    label = _require_field(checkpoint, "label", str, path)
+    _require_field(checkpoint, "note", str, path)
+    _require_field(checkpoint, "created_at", str, path)
+    checkpoint_path = _require_field(checkpoint, "path", str, path)
+    if not _valid_checkpoint_id(checkpoint_id):
+        raise ValueError(f"{path}.id must be a safe filename component.")
+    if not label.strip():
+        raise ValueError(f"{path}.label cannot be empty.")
+    expected_path = f"{CHECKPOINTS_DIR}/{checkpoint_id}.json"
+    if checkpoint_path != expected_path:
+        raise ValueError(f"{path}.path must be {expected_path!r}.")
+    return checkpoint_id
+
+
+def validate_state(state: object) -> None:
+    """Validate the canonical mechanical ledger before use or persistence."""
+
+    path = "game-state"
+    if not isinstance(state, dict):
+        raise ValueError(f"{path} must be an object.")
+    required_types = {
+        "version": int,
+        "campaign": str,
+        "updated_at": str,
+        "table_mode": dict,
+        "active_character": str,
+        "party": list,
+        "characters": dict,
+        "combat": dict,
+        "shops": dict,
+        "checkpoints": list,
+        "log": list,
+    }
+    values = {
+        field: _require_field(state, field, field_type, path)
+        for field, field_type in required_types.items()
+    }
+    if values["version"] != STATE_VERSION:
+        raise ValueError(
+            f"{path}.version must be {STATE_VERSION}, "
+            f"got {values['version']!r}."
+        )
+    party = values["party"]
+    characters = values["characters"]
+    if not all(isinstance(name, str) and name for name in party):
+        raise ValueError(f"{path}.party must contain non-empty strings.")
+    if len(party) != len(set(party)):
+        raise ValueError(f"{path}.party cannot contain duplicates.")
+    for key, character in characters.items():
+        if not isinstance(key, str) or not key:
+            raise ValueError(
+                f"{path}.characters keys must be non-empty strings."
+            )
+        _validate_character(character, key)
+    missing_characters = [name for name in party if name not in characters]
+    if missing_characters:
+        raise ValueError(
+            f"{path}.party references unknown characters: "
+            + ", ".join(missing_characters)
+            + "."
+        )
+    active_character = values["active_character"]
+    if active_character and active_character not in characters:
+        raise ValueError(f"{path}.active_character is not in characters.")
+    _validate_combat(values["combat"])
+    shops = values["shops"]
+    for key, shop in shops.items():
+        if not isinstance(key, str) or not key:
+            raise ValueError(f"{path}.shops keys must be non-empty strings.")
+        _validate_shop(shop, key)
+    checkpoint_ids = [
+        _validate_checkpoint(checkpoint, index)
+        for index, checkpoint in enumerate(values["checkpoints"])
+    ]
+    checkpoint_keys = [
+        _portable_checkpoint_key(checkpoint_id)
+        for checkpoint_id in checkpoint_ids
+    ]
+    if len(checkpoint_keys) != len(set(checkpoint_keys)):
+        raise ValueError(f"{path}.checkpoints cannot contain duplicate ids.")
+
+
 def load_state(campaign_root: Path) -> dict:
     path = state_path(campaign_root)
     if not path.exists():
         return new_state(campaign_root.name)
-    return json.loads(path.read_text(encoding="utf-8"))
+    state = json.loads(path.read_text(encoding="utf-8"))
+    validate_state(state)
+    return state
 
 
 def save_state(campaign_root: Path, state: dict) -> None:
     path = state_path(campaign_root)
     path.parent.mkdir(parents=True, exist_ok=True)
     state["updated_at"] = utc_now()
+    validate_state(state)
     path.write_text(
         json.dumps(state, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
@@ -268,11 +747,15 @@ def level_for_xp(xp: int) -> int:
 
 
 def add_character(state: dict, character: dict) -> OperationResult:
-    name = character["name"].strip()
+    raw_name = character.get("name")
+    if not isinstance(raw_name, str):
+        raise ValueError("Character name must be text.")
+    name = raw_name.strip()
     if not name:
         raise ValueError("Character name is required.")
     if name in state["characters"]:
         raise ValueError(f"Character already exists: {name}")
+    character["name"] = name
     state["characters"][name] = character
     if name not in state["party"]:
         state["party"].append(name)
@@ -474,11 +957,11 @@ def parse_price_to_cp(price: str) -> int:
     return int(amount * COIN_VALUES_CP[coin])
 
 
-def parse_price(price: str) -> tuple[float, str]:
+def parse_price(price: str) -> tuple[Fraction, str]:
     match = PRICE_PATTERN.match(price)
     if not match:
         raise ValueError("Price must look like 5gp, 12sp, or 50cp.")
-    amount = float(match.group("amount"))
+    amount = Fraction(match.group("amount"))
     coin = match.group("coin").lower()
     return amount, coin
 
@@ -548,7 +1031,7 @@ def buy_item(
             f"Not enough money for {item['name']} ({item['price']})."
         )
     price_amount, price_coin = parse_price(item["price"])
-    if price_amount.is_integer() and character["currency"].get(
+    if price_amount.denominator == 1 and character["currency"].get(
         price_coin, 0
     ) >= int(price_amount):
         character["currency"][price_coin] -= int(price_amount)
@@ -1014,6 +1497,8 @@ def start_combat(
     combatants: list[str],
 ) -> OperationResult:
     parsed_combatants = [parse_combatant(value) for value in combatants]
+    if not parsed_combatants:
+        raise ValueError("Combat needs at least one combatant.")
     for combatant in parsed_combatants:
         if combatant["name"] in state.get("characters", {}):
             character = state["characters"][combatant["name"]]
@@ -1023,7 +1508,7 @@ def start_combat(
             combatant["side"] = "party"
             combatant["conditions"] = deepcopy(character["conditions"])
     parsed_combatants.sort(key=lambda item: item["initiative"], reverse=True)
-    state["combat"] = {
+    replacement_combat = {
         "active": True,
         "name": name or "Combat",
         "round": 1,
@@ -1035,6 +1520,8 @@ def start_combat(
         "tactical_scene": empty_tactical_scene(),
         "log": [f"Combat started: {name or 'Combat'}."],
     }
+    _validate_combat(replacement_combat)
+    state["combat"] = replacement_combat
     append_log(state, f"Combat started: {name or 'Combat'}.")
     return OperationResult(True, f"Started combat: {name or 'Combat'}.")
 
@@ -1154,6 +1641,18 @@ def create_checkpoint(
     checkpoint_id = (
         checkpoint_id or f"{slugify(label)}-{utc_now().replace(':', '')}"
     )
+    if not _valid_checkpoint_id(checkpoint_id):
+        raise ValueError("Checkpoint id must be a safe filename component.")
+    checkpoint_key = _portable_checkpoint_key(checkpoint_id)
+    existing_checkpoint_keys = {
+        _portable_checkpoint_key(checkpoint["id"])
+        for checkpoint in state.get("checkpoints", [])
+    }
+    if checkpoint_key in existing_checkpoint_keys:
+        raise FileExistsError(
+            f"Checkpoint already exists under portable filename rules: "
+            f"{checkpoint_id}"
+        )
     checkpoint_path = checkpoints_dir(campaign_root) / f"{checkpoint_id}.json"
     if checkpoint_path.exists():
         raise FileExistsError(f"Checkpoint already exists: {checkpoint_path}")
@@ -1174,10 +1673,13 @@ def create_checkpoint(
 def restore_checkpoint(
     campaign_root: Path, checkpoint_id: str
 ) -> OperationResult:
+    if not _valid_checkpoint_id(checkpoint_id):
+        raise ValueError("Checkpoint id must be a safe filename component.")
     checkpoint_path = checkpoints_dir(campaign_root) / f"{checkpoint_id}.json"
     if not checkpoint_path.exists():
         raise FileNotFoundError(f"Missing checkpoint: {checkpoint_path}")
     state = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+    validate_state(state)
     append_log(state, f"Restored checkpoint {checkpoint_id}.")
     save_state(campaign_root, state)
     return OperationResult(True, f"Restored checkpoint: {checkpoint_id}")

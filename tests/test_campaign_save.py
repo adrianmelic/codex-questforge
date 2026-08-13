@@ -41,10 +41,16 @@ def write_json(path: Path, payload: dict) -> None:
     )
 
 
-def verified_data_receipt(plan: dict) -> dict:
+def verified_data_receipt(
+    plan: dict,
+    provider: str = "google-drive",
+    folder_ref: str = "folder-123",
+) -> dict:
     return {
         "saveId": plan["saveId"],
         "writeAuthorized": True,
+        "provider": provider,
+        "folderRef": folder_ref,
         "remoteBefore": None,
         "files": {
             path: {
@@ -185,6 +191,8 @@ def test_cloud_manifest_is_staged_and_committed_after_verified_receipts(
             "saveId": plan["saveId"],
             "sha256": sha256_file(staged_manifest),
             "verified": True,
+            "provider": "google-drive",
+            "folderRef": "folder-123",
             "remoteId": "manifest-remote-id",
         },
     )
@@ -239,6 +247,89 @@ def test_cloud_stage_rejects_hash_mismatch_and_unknown_remote_lineage(
             "google-drive",
             "folder-123",
             tmp_path / "staged.json",
+        )
+
+
+def test_cloud_stage_rejects_receipt_without_remote_before(tmp_path):
+    campaign_root = create_synthetic_campaign(tmp_path)
+    record_local_save(campaign_root)
+    plan = cloud_plan(campaign_root)
+    receipt = verified_data_receipt(plan)
+    receipt.pop("remoteBefore")
+    receipt_path = tmp_path / "missing-remote-before.json"
+    write_json(receipt_path, receipt)
+
+    with pytest.raises(ValueError, match="declare remoteBefore"):
+        stage_cloud_manifest(
+            campaign_root,
+            receipt_path,
+            "google-drive",
+            "folder-123",
+            tmp_path / "staged.json",
+        )
+
+
+def test_cloud_receipts_are_bound_to_the_exact_target(tmp_path):
+    campaign_root = create_synthetic_campaign(tmp_path)
+    record_local_save(campaign_root)
+    plan = cloud_plan(campaign_root)
+    receipt_path = tmp_path / "data-receipt.json"
+    write_json(
+        receipt_path,
+        verified_data_receipt(plan, folder_ref="folder-a"),
+    )
+
+    with pytest.raises(ValueError, match="folderRef"):
+        stage_cloud_manifest(
+            campaign_root,
+            receipt_path,
+            "google-drive",
+            "folder-b",
+            tmp_path / "wrong-target-staged.json",
+        )
+
+    staged_manifest = tmp_path / "staged.json"
+    stage_cloud_manifest(
+        campaign_root,
+        receipt_path,
+        "google-drive",
+        "folder-a",
+        staged_manifest,
+    )
+    manifest_receipt = tmp_path / "manifest-receipt.json"
+    write_json(
+        manifest_receipt,
+        {
+            "saveId": plan["saveId"],
+            "sha256": sha256_file(staged_manifest),
+            "verified": True,
+            "provider": "onedrive",
+            "folderRef": "folder-a",
+        },
+    )
+
+    with pytest.raises(ValueError, match="provider"):
+        commit_cloud_manifest(
+            campaign_root,
+            staged_manifest,
+            manifest_receipt,
+        )
+
+    write_json(
+        manifest_receipt,
+        {
+            "saveId": plan["saveId"],
+            "sha256": sha256_file(staged_manifest),
+            "verified": True,
+            "provider": "google-drive",
+            "folderRef": "folder-b",
+        },
+    )
+    with pytest.raises(ValueError, match="folderRef"):
+        commit_cloud_manifest(
+            campaign_root,
+            staged_manifest,
+            manifest_receipt,
         )
 
 
@@ -324,6 +415,58 @@ def test_migration_stops_on_session_mismatch_until_explicitly_accepted(
     )
     assert applied["applied"] is True
     assert read_manifest(campaign_root)["currentSession"] == 2
+
+
+def test_migration_stops_on_invalid_game_state_json(tmp_path):
+    campaign_root = create_synthetic_campaign(tmp_path)
+    manifest = read_manifest(campaign_root)
+    manifest.pop("schemaVersion")
+    manifest.pop("campaignId")
+    manifest.pop("storage")
+    manifest.pop("canonicalFiles")
+    write_json(campaign_root / "questforge.json", manifest)
+    game_state = campaign_root / "game-state.json"
+    game_state.write_text('{"version": 1, "party": [', encoding="utf-8")
+
+    inspection = inspect_campaign(campaign_root)
+    dry_run = migrate_campaign(campaign_root)
+    attempted_apply = migrate_campaign(campaign_root, apply=True)
+
+    assert inspection.ok is False
+    assert "invalid_game_state" in {issue.code for issue in inspection.issues}
+    assert {item["code"] for item in dry_run["blockers"]} == {
+        "invalid_game_state"
+    }
+    assert attempted_apply["applied"] is False
+    assert "campaignId" not in read_manifest(campaign_root)
+
+
+def test_migration_stops_on_incomplete_nested_character_state(tmp_path):
+    campaign_root = create_synthetic_campaign(tmp_path)
+    manifest = read_manifest(campaign_root)
+    manifest.pop("schemaVersion")
+    manifest.pop("campaignId")
+    manifest.pop("storage")
+    manifest.pop("canonicalFiles")
+    write_json(campaign_root / "questforge.json", manifest)
+    game_state = campaign_root / "game-state.json"
+    state = json.loads(game_state.read_text(encoding="utf-8"))
+    state["active_character"] = "Mara"
+    state["party"] = ["Mara"]
+    state["characters"] = {"Mara": {}}
+    write_json(game_state, state)
+
+    inspection = inspect_campaign(campaign_root)
+    dry_run = migrate_campaign(campaign_root)
+    attempted_apply = migrate_campaign(campaign_root, apply=True)
+
+    assert inspection.ok is False
+    assert "invalid_game_state" in {issue.code for issue in inspection.issues}
+    assert {item["code"] for item in dry_run["blockers"]} == {
+        "invalid_game_state"
+    }
+    assert attempted_apply["applied"] is False
+    assert "campaignId" not in read_manifest(campaign_root)
 
 
 def test_next_session_updates_manifest_resume_point(tmp_path):

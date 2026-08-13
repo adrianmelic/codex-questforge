@@ -92,14 +92,14 @@ With a writable local campaign and an authorized connector:
    - newer or unknown lineage: stop and reconcile; never choose a winner silently.
 4. Reproduce canonical relative paths as provider subfolders below the selected campaign folder; for example, store `dm/adventure-spine.md` inside a `dm` child, not as a filename containing `/` and not flattened into the root. Create only missing subfolders required by the plan. Do not treat a truncated folder listing as proof that a file is absent; paginate or search within the exact parent when the connector supports it.
 5. Upload or update only changed non-manifest files from the plan. Preserve existing provider file IDs when updating files in place.
-6. Read every written file back. Build a temporary receipt containing the plan `saveId`, `writeAuthorized: true`, the remote-before identity, and a verified SHA-256 entry for each planned file. Do not place secrets or campaign prose in the receipt.
+6. Read every written file back. Build a temporary receipt containing the plan `saveId`, `writeAuthorized: true`, the exact `provider` and opaque `folderRef`, the mandatory remote-before identity (`null` only for a verified new target), and a verified SHA-256 entry for each planned file. Do not place secrets or campaign prose in the receipt.
 7. Stage the final manifest:
 
    ```powershell
    python ../../scripts/campaign_save.py stage-cloud --campaign-root <campaign-root> --receipt <receipt.json> --provider google-drive --folder-ref <opaque-folder-id> --folder-url <folder-url> --output <temporary-questforge.json>
    ```
 
-8. Upload the staged file as `questforge.json` last. Read it back and create a manifest receipt with its SHA-256, `saveId`, and `verified: true`.
+8. Upload the staged file as `questforge.json` last. Read it back and create a manifest receipt with its SHA-256, `saveId`, `verified: true`, and the same exact `provider` and `folderRef`.
 9. Commit the verified staged manifest locally:
 
    ```powershell

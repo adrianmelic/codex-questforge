@@ -110,7 +110,7 @@ For each cloud save, Questforge follows this order:
 4. Confirm the same campaign ID and a safe lineage relationship.
 5. Upload or update changed non-manifest files.
 6. Read each written file back and compare its SHA-256 or exact content.
-7. Build the final manifest with the verified provider folder and receipts.
+7. Bind both verification receipts to that exact provider and folder, then build the final manifest.
 8. Write `questforge.json` last.
 9. Read the manifest back and verify it.
 10. Report complete, partial, conflict, or failed status accurately.
