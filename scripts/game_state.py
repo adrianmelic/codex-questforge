@@ -283,15 +283,50 @@ def _validate_character(character: object, key: str) -> None:
     spell_slots = _require_field(
         resources, "spell_slots", dict, f"{path}.resources"
     )
-    _require_field(resources, "limited_uses", dict, f"{path}.resources")
+    limited_uses = _require_field(
+        resources, "limited_uses", dict, f"{path}.resources"
+    )
     for slot_level, slot in spell_slots.items():
         slot_path = f"{path}.resources.spell_slots.{slot_level}"
+        if (
+            not isinstance(slot_level, str)
+            or not slot_level.isdigit()
+            or not 1 <= int(slot_level) <= 9
+        ):
+            raise ValueError(
+                f"{slot_path} must use a spell level from 1 through 9."
+            )
         if not isinstance(slot, dict):
             raise ValueError(f"{slot_path} must be an object.")
         maximum = _require_field(slot, "max", int, slot_path)
         used = _require_field(slot, "used", int, slot_path)
         if maximum < 0 or not 0 <= used <= maximum:
             raise ValueError(f"{slot_path} has an invalid usage total.")
+    for resource_name, resource in limited_uses.items():
+        resource_path = f"{path}.resources.limited_uses.{resource_name}"
+        if not isinstance(resource_name, str) or not resource_name:
+            raise ValueError(
+                f"{path}.resources.limited_uses keys must be "
+                "non-empty strings."
+            )
+        if not isinstance(resource, dict):
+            raise ValueError(f"{resource_path} must be an object.")
+        recovery = _require_field(resource, "recovery", str, resource_path)
+        if not recovery:
+            raise ValueError(f"{resource_path}.recovery cannot be empty.")
+        for field in ("max", "used"):
+            if field in resource:
+                value = _require_field(resource, field, int, resource_path)
+                if value < 0:
+                    raise ValueError(
+                        f"{resource_path}.{field} cannot be negative."
+                    )
+        if (
+            "max" in resource
+            and "used" in resource
+            and resource["used"] > resource["max"]
+        ):
+            raise ValueError(f"{resource_path} has an invalid usage total.")
 
     spells = values["spells"]
     for field in ("cantrips", "known", "prepared"):
@@ -665,11 +700,15 @@ def level_for_xp(xp: int) -> int:
 
 
 def add_character(state: dict, character: dict) -> OperationResult:
-    name = character["name"].strip()
+    raw_name = character.get("name")
+    if not isinstance(raw_name, str):
+        raise ValueError("Character name must be text.")
+    name = raw_name.strip()
     if not name:
         raise ValueError("Character name is required.")
     if name in state["characters"]:
         raise ValueError(f"Character already exists: {name}")
+    character["name"] = name
     state["characters"][name] = character
     if name not in state["party"]:
         state["party"].append(name)

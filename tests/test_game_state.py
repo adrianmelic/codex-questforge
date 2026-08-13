@@ -74,6 +74,24 @@ def test_game_state_tracks_inventory_equipment_and_status(tmp_path):
     assert "Stormproof cloak" in format_status(loaded)
 
 
+def test_add_character_normalizes_the_stored_name(tmp_path):
+    paths = create_campaign(
+        tmp_path,
+        "The Amber Gate",
+        session_date=date(2026, 6, 9),
+    )
+    state = load_state(paths.root)
+    character = default_character("  Mara Vey  ")
+
+    add_character(state, character)
+    save_state(paths.root, state)
+    loaded = load_state(paths.root)
+
+    assert loaded["party"] == ["Mara Vey"]
+    assert loaded["active_character"] == "Mara Vey"
+    assert loaded["characters"]["Mara Vey"]["name"] == "Mara Vey"
+
+
 def test_add_item_with_slot_creates_consistent_equipped_state(tmp_path):
     _paths, state = create_stateful_campaign(tmp_path)
 
@@ -145,12 +163,22 @@ def test_game_state_tracks_xp_level_up_spell_slots_and_rest(tmp_path):
         ]
         == 1
     )
+    state["characters"]["Mara Vey"]["resources"]["limited_uses"][
+        "arcane_recovery"
+    ] = {
+        "max": 1,
+        "used": 1,
+        "recovery": "long_rest",
+    }
 
     rest(state, "Mara Vey", "long")
     character = state["characters"]["Mara Vey"]
     assert character["level"] == 2
     assert character["current_hp"] == character["max_hp"]
     assert character["resources"]["spell_slots"]["1"]["used"] == 0
+    assert (
+        character["resources"]["limited_uses"]["arcane_recovery"]["used"] == 0
+    )
     save_state(paths.root, state)
 
 
@@ -268,6 +296,38 @@ def test_load_state_rejects_incomplete_shop_and_checkpoint_records(
     broken_state[field] = malformed_value
     (paths.root / "game-state.json").write_text(
         json.dumps(broken_state),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match=message):
+        load_state(paths.root)
+
+
+@pytest.mark.parametrize(
+    ("resources", "message"),
+    [
+        (
+            {"spell_slots": {}, "limited_uses": {"rage": 1}},
+            "limited_uses.rage must be an object",
+        ),
+        (
+            {
+                "spell_slots": {"first": {"max": 1, "used": 0}},
+                "limited_uses": {},
+            },
+            "spell_slots.first must use a spell level",
+        ),
+    ],
+)
+def test_load_state_rejects_malformed_resource_records(
+    tmp_path,
+    resources,
+    message,
+):
+    paths, state = create_stateful_campaign(tmp_path)
+    state["characters"]["Mara Vey"]["resources"] = resources
+    (paths.root / "game-state.json").write_text(
+        json.dumps(state),
         encoding="utf-8",
     )
 
