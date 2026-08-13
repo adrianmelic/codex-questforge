@@ -34,7 +34,7 @@ Select all countries and regions where skills-only plugins are supported. Questf
 
 ## Release Notes
 
-Questforge 1.3.0 lets players continue a campaign beyond one conversation or computer without delaying the opening scene with storage setup. A new seventh skill creates verified local snapshots after meaningful turns, compacts continuity at scene boundaries, exports canonical or media-inclusive ZIP files, migrates older campaigns conservatively, and can synchronize directly to one user-selected writable cloud folder through an installed storage connector. Schema-2 manifests add stable campaign IDs, SHA-256 file records, revision lineage, and an explicit session/scene resume point. Cloud writes verify permission, compare remote ancestry, update canonical files first, and write/read back `questforge.json` last; partial saves and conflicts are never reported as complete. Google Drive is the first end-to-end tested beta target. Questforge still operates no publisher-controlled campaign server and receives no copy of player saves.
+Questforge 1.3.1 strengthens the portable-save safeguards introduced in 1.3.0. Cloud verification receipts must now declare the prior remote-manifest state and identify the exact provider and folder they verified, preventing missing lineage evidence or a receipt from another folder from completing a save. Legacy migration and normal save inspection also reject malformed or structurally unusable `game-state.json` files before they can become canonical snapshots. The player experience and privacy model are unchanged: Google Drive remains the first end-to-end tested beta target, and Questforge still operates no publisher-controlled campaign server or receives a copy of player saves.
 
 ## Reviewer Notes
 
@@ -43,6 +43,7 @@ Questforge 1.3.0 lets players continue a campaign beyond one conversation or com
 - Local analytics are campaign files, not publisher telemetry.
 - Static generated images appear once in the conversation when native image generation is available. Local galleries, audio, and 360 viewers are optional desktop enhancements.
 - Cloud saves are optional and use a storage connector already installed by the player. Folder detection is only a hint; the player must select one exact target and authorize writes. Google Drive passed the 1.3.0 end-to-end acceptance on 2026-08-12 using disposable synthetic campaigns only.
+- Version 1.3.1 addresses three post-merge automated-review findings with regression tests. Repeat the clean installed-plugin and Google Drive acceptance before publishing the hotfix.
 - The canonical SaveSet synchronizes separately from optional large media. Each critical file and the final manifest require readback before a save is called complete.
 - Repeat the final installed-plugin and claimed-provider acceptance gates described in `submission/release-playtest-report.md` before each future release; a silent `prompt-saved` opening is a failed release test.
 - The plugin never needs credentials or sensitive personal data.

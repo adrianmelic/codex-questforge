@@ -173,19 +173,19 @@ See [Portable and cloud saves](docs/cloud-saves.md) for consent, conflict, verif
 
 ## Current Public Release
 
-Questforge 1.2.0 is published in the ChatGPT Plugins directory. This repository mirrors the public skills-only source, including the current book-and-anvil icon, live visual-table guidance, and the smoother panorama viewer with natural drag direction, inertial movement, scroll zoom, and keyboard controls.
+Questforge 1.3.0 is published in the ChatGPT Plugins directory. It adds the seventh `questforge-save` skill, schema-2 campaign manifests with stable IDs and save lineage, meaningful-turn autosave, verified local snapshots, opt-in cloud synchronization through a user-selected writable connector, conservative migration of older campaigns, cross-device resume, and canonical or media-inclusive ZIP export. Google Drive is the first end-to-end tested beta target; the provider-neutral contract does not add a Questforge server or publisher access to campaign data.
 
-The deterministic rules, state, campaign continuity, creative conception, multilingual analytics, packaging, gallery, panorama, and audio paths are tested locally. A clean installed-plugin acceptance run on 2026-07-22 confirmed that the first actionable scene generated a native image, showed it in the conversation, registered it as `canon` in the campaign gallery, and passed strict preflight with zero errors and zero warnings. The public Platform directory was verified at version 1.2.0 on 2026-07-25.
+Acceptance on 2026-08-12 used disposable synthetic campaigns only. A clean task resumed a verified Google Drive save, advanced it through a meaningful turn, updated the next revision without replacing file identities, and read back all 15 canonical files plus the final manifest. A separate clean activation generated one native opening image, registered it as `canon`, refreshed the gallery, and passed strict preflight with zero errors and zero warnings. Conflict, permission, optional-media failure, and ZIP fallback paths were also exercised without touching a real campaign. Version 1.3.0 was published on 2026-08-13.
 
 [Install Questforge](https://chatgpt.com/plugins/plugins_6a611d2ff7b88191b75a5290bceb0e87) or see [the release playtest report](submission/release-playtest-report.md) for the underlying evidence.
 
 ## Prepared Next Release
 
-Questforge 1.3.0 is a fully accepted local release candidate. It adds the seventh `questforge-save` skill, schema-2 campaign manifests with stable IDs and save lineage, meaningful-turn autosave, verified local snapshots, opt-in cloud synchronization through a user-selected writable connector, conservative migration of older campaigns, cross-device resume, and canonical or media-inclusive ZIP export. Google Drive is the first end-to-end tested beta target; the provider-neutral contract does not add a Questforge server or publisher access to campaign data.
+Questforge 1.3.1 is a focused integrity hotfix prepared in response to the automated review of the merged 1.3.0 pull request. Data and final-manifest receipts must now identify the exact provider and folder they verify, a data receipt cannot omit its prior remote-manifest state, and malformed or structurally unusable `game-state.json` files block inspection and migration instead of becoming canonical snapshots.
 
-Acceptance on 2026-08-12 used disposable synthetic campaigns only. A clean task resumed a verified Google Drive save, advanced it through a meaningful turn, updated the next revision without replacing file identities, and read back all 15 canonical files plus the final manifest. A separate clean activation generated one native opening image, registered it as `canon`, refreshed the gallery, and passed strict preflight with zero errors and zero warnings. Conflict, permission, optional-media failure, and ZIP fallback paths were also exercised without touching a real campaign.
+The local suite passes 145 tests, including regressions for all three review findings, and the updated save skill passes structural validation. GitHub publication and a final clean Platform acceptance for 1.3.1 remain separate pending gates.
 
-GitHub and OpenAI Platform remain on the published 1.2.0 state until the separate remote publication gates are explicitly approved.
+Version 1.3.1 is not yet published on GitHub or OpenAI Platform.
 
 ## Roadmap
 

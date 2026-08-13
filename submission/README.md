@@ -1,6 +1,6 @@
 # OpenAI Platform Publication
 
-This folder preserves the public listing copy, reviewer notes, test cases, and release evidence for Questforge. Version 1.2.0 is published in the ChatGPT Plugins directory; version 1.3.0 is the locally prepared and fully accepted cloud-save release candidate.
+This folder preserves the public listing copy, reviewer notes, test cases, and release evidence for Questforge. Version 1.3.0 is published in the ChatGPT Plugins directory; version 1.3.1 is the locally prepared integrity hotfix.
 
 For a future release, build the upload archive from the repository root:
 
