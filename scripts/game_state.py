@@ -11,6 +11,7 @@ import unicodedata
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from fractions import Fraction
 from pathlib import Path
 from typing import Iterable
 
@@ -956,11 +957,11 @@ def parse_price_to_cp(price: str) -> int:
     return int(amount * COIN_VALUES_CP[coin])
 
 
-def parse_price(price: str) -> tuple[float, str]:
+def parse_price(price: str) -> tuple[Fraction, str]:
     match = PRICE_PATTERN.match(price)
     if not match:
         raise ValueError("Price must look like 5gp, 12sp, or 50cp.")
-    amount = float(match.group("amount"))
+    amount = Fraction(match.group("amount"))
     coin = match.group("coin").lower()
     return amount, coin
 

@@ -145,6 +145,11 @@ def test_game_state_handles_shopping_and_currency(tmp_path):
     [
         ("free", 0, "price is invalid"),
         ("5gp", 1, "price_cp must match the canonical price"),
+        (
+            f"{'9' * 400}gp",
+            0,
+            "price_cp must match the canonical price",
+        ),
     ],
 )
 def test_load_state_rejects_invalid_or_inconsistent_shop_prices(
