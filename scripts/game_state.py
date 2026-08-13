@@ -417,6 +417,69 @@ def _validate_combat(combat: object) -> None:
         raise ValueError(f"{path}.log must contain strings.")
 
 
+def _validate_shop(shop: object, key: str) -> None:
+    """Validate shop and stock records used by purchases and status output."""
+
+    path = f"game-state.shops.{key}"
+    if not isinstance(shop, dict):
+        raise ValueError(f"{path} must be an object.")
+    shop_id = _require_field(shop, "id", str, path)
+    _require_field(shop, "name", str, path)
+    _require_field(shop, "merchant", str, path)
+    items = _require_field(shop, "items", dict, path)
+    if shop_id != key:
+        raise ValueError(f"{path}.id must match its shops key.")
+    for item_key, item in items.items():
+        item_path = f"{path}.items.{item_key}"
+        if not isinstance(item_key, str) or not item_key:
+            raise ValueError(f"{path}.items keys must be non-empty strings.")
+        if not isinstance(item, dict):
+            raise ValueError(f"{item_path} must be an object.")
+        item_id = _require_field(item, "id", str, item_path)
+        _require_field(item, "name", str, item_path)
+        _require_field(item, "price", str, item_path)
+        price_cp = _require_field(item, "price_cp", int, item_path)
+        stock = _require_field(item, "stock", int, item_path)
+        _require_field(item, "mechanical_effect", str, item_path)
+        if item_id != item_key:
+            raise ValueError(f"{item_path}.id must match its items key.")
+        if price_cp < 0 or stock < 0:
+            raise ValueError(
+                f"{item_path} price and stock cannot be negative."
+            )
+
+
+def _valid_checkpoint_id(checkpoint_id: object) -> bool:
+    return (
+        isinstance(checkpoint_id, str)
+        and checkpoint_id not in {"", ".", ".."}
+        and "/" not in checkpoint_id
+        and "\\" not in checkpoint_id
+        and "\x00" not in checkpoint_id
+    )
+
+
+def _validate_checkpoint(checkpoint: object, index: int) -> str:
+    """Validate checkpoint metadata and return its safe unique identifier."""
+
+    path = f"game-state.checkpoints[{index}]"
+    if not isinstance(checkpoint, dict):
+        raise ValueError(f"{path} must be an object.")
+    checkpoint_id = _require_field(checkpoint, "id", str, path)
+    label = _require_field(checkpoint, "label", str, path)
+    _require_field(checkpoint, "note", str, path)
+    _require_field(checkpoint, "created_at", str, path)
+    checkpoint_path = _require_field(checkpoint, "path", str, path)
+    if not _valid_checkpoint_id(checkpoint_id):
+        raise ValueError(f"{path}.id must be a safe filename component.")
+    if not label.strip():
+        raise ValueError(f"{path}.label cannot be empty.")
+    expected_path = f"{CHECKPOINTS_DIR}/{checkpoint_id}.json"
+    if checkpoint_path != expected_path:
+        raise ValueError(f"{path}.path must be {expected_path!r}.")
+    return checkpoint_id
+
+
 def validate_state(state: object) -> None:
     """Validate the canonical mechanical ledger before use or persistence."""
 
@@ -468,6 +531,17 @@ def validate_state(state: object) -> None:
     if active_character and active_character not in characters:
         raise ValueError(f"{path}.active_character is not in characters.")
     _validate_combat(values["combat"])
+    shops = values["shops"]
+    for key, shop in shops.items():
+        if not isinstance(key, str) or not key:
+            raise ValueError(f"{path}.shops keys must be non-empty strings.")
+        _validate_shop(shop, key)
+    checkpoint_ids = [
+        _validate_checkpoint(checkpoint, index)
+        for index, checkpoint in enumerate(values["checkpoints"])
+    ]
+    if len(checkpoint_ids) != len(set(checkpoint_ids)):
+        raise ValueError(f"{path}.checkpoints cannot contain duplicate ids.")
 
 
 def load_state(campaign_root: Path) -> dict:
@@ -1479,6 +1553,8 @@ def create_checkpoint(
     checkpoint_id = (
         checkpoint_id or f"{slugify(label)}-{utc_now().replace(':', '')}"
     )
+    if not _valid_checkpoint_id(checkpoint_id):
+        raise ValueError("Checkpoint id must be a safe filename component.")
     checkpoint_path = checkpoints_dir(campaign_root) / f"{checkpoint_id}.json"
     if checkpoint_path.exists():
         raise FileExistsError(f"Checkpoint already exists: {checkpoint_path}")
@@ -1499,10 +1575,13 @@ def create_checkpoint(
 def restore_checkpoint(
     campaign_root: Path, checkpoint_id: str
 ) -> OperationResult:
+    if not _valid_checkpoint_id(checkpoint_id):
+        raise ValueError("Checkpoint id must be a safe filename component.")
     checkpoint_path = checkpoints_dir(campaign_root) / f"{checkpoint_id}.json"
     if not checkpoint_path.exists():
         raise FileNotFoundError(f"Missing checkpoint: {checkpoint_path}")
     state = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+    validate_state(state)
     append_log(state, f"Restored checkpoint {checkpoint_id}.")
     save_state(campaign_root, state)
     return OperationResult(True, f"Restored checkpoint: {checkpoint_id}")

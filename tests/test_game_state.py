@@ -1,4 +1,5 @@
 import json
+from copy import deepcopy
 from datetime import date
 
 import pytest
@@ -247,3 +248,42 @@ def test_load_state_rejects_incomplete_nested_combat_state(tmp_path):
 
     with pytest.raises(ValueError, match="combatants.Mara Vey.name"):
         load_state(paths.root)
+
+
+@pytest.mark.parametrize(
+    ("field", "malformed_value", "message"),
+    [
+        ("shops", {"broken": {}}, "shops.broken.id"),
+        ("checkpoints", [{}], r"checkpoints\[0\].id"),
+    ],
+)
+def test_load_state_rejects_incomplete_shop_and_checkpoint_records(
+    tmp_path,
+    field,
+    malformed_value,
+    message,
+):
+    paths, state = create_stateful_campaign(tmp_path)
+    broken_state = deepcopy(state)
+    broken_state[field] = malformed_value
+    (paths.root / "game-state.json").write_text(
+        json.dumps(broken_state),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match=message):
+        load_state(paths.root)
+
+
+def test_checkpoint_ids_cannot_escape_the_checkpoint_directory(tmp_path):
+    paths, state = create_stateful_campaign(tmp_path)
+
+    with pytest.raises(ValueError, match="safe filename component"):
+        create_checkpoint(
+            paths.root,
+            state,
+            label="Unsafe checkpoint",
+            checkpoint_id="../../outside",
+        )
+
+    assert not (tmp_path / "outside.json").exists()
