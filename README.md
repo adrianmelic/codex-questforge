@@ -4,11 +4,23 @@
 
 ## Say anything. The world keeps up.
 
-**Questforge is an open-ended, 5E-compatible fantasy RPG played inside Codex.** Codex becomes the Game Master, rules referee, campaign memory, and visual table. You speak naturally; Questforge prepares an original campaign, resolves meaningful uncertainty in the open, and remembers what your choices changed.
+**Questforge is an open-ended, 5E-compatible fantasy RPG played inside Codex.** Codex becomes the Game Master, rules referee, campaign memory, and visual table. You speak naturally; Questforge prepares an original campaign, resolves meaningful uncertainty in the open, and remembers what your choices changed in a portable save.
 
 This is not a browser game that happens to use Codex. **The conversation is the game.**
 
 [Explore Questforge](https://adrianmelic.com/questforge) | [Install it in ChatGPT](https://chatgpt.com/plugins/plugins_6a611d2ff7b88191b75a5290bceb0e87) | [Read the installation guide](docs/install-and-play.md)
+
+## Recent Update: Portable Campaigns
+
+**Questforge 1.3.0 lets a campaign continue beyond one conversation or computer.**
+
+Play still starts immediately: there is no Questforge account or storage setup before the opening scene. After play begins, Questforge can offer one optional invitation to make the campaign portable. If you accept, enable a storage connector you already use, select one exact folder, and explicitly authorize Questforge to write there. Google Drive is the first end-to-end tested beta target.
+
+From then on, meaningful actions create verified snapshots of the hero, world, clues, sessions, checkpoints, Game Master continuity, and next decision. To continue on another supported device or in a new task, enable Questforge and the same storage connector, select that campaign folder, and ask to resume. The connector may request authorization again in the new task.
+
+Questforge checks the campaign identity and save history before continuing. If it finds a newer or divergent copy, it stops instead of silently overwriting it. Generated images, 360 viewers, and ambience synchronize separately, so a media problem does not invalidate the playable campaign. When direct cloud synchronization is unavailable, Questforge can create a portable ZIP instead.
+
+[Read how portable and cloud saves work](docs/cloud-saves.md)
 
 ## Start Playing
 
@@ -43,10 +55,11 @@ Questforge has a portable conversation layer and an enhanced local desktop layer
 | --- | --- |
 | **Conversation** | Narration, dialogue, visible dice, rulings, compact state, inventory and spell status, choices, and freeform actions. Static generated scenes are shown here when native image generation is available, including on mobile-capable conversation surfaces. |
 | **Local Codex workspace** | Persistent campaign files, journals, clues, NPCs, factions, mechanical state, checkpoints, analytics, and a live visual table that can stay open beside the story and follow new assets. |
+| **Selected cloud folder** | Optional cross-device canonical saves through a writable storage connector the player already installed and explicitly authorizes. Questforge compares save lineage, verifies every write by readback, and writes the manifest last. Google Drive is the first 1.3 beta target. |
 | **Local 360 viewer** | Important spatial moments can open as standalone `file:///` photospheres with natural drag direction, inertial movement, smooth zoom, and keyboard controls; no local server is required. |
 | **Optional soundtrack** | A scene-appropriate approved track can be attached when the viewer is first created. Audio never starts for a new player by default; the speaker toggle is voluntary and its preference is remembered by later viewers when the browser permits it. |
 
-If a surface has no writable filesystem or local browser, Questforge keeps a compact campaign ledger in the conversation and skips galleries, 360 viewers, and local checkpoints without pretending they were created. Play continues.
+If a surface has no writable filesystem, Questforge can use an explicitly selected writable storage connector for the canonical SaveSet. Without either storage path, it keeps a compact campaign ledger in the conversation and does not pretend that durable files or checkpoints were created. Galleries, 360 viewers, and ambience remain optional local enhancements.
 
 ## Why Campaigns Do Not Start From The Same Template
 
@@ -67,6 +80,7 @@ The bundled quick-start spec is deliberately neutral. It does not default to a p
 - offline English and Spanish rules indexes, with optional full SRD 5.2.1 indexing;
 - persistent `game-state.json` for HP, AC, XP, inventory, equipment, shops, rests, spell slots, combat, conditions, death saves, and checkpoints;
 - campaign memory for clues, NPCs, factions, locations, session logs, a player journal, and a Game Master-only adventure spine;
+- meaningful-turn local autosaves, conflict-aware opt-in cloud synchronization, cross-device resume, legacy-save migration, and portable ZIP export;
 - failure-forward adjudication, varied difficulty classes, rewards beyond combat, and anti-stall pacing;
 - generated scenes, tactical maps, items, reference plates, comic beats, inventories, merchants, outfits, recaps, and 360 POV panoramas;
 - visual continuity for recurring characters, injuries, equipment, objects, locations, and maps;
@@ -118,7 +132,7 @@ $env:PYTHONDONTWRITEBYTECODE = "1"
 python -m pytest tests -p no:cacheprovider
 ```
 
-Validate the plugin and all six skills with the current `plugin-creator` and `skill-creator` validators. Build the deterministic OpenAI Platform archive with:
+Validate the plugin and all seven skills with the current `plugin-creator` and `skill-creator` validators. Build the deterministic OpenAI Platform archive with:
 
 ```powershell
 python scripts\package_plugin.py
@@ -135,12 +149,22 @@ python scripts/quick_start.py --workspace-root <play-workspace> --spec <complete
 
 These scripts create the conception record, campaign memory, hero state, equipment, checkpoint, minimum Game Master spine, opening brief, player journal, first session, analytics event, visual continuity, and opening visual prompt. Native image generation remains a product-surface action and is never performed through a bundled API key.
 
+Inspect, migrate, save, or export one synthetic/local campaign through the portable SaveSet helper:
+
+```powershell
+python scripts/campaign_save.py inspect --campaign-root <campaign-root> --format markdown
+python scripts/campaign_save.py save-local --campaign-root <campaign-root>
+python scripts/campaign_save.py package --campaign-root <campaign-root> --output <questforge-save.zip>
+```
+
+See [Portable and cloud saves](docs/cloud-saves.md) for consent, conflict, verification, cross-device resume, and cloud-only behavior.
+
 ## Repository Map
 
 - `.codex-plugin/plugin.json` - plugin manifest and public install-surface metadata.
 - `.agents/plugins/marketplace.json` - source marketplace for repository installation.
-- `skills/` - runtime orchestration, setup, rules, campaign, puzzles, and visuals.
-- `scripts/` - setup, rules search, dice, state, memory, visuals, audio, analytics, preflight, and packaging.
+- `skills/` - runtime orchestration, setup, rules, campaign, portable saves, puzzles, and visuals.
+- `scripts/` - setup, rules search, dice, state, memory, portable saves, migration, visuals, audio, analytics, preflight, and packaging.
 - `resources/core-rules/` - offline English and Spanish rules primers derived from SRD 5.2.1.
 - `templates/` - neutral campaign, journal, state, visual, audio, and puzzle structures.
 - `assets/audio/starter-pack/` - curated Suno-generated ambience tracks.
@@ -155,9 +179,19 @@ The deterministic rules, state, campaign continuity, creative conception, multil
 
 [Install Questforge](https://chatgpt.com/plugins/plugins_6a611d2ff7b88191b75a5290bceb0e87) or see [the release playtest report](submission/release-playtest-report.md) for the underlying evidence.
 
+## Prepared Next Release
+
+Questforge 1.3.0 is a fully accepted local release candidate. It adds the seventh `questforge-save` skill, schema-2 campaign manifests with stable IDs and save lineage, meaningful-turn autosave, verified local snapshots, opt-in cloud synchronization through a user-selected writable connector, conservative migration of older campaigns, cross-device resume, and canonical or media-inclusive ZIP export. Google Drive is the first end-to-end tested beta target; the provider-neutral contract does not add a Questforge server or publisher access to campaign data.
+
+Acceptance on 2026-08-12 used disposable synthetic campaigns only. A clean task resumed a verified Google Drive save, advanced it through a meaningful turn, updated the next revision without replacing file identities, and read back all 15 canonical files plus the final manifest. A separate clean activation generated one native opening image, registered it as `canon`, refreshed the gallery, and passed strict preflight with zero errors and zero warnings. Conflict, permission, optional-media failure, and ZIP fallback paths were also exercised without touching a real campaign.
+
+GitHub and OpenAI Platform remain on the published 1.2.0 state until the separate remote publication gates are explicitly approved.
+
 ## Roadmap
 
 - Evaluate a larger curated original ambience pack in a later release. The first public version keeps the soundtrack intentionally small so additional music does not delay publication.
+- Run an end-to-end OneDrive connector acceptance before describing OneDrive as tested rather than contract-compatible.
+- Evaluate optional large-media background synchronization separately from the small canonical autosave path.
 
 ## Privacy, Terms, And Support
 
@@ -166,7 +200,7 @@ The deterministic rules, state, campaign continuity, creative conception, multil
 - [Support](https://adrianmelic.com/en/#contact)
 - [Security policy](SECURITY.md)
 
-Questforge does not operate a publisher-controlled server or transmit campaign data to the publisher. Local campaigns can contain information the player entered; review them before sharing or committing them.
+Questforge does not operate a publisher-controlled server or transmit campaign data to the publisher. Optional cloud saves go directly to the exact third-party folder the player selects through their installed connector. Campaigns can contain information the player entered; review them before sharing, exporting, or committing them.
 
 ## License And Notices
 

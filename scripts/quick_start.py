@@ -15,6 +15,7 @@ try:
         require_original_conception,
     )
     from .campaign_memory import create_campaign, save_visual_prompt, slugify
+    from .campaign_save import record_local_save
     from .game_state import (
         add_character,
         add_item,
@@ -31,6 +32,7 @@ except ImportError:  # pragma: no cover - direct script execution path
         require_original_conception,
     )
     from campaign_memory import create_campaign, save_visual_prompt, slugify
+    from campaign_save import record_local_save
     from game_state import (
         add_character,
         add_item,
@@ -270,6 +272,12 @@ def create_quick_start(workspace_root: Path, spec: dict) -> Path:
             "summary": f"{hero_name} enters {opening_spec.get('location', '')}.",
             "tags": ["quick-start", "creative-conception-v2", language],
         },
+    )
+    record_local_save(
+        paths.root,
+        profile="canonical",
+        scene_id="session-001:scene-001",
+        scene_label=str(opening_spec.get("title", "Opening scene")),
     )
     return paths.root
 

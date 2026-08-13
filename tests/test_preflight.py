@@ -236,3 +236,41 @@ def test_preflight_markdown_is_human_readable(tmp_path):
     assert "Status: PASS" in report
     assert "empty_visual_ledger" in report
     assert "0 unavailable" in report
+
+
+def test_preflight_reports_manifest_session_mismatch(tmp_path):
+    paths = create_campaign(
+        tmp_path,
+        "Outdated Manifest",
+        session_date=date(2026, 5, 23),
+    )
+    (paths.sessions / "session-002.md").write_text(
+        "# Session Log\n\n- Session: 2\n",
+        encoding="utf-8",
+    )
+
+    result = run_preflight(paths.root)
+
+    assert result.ok is False
+    assert "manifest_session_mismatch" in {
+        issue.code for issue in result.issues
+    }
+
+
+def test_preflight_reports_conflicting_session_scoped_journal(tmp_path):
+    paths = create_campaign(
+        tmp_path,
+        "Conflicting Journal",
+        session_date=date(2026, 5, 23),
+    )
+    (paths.root / "player-journal-session-001.md").write_text(
+        "# Different journal\n",
+        encoding="utf-8",
+    )
+
+    result = run_preflight(paths.root)
+
+    assert result.ok is False
+    assert "conflicting_noncanonical_copy" in {
+        issue.code for issue in result.issues
+    }

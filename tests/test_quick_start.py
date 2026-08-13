@@ -163,6 +163,10 @@ def test_quick_start_creates_playable_consistent_campaign(tmp_path):
         (campaign_root / "questforge.json").read_text(encoding="utf-8")
     )
     assert manifest["language"] == "en"
+    assert manifest["schemaVersion"] == 2
+    assert manifest["storage"]["snapshot"]["revision"] == 1
+    assert manifest["storage"]["snapshot"]["session"] == 1
+    assert manifest["storage"]["snapshot"]["files"]["game-state.json"]
     assert manifest["creative_conception"]["path"] == (
         "campaign-conception.json"
     )

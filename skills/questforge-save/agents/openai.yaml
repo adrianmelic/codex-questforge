@@ -1,0 +1,4 @@
+interface:
+  display_name: "Questforge Save"
+  short_description: "Save and sync Questforge campaigns safely"
+  default_prompt: "Use $questforge-save to save or sync my current Questforge campaign without overwriting a newer copy."

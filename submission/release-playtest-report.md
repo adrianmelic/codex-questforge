@@ -8,6 +8,8 @@ Installed-plugin acceptance: 2026-07-22
 
 Platform 1.2.0 publication verified: 2026-07-25
 
+Questforge 1.3.0 save and installed-plugin acceptance: 2026-08-12
+
 ## Method
 
 Two independent conversational campaigns were run against the repository skills. The test driver acted only as the player, read every Game Master response, and chose the next message naturally. The Game Master agents were not given a scripted turn sequence and did not simulate player decisions.
@@ -103,3 +105,20 @@ On 2026-07-25, the public ChatGPT Plugins directory rendered Questforge version 
 After synchronizing GitHub and correcting the canonical website, policy links, and public documentation, `scripts/package_plugin.py` deterministically builds a source-equivalent 1.2.0 archive of `29,942,289` bytes with SHA-256 `b273b486dc948b33474ba72cb49e3181a3997bac5356421d0906070a16496acd`. The hash differs from the Platform artifact only because of those public metadata and documentation corrections.
 
 The 1.1.0 installed-plugin acceptance above remains the detailed conversational evidence for the opening-image contract. Future releases must repeat that acceptance rather than inferring product-surface behavior from local tests alone.
+
+## 1.3.0 Acceptance Completed
+
+The 1.3.0 candidate adds a seventh `questforge-save` skill, schema-2 manifests, deterministic snapshot lineage, local autosave verification, conflict-aware cloud staging, conservative legacy migration, and portable ZIP export. Its local test suite uses synthetic campaigns only; no private campaign is included in the repository or archive.
+
+On 2026-08-12, the full repository suite passed 142 tests. All seven skills and the plugin manifest passed their structural validators. The packaged archive contained 89 allowlisted entries, including the save skill, helper, and public design document, with no private workspace paths, high-confidence secrets, or forbidden campaign/playtest trees detected.
+
+The final acceptance used only disposable synthetic campaigns outside the public repository:
+
+- **Clean installed-plugin opening:** a new task activated the exact 1.3.0 candidate, created a fresh synthetic campaign, invoked native image generation once, displayed the result once, registered the PNG as `canon`, refreshed a one-item gallery, and passed strict preflight with `0` errors and `0` warnings.
+- **Google Drive creation and readback:** one exact disposable folder was selected and authorized. Questforge proved write access, reproduced the canonical folder structure, uploaded 15 gameplay-critical files, verified each by readback, and wrote and verified `questforge.json` last.
+- **Cross-task resume:** a new task read the remote manifest first, verified all 15 canonical files and their hashes, resumed at the recorded scene, resolved one meaningful player action, and advanced the campaign from revision 2 to revision 3.
+- **Verified next revision:** five changed files were updated in place with their provider file identities preserved. Every change passed readback, the manifest was again written and verified last, and a final independent audit matched 15 of 15 canonical files.
+- **Safe failure behavior:** synthetic conflict cases for unverified permission, a different campaign ID, a newer remote revision, divergent same-revision lineage, and failed readback stopped without overwrite or false success.
+- **Media isolation and fallback:** a deliberately unavailable optional-media file did not invalidate the canonical SaveSet. The canonical ZIP fallback passed integrity checks and stored `questforge.json` as its final file entry.
+
+No real campaign, provider credential, personal folder reference, connector receipt, or generated acceptance asset is included in the repository or submission archive. Each future release must repeat the clean installed-plugin opening and any provider-specific connector acceptance it claims to support.
