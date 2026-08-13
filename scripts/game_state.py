@@ -530,6 +530,12 @@ def _valid_checkpoint_id(checkpoint_id: object) -> bool:
     return len(filename.encode("utf-8")) <= 255 and utf_16_units <= 255
 
 
+def _portable_checkpoint_key(checkpoint_id: str) -> str:
+    """Return the conservative cross-platform identity for a checkpoint."""
+
+    return unicodedata.normalize("NFKC", checkpoint_id).casefold()
+
+
 def _validate_checkpoint(checkpoint: object, index: int) -> str:
     """Validate checkpoint metadata and return its safe unique identifier."""
 
@@ -611,7 +617,11 @@ def validate_state(state: object) -> None:
         _validate_checkpoint(checkpoint, index)
         for index, checkpoint in enumerate(values["checkpoints"])
     ]
-    if len(checkpoint_ids) != len(set(checkpoint_ids)):
+    checkpoint_keys = [
+        _portable_checkpoint_key(checkpoint_id)
+        for checkpoint_id in checkpoint_ids
+    ]
+    if len(checkpoint_keys) != len(set(checkpoint_keys)):
         raise ValueError(f"{path}.checkpoints cannot contain duplicate ids.")
 
 
@@ -1497,7 +1507,7 @@ def start_combat(
             combatant["side"] = "party"
             combatant["conditions"] = deepcopy(character["conditions"])
     parsed_combatants.sort(key=lambda item: item["initiative"], reverse=True)
-    state["combat"] = {
+    replacement_combat = {
         "active": True,
         "name": name or "Combat",
         "round": 1,
@@ -1509,6 +1519,8 @@ def start_combat(
         "tactical_scene": empty_tactical_scene(),
         "log": [f"Combat started: {name or 'Combat'}."],
     }
+    _validate_combat(replacement_combat)
+    state["combat"] = replacement_combat
     append_log(state, f"Combat started: {name or 'Combat'}.")
     return OperationResult(True, f"Started combat: {name or 'Combat'}.")
 
@@ -1630,6 +1642,16 @@ def create_checkpoint(
     )
     if not _valid_checkpoint_id(checkpoint_id):
         raise ValueError("Checkpoint id must be a safe filename component.")
+    checkpoint_key = _portable_checkpoint_key(checkpoint_id)
+    existing_checkpoint_keys = {
+        _portable_checkpoint_key(checkpoint["id"])
+        for checkpoint in state.get("checkpoints", [])
+    }
+    if checkpoint_key in existing_checkpoint_keys:
+        raise FileExistsError(
+            f"Checkpoint already exists under portable filename rules: "
+            f"{checkpoint_id}"
+        )
     checkpoint_path = checkpoints_dir(campaign_root) / f"{checkpoint_id}.json"
     if checkpoint_path.exists():
         raise FileExistsError(f"Checkpoint already exists: {checkpoint_path}")

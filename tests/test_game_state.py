@@ -256,6 +256,26 @@ def test_game_state_handles_combat_damage_death_saves_and_healing(tmp_path):
     save_state(paths.root, state)
 
 
+@pytest.mark.parametrize(
+    "combatants",
+    [
+        ["Goblin:10", "Goblin:8"],
+        [":10"],
+    ],
+)
+def test_start_combat_rejects_invalid_names_without_mutating_state(
+    tmp_path,
+    combatants,
+):
+    _paths, state = create_stateful_campaign(tmp_path)
+    original_state = deepcopy(state)
+
+    with pytest.raises(ValueError):
+        start_combat(state, "Unsafe ambush", combatants)
+
+    assert state == original_state
+
+
 def test_game_state_checkpoint_restore_rolls_back_state(tmp_path):
     paths, state = create_stateful_campaign(tmp_path)
 
@@ -396,3 +416,29 @@ def test_checkpoint_ids_must_be_portable_filename_components(
 
     assert state["checkpoints"] == []
     assert list((paths.root / "checkpoints").glob("*.json")) == []
+
+
+def test_checkpoint_ids_cannot_collide_under_portable_filename_rules(
+    tmp_path,
+):
+    paths, state = create_stateful_campaign(tmp_path)
+    create_checkpoint(
+        paths.root,
+        state,
+        label="First save",
+        checkpoint_id="Save",
+    )
+    original_state = deepcopy(state)
+
+    with pytest.raises(FileExistsError, match="portable filename rules"):
+        create_checkpoint(
+            paths.root,
+            state,
+            label="Colliding save",
+            checkpoint_id="save",
+        )
+
+    assert state == original_state
+    assert [
+        path.name for path in (paths.root / "checkpoints").glob("*.json")
+    ] == ["Save.json"]
